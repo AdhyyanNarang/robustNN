@@ -2,6 +2,7 @@ import os, random, time, sys
 import numpy as np
 import tensorflow as tf
 import tensorflow.contrib.layers as layers
+import ipdb
 
 class RobustMLP(object):
 
@@ -146,12 +147,12 @@ class RobustMLP(object):
                 if feed_features_flag:
                     feed_dict = {
                         self.featurizations: batch_x,
-                        self.y = batch_y
+                        self.y : batch_y
                     }
                 else:
                     feed_dict = {
-                        self.x = X,
-                        self.y = y
+                        self.x : batch_x,
+                        self.y : batch_y
                     }
                 _, c, acc = sess.run([optimization_update, self.loss, self.accuracy],
                                      feed_dict= feed_dict
@@ -163,11 +164,16 @@ class RobustMLP(object):
                 print("Accuracy on batch:", acc)
         print("Optimization Finished!")
 
+        feed_dict = {}
+        feed_dict[self.y] = y
+        if feed_features_flag:
+            feed_dict[self.featurizations] = X
+        else:
+            feed_dict[self.x] = X
+
         final_acc, final_loss = sess.run([self.accuracy, self.loss],
-                                         feed_dict={
-                                             self.x: X,
-                                             self.y: y,
-                                         }
+                                         feed_dict= feed_dict
                                         )
         print("Final Train Loss", final_loss)
+
         print("Final Train Accuracy:", final_acc)
