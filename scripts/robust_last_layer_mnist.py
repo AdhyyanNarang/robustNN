@@ -6,27 +6,27 @@ sys.path.append('../')
 import feedforward_robust as ffr
 import ellipsoid
 import ipdb
-from mnist_corruption import random_perturbation
+from mnist_corruption import random_perturbation, gaussian_perturbation
 import cvxpy as cp
 
 #Config
-method_1_flag = False 
+method_1_flag = False
 num_samples_ellipse = 100
-num_samples_perturb = 10
+num_samples_perturb = 50
 
-def calc_X_featurized_star(sess, model, y_train, x_train, num_samples_perturb, num_samples_ellipse):
+def calc_X_featurized_star(sess, model, y_train, x_train, num_samples_perturb, num_samples_ellipse, display_step = 1):
     A_list = []
     b_list = []
-    x_featurized_star = [] 
+    x_featurized_star = []
     for (idx, x_i) in enumerate(x_train):
-        print("Training point number %d" % idx)
+        if idx % display_step == 0:
+            print("Training point number %d" % idx)
         perturbed_x_i = random_perturbation(x_i, num_samples = num_samples_perturb)
         featurized_perturbed_x = model.get_activation(sess, perturbed_x_i)[-2]
-        A_i, b_i = learn_constraint_set(featurized_perturbed_x)
+        A_i, b_i = learn_constraint_setV2(featurized_perturbed_x)
         A_list.append(A_i)
         b_list.append(b_i)
         x_i_star = solve_inner_opt_problem(sess, model, y_train[idx], num_samples_ellipse, A_i, b_i)
-        #Ok so until here it is working fine. The problem lies in this function
         x_featurized_star.append(x_i_star)
     return np.array(x_featurized_star)
 
@@ -51,24 +51,20 @@ def sample_spherical(npoints, ndim=3):
 
 def solve_inner_opt_problem(sess, model, y, num_samples, A, b):
     #Sample points from the boundary of the ellipse
-    print("Going to sample points from the sphere")
     V = sample_spherical(num_samples, len(b))
 
-    print("Random linalg to find the X from the V")
-    A_inverse = np.linalg.inv(A)
+    A_inverse = np.linalg.pinv(A)
     to_add = A_inverse @ b
     #TODO: Test the dimensions and ensure that adding works properly
     X_feat_sampled_from_U = (A_inverse@V + to_add[:, np.newaxis]).T
     y_two_d = np.array([y])
     y_set = y_two_d.repeat(repeats = num_samples, axis = 0)
 
-    #Find the point that the model receives highest loss on 
-    print("Find the argmax of the sampled points!")
+    #Find the point that the model receives highest loss on
     x_star = find_worst_featurization_in_set(sess, model, X_feat_sampled_from_U, y_set)
     return x_star
 
 def learn_constraint_setV2(X):
-    print(X.shape)
     tool = ellipsoid.EllipsoidTool()
     A, b = tool.getMinVolEllipse(P = X)
     return A, b
@@ -137,7 +133,8 @@ if __name__ == "__main__":
 
     #Find X_star: Method 2 by Ellipse
     else:
-        X_featurized_star = calc_X_featurized_star(sess, model, y_train[:4], x_train_flat[:4], num_samples_perturb, num_samples_ellipse)
+        start = time.time()
+        X_featurized_star = calc_X_featurized_star(sess, model, y_train, x_train_flat, num_samples_perturb, num_samples_ellipse, display_step = 200)
         """
         #Testing code
         x_dummy = x_train_flat[0]
@@ -148,5 +145,14 @@ if __name__ == "__main__":
         print("Now going to find x_star on boundary of the ellipse")
         x_dummy_star = solve_inner_opt_problem(sess, model, y_train[0], 100, A, b)
         """
-        #TODO: I am currently feeding the wrong thing to this function. Have to fix that. 
-        model.fit_robust_final_layer(sess, X_featurized_star, y_train[0:4], feed_features_flag = True, batch_size = 2, training_epochs = 1000)
+        end = time.time()
+        print(end - start)
+        x_test_noisy = gaussian_perturbation(x_test_flat)
+        print(model.evaluate(sess, x_train_flat, y_train))
+        print(model.evaluate(sess, x_test_flat, y_test))
+        print(model.evaluate(sess, x_test_noisy, y_test))
+        model.fit_robust_final_layer(sess, X_featurized_star, y_train, feed_features_flag = True, batch_size = 32, training_epochs = 10)
+        print(model.evaluate(sess, x_train_flat, y_train))
+        print(model.evaluate(sess, x_test_flat, y_test))
+        print(model.evaluate(sess, x_test_noisy, y_test))
+
