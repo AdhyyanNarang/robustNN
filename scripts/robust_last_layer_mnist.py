@@ -4,12 +4,31 @@ import tensorflow as tf
 import tensorflow.contrib.layers as layers
 sys.path.append('../')
 import feedforward_robust as ffr
+import ellipsoid
 import ipdb
 from mnist_corruption import random_perturbation
 import cvxpy as cp
 
 #Config
 method_1_flag = False 
+num_samples_ellipse = 100
+num_samples_perturb = 10
+
+def calc_X_featurized_star(sess, model, y_train, x_train, num_samples_perturb, num_samples_ellipse):
+    A_list = []
+    b_list = []
+    x_featurized_star = [] 
+    for (idx, x_i) in enumerate(x_train):
+        print("Training point number %d" % idx)
+        perturbed_x_i = random_perturbation(x_i, num_samples = num_samples_perturb)
+        featurized_perturbed_x = model.get_activation(sess, perturbed_x_i)[-2]
+        A_i, b_i = learn_constraint_set(featurized_perturbed_x)
+        A_list.append(A_i)
+        b_list.append(b_i)
+        x_i_star = solve_inner_opt_problem(sess, model, y_train[idx], num_samples_ellipse, A_i, b_i)
+        #Ok so until here it is working fine. The problem lies in this function
+        x_featurized_star.append(x_i_star)
+    return np.array(x_featurized_star)
 
 def find_worst_point_in_set(sess, model, X, y):
     loss_vector = model.get_loss_vector(sess, X, y)
@@ -34,7 +53,6 @@ def solve_inner_opt_problem(sess, model, y, num_samples, A, b):
     #Sample points from the boundary of the ellipse
     print("Going to sample points from the sphere")
     V = sample_spherical(num_samples, len(b))
-    ipdb.set_trace()
 
     print("Random linalg to find the X from the V")
     A_inverse = np.linalg.inv(A)
@@ -47,18 +65,13 @@ def solve_inner_opt_problem(sess, model, y, num_samples, A, b):
     #Find the point that the model receives highest loss on 
     print("Find the argmax of the sampled points!")
     x_star = find_worst_featurization_in_set(sess, model, X_feat_sampled_from_U, y_set)
+    return x_star
 
-def calc_X_featurized_star(sess, x_train_flat, num_samples):
-    A_list = []
-    b_list = []
-    for (idx, x_i) in enumerate(x_train_flat):
-        perturbed_x_i = random_perturbation(x_i, num_samples = num_samples)
-        featurized_perturbed_x = model.get_activation(sess, perturbed_x_i)
-        A_i, b_i = learn_constraint_set(featurized_perturbed_x)
-        A_list.append(A_i)
-        b_list.append(b_i)
-        x_i_star = solve_inner_opt_problem(A_i, b_i)
-
+def learn_constraint_setV2(X):
+    print(X.shape)
+    tool = ellipsoid.EllipsoidTool()
+    A, b = tool.getMinVolEllipse(P = X)
+    return A, b
 
 def learn_constraint_set(sampled_points):
     m,n = sampled_points.shape
@@ -124,12 +137,16 @@ if __name__ == "__main__":
 
     #Find X_star: Method 2 by Ellipse
     else:
-        #X_featurized_star = calc_X_featurized_star(sess, x_train_flat, num_samples)
+        X_featurized_star = calc_X_featurized_star(sess, model, y_train[:4], x_train_flat[:4], num_samples_perturb, num_samples_ellipse)
+        """
+        #Testing code
         x_dummy = x_train_flat[0]
-        perturbed_dummy = random_perturbation(x_dummy, num_samples = 10)
+        perturbed_dummy = random_perturbation(x_dummy, num_samples =50)
         mapping_perturbed_dummy = model.get_activation(sess, perturbed_dummy)[-2]
         print("Now going to find A, b")
-        A, b = learn_constraint_set(mapping_perturbed_dummy)
+        A, b = learn_constraint_setV2(mapping_perturbed_dummy)
         print("Now going to find x_star on boundary of the ellipse")
         x_dummy_star = solve_inner_opt_problem(sess, model, y_train[0], 100, A, b)
-
+        """
+        #TODO: I am currently feeding the wrong thing to this function. Have to fix that. 
+        model.fit_robust_final_layer(sess, X_featurized_star, y_train[0:4], feed_features_flag = True, batch_size = 2, training_epochs = 1000)
