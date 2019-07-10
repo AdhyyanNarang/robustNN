@@ -71,8 +71,6 @@ class EllipsoidTool:
         U, s, rotation = linalg.svd(A)
         radii = 1.0/np.sqrt(s)
 
-        ipdb.set_trace()
-
         return A, center
 
     def getEllipsoidVolume(self, radii):
