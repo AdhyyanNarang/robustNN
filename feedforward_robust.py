@@ -4,6 +4,13 @@ import tensorflow as tf
 import tensorflow.contrib.layers as layers
 import ipdb
 
+def fully_connected_layer(x, output_dim, scope, weight_initializer, bias_initializer, sigma):
+    #with tf.variable_scope(scope) as scope:
+    w = tf.get_variable('weights' + scope, [x.shape[1], output_dim], initializer = weight_initializer)
+    b = tf.get_variable('biases' + scope, [output_dim], initializer=bias_initializer)
+    z = tf.add(tf.matmul(x, w), b)
+    return sigma(z)
+
 class RobustMLP(object):
 
     def __init__(self,session,input_shape,hidden_sizes,num_classes, dataset):
@@ -11,13 +18,14 @@ class RobustMLP(object):
         #Initialize instance variables
         self.sess = session
         self.input_shape = input_shape
-        self.hidden_sizes = hidden_sizes
+        self.hidden_sizes = hidden_sizes + [num_classes]
         self.num_classes = num_classes
         (self.x_train, self.y_train), (self.x_test, self.y_test) = dataset
 
         #TODO: Fix this hacky solution.
         input_shape = input_shape[0]
 
+        """
         #Initialize weights and bias optimization variables
         shape = (input_shape, self.hidden_sizes[0])
         initial = tf.contrib.layers.xavier_initializer(dtype = tf.float32)
@@ -25,7 +33,7 @@ class RobustMLP(object):
         self.biases = {}
         self.weights['h1'] = tf.get_variable('h1', shape = shape, initializer=initial)
         self.biases['b1'] = tf.get_variable('b1', shape = hidden_sizes[0], initializer = tf.initializers.zeros)
-        
+
         for i in range(len(hidden_sizes) - 1):
             key_number = i + 2
             weight_key, bias_key = 'h' + str(key_number), 'b' + str(key_number)
@@ -35,15 +43,25 @@ class RobustMLP(object):
 
         self.weights['out'] = tf.get_variable('hout', shape = (hidden_sizes[-1], num_classes), initializer=initial)
         self.biases['out'] = tf.get_variable('bout', shape = num_classes, initializer = tf.initializers.zeros)
+        """
 
+        initial = tf.contrib.layers.xavier_initializer(dtype = tf.float32)
+        bias_initial = tf.initializers.zeros
 
         #Placeholders for the data
         x_shape = [None] + [input_shape]
         self.x = tf.placeholder("float", x_shape)
         self.y = tf.placeholder("float", [None, num_classes])
+        act = self.x
+        self.activations = []
 
+        for i in range(len(self.hidden_sizes)):
+            scope = 'fc_' + str(i)
+            act = fully_connected_layer(act, self.hidden_sizes[i], scope, initial, bias_initial, tf.nn.relu)
+            self.activations.append(act)
 
         #Compute the prediction placeholder
+        """
         self.activations = []
         layer_next = self.x
         for i in range(len(hidden_sizes)):
@@ -52,17 +70,21 @@ class RobustMLP(object):
             layer_next = tf.add(tf.matmul(layer_next, self.weights[weight_key]), self.biases[bias_key])
             layer_next = tf.nn.relu(layer_next)
             self.activations.append(layer_next)
-        
-        self.featurizations = layer_next
-        self.predictions = tf.matmul(self.featurizations, self.weights['out']) + self.biases['out']
-        self.correct_prediction = tf.equal(tf.argmax(self.predictions, 1), tf.argmax(self.y, 1))
-        self.accuracy = tf.reduce_mean(tf.cast(self.correct_prediction, "float"))
+        """
+        #Save featurizations and predictions as instance vars
+        self.featurizations = self.activations[-2]
+        self.predictions = self.activations[-1] 
+
         self.loss_vector = tf.nn.softmax_cross_entropy_with_logits(logits=self.predictions, labels=self.y)
         self.loss = tf.reduce_mean(self.loss_vector)
+
+        self.correct_prediction = tf.equal(tf.argmax(self.predictions, 1), tf.argmax(self.y, 1))
+        self.accuracy = tf.reduce_mean(tf.cast(self.correct_prediction, "float"))
+
         self.sess.run(tf.global_variables_initializer())
 
     def get_activation(self, sess, x_input):
-        activations = sess.run(self.activations, 
+        activations = sess.run(self.activations,
                                feed_dict = {
                                    self.x: x_input,
                                })
