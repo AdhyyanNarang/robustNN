@@ -2,3 +2,4 @@
 **/.vscode
 **/ellipsoidV3
 *.npy
+scripts/tmp

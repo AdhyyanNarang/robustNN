@@ -107,12 +107,14 @@ if __name__ == "__main__":
     sess = tf.Session()
     hidden_sizes = [32,32,32,32]
     dataset = ((x_train_flat, y_train), (x_test_flat, y_test))
-    model = ffr.RobustMLP(sess, input_shape, hidden_sizes, num_classes, dataset)
+    writer = tf.summary.FileWriter("tmp/2")
+    writer.add_graph(sess.graph)
+    model = ffr.RobustMLP(sess, input_shape, hidden_sizes, num_classes, dataset, writer = writer)
 
+    ipdb.set_trace()
     print("Created model successfully. Now going to train")
     model.fit(sess, x_train_flat, y_train, training_epochs = 10)
-    writer = tf.summary.FileWriter("tmp/3")
-    writer.add_graph(sess.graph)
+    
     print("Trained model successfully. Moving to robustify....")
 
     X_star = np.copy(x_train_flat)

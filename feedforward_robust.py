@@ -4,16 +4,22 @@ import tensorflow as tf
 import tensorflow.contrib.layers as layers
 import ipdb
 
-def fully_connected_layer(x, output_dim, scope, weight_initializer, bias_initializer, sigma):
-    #with tf.variable_scope(scope) as scope:
-    w = tf.get_variable('weights' + scope, [x.shape[1], output_dim], initializer = weight_initializer)
-    b = tf.get_variable('biases' + scope, [output_dim], initializer=bias_initializer)
-    z = tf.add(tf.matmul(x, w), b)
-    return sigma(z)
+def fully_connected_layer(x, output_dim, scope_name, weight_initializer, bias_initializer, sigma):
+    with tf.variable_scope(scope_name) as scope:
+        weight_shape = (x.shape[1], output_dim)
+        print(weight_shape)
+        w = tf.get_variable('weights', shape = weight_shape, initializer = weight_initializer)
+        b = tf.get_variable('biases', output_dim, initializer=bias_initializer)
+        z = tf.add(tf.matmul(x, w), b)
+        a = tf.nn.relu(z)
+        tf.summary.histogram("weights", w)
+        tf.summary.histogram("biases", b)
+        tf.summary.histogram("activations", a)
+        return a
 
 class RobustMLP(object):
 
-    def __init__(self,session,input_shape,hidden_sizes,num_classes, dataset):
+    def __init__(self,session,input_shape,hidden_sizes,num_classes, dataset, writer):
 
         #Initialize instance variables
         self.sess = session
@@ -21,29 +27,11 @@ class RobustMLP(object):
         self.hidden_sizes = hidden_sizes + [num_classes]
         self.num_classes = num_classes
         (self.x_train, self.y_train), (self.x_test, self.y_test) = dataset
+        self.writer = writer
 
         #TODO: Fix this hacky solution.
         input_shape = input_shape[0]
 
-        """
-        #Initialize weights and bias optimization variables
-        shape = (input_shape, self.hidden_sizes[0])
-        initial = tf.contrib.layers.xavier_initializer(dtype = tf.float32)
-        self.weights = {}
-        self.biases = {}
-        self.weights['h1'] = tf.get_variable('h1', shape = shape, initializer=initial)
-        self.biases['b1'] = tf.get_variable('b1', shape = hidden_sizes[0], initializer = tf.initializers.zeros)
-
-        for i in range(len(hidden_sizes) - 1):
-            key_number = i + 2
-            weight_key, bias_key = 'h' + str(key_number), 'b' + str(key_number)
-            weight_shape = (hidden_sizes[i], hidden_sizes[i+1])
-            self.weights[weight_key] = tf.get_variable(weight_key, shape=weight_shape, initializer=initial)
-            self.biases[bias_key] = tf.get_variable(bias_key, shape = hidden_sizes[i+1], initializer = tf.initializers.zeros)
-
-        self.weights['out'] = tf.get_variable('hout', shape = (hidden_sizes[-1], num_classes), initializer=initial)
-        self.biases['out'] = tf.get_variable('bout', shape = num_classes, initializer = tf.initializers.zeros)
-        """
 
         initial = tf.contrib.layers.xavier_initializer(dtype = tf.float32)
         bias_initial = tf.initializers.zeros
@@ -55,32 +43,26 @@ class RobustMLP(object):
         act = self.x
         self.activations = []
 
+        #Compute the prediction placeholder
         for i in range(len(self.hidden_sizes)):
             scope = 'fc_' + str(i)
             act = fully_connected_layer(act, self.hidden_sizes[i], scope, initial, bias_initial, tf.nn.relu)
             self.activations.append(act)
 
-        #Compute the prediction placeholder
-        """
-        self.activations = []
-        layer_next = self.x
-        for i in range(len(hidden_sizes)):
-            key_number = i + 1
-            weight_key, bias_key = 'h' + str(key_number), 'b' + str(key_number)
-            layer_next = tf.add(tf.matmul(layer_next, self.weights[weight_key]), self.biases[bias_key])
-            layer_next = tf.nn.relu(layer_next)
-            self.activations.append(layer_next)
-        """
+
         #Save featurizations and predictions as instance vars
         self.featurizations = self.activations[-2]
         self.predictions = self.activations[-1] 
 
         self.loss_vector = tf.nn.softmax_cross_entropy_with_logits(logits=self.predictions, labels=self.y)
         self.loss = tf.reduce_mean(self.loss_vector)
+        tf.summary.scalar("loss", self.loss)
 
         self.correct_prediction = tf.equal(tf.argmax(self.predictions, 1), tf.argmax(self.y, 1))
         self.accuracy = tf.reduce_mean(tf.cast(self.correct_prediction, "float"))
+        tf.summary.scalar("accuracy", self.accuracy)
 
+        self.merged_summary = tf.summary.merge_all()
         self.sess.run(tf.global_variables_initializer())
 
     def get_activation(self, sess, x_input):
@@ -114,7 +96,7 @@ class RobustMLP(object):
                                  })
         return loss, accuracy
 
-    def fit(self, sess, X, y, lr = 0.001, training_epochs=15, batch_size=32, display_step=1):
+    def fit(self, sess, X, y, lr = 0.003, training_epochs=15, batch_size=32, display_step=1):
         temp = set(tf.all_variables())
         optimizer = tf.train.AdamOptimizer(learning_rate=lr).minimize(self.loss)
         sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
@@ -134,6 +116,11 @@ class RobustMLP(object):
                                          self.y: batch_y,
                                      })
                 avg_cost += c / total_batch
+                if i % 100 == 0:
+                    feed_dict = {self.x: x_batches[0], self.y: y_batches[0]}
+                    summary = sess.run(self.merged_summary, feed_dict = feed_dict)
+                    self.writer.add_summary(summary, i)
+
             if epoch % display_step == 0:
                 print("Epoch:", '%04d' % (epoch+1), "cost=", \
                         "{:.9f}".format(avg_cost))
