@@ -11,8 +11,10 @@ import cvxpy as cp
 
 #Config
 method_1_flag = False
+method_2_flag = False
 num_samples_ellipse = 100
 num_samples_perturb = 50
+eps_train = 0.1
 
 def calc_X_featurized_star(sess, model, y_train, x_train, num_samples_perturb, num_samples_ellipse, display_step = 1):
     A_list = []
@@ -21,7 +23,7 @@ def calc_X_featurized_star(sess, model, y_train, x_train, num_samples_perturb, n
     for (idx, x_i) in enumerate(x_train):
         if idx % display_step == 0:
             print("Training point number %d" % idx)
-        perturbed_x_i = random_perturbation(x_i, num_samples = num_samples_perturb)
+        perturbed_x_i = random_perturbation(x_i, eps = eps_train, num_samples = num_samples_perturb)
         featurized_perturbed_x = model.get_activation(sess, perturbed_x_i)[-2]
         A_i, b_i = learn_constraint_setV2(featurized_perturbed_x)
         A_list.append(A_i)
@@ -90,7 +92,6 @@ def flatten_mnist(x):
     return x_flattened, (D, )
 
 if __name__ == "__main__":
-
     #Setup - Dataset stuff
     mnist = tf.keras.datasets.mnist
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
@@ -102,14 +103,16 @@ if __name__ == "__main__":
     x_train_flat, input_shape = flatten_mnist(x_train)
     x_test_flat, _ = flatten_mnist(x_test)
 
-
     #Create and train the model
     sess = tf.Session()
     hidden_sizes = [32,32,32,32]
     dataset = ((x_train_flat, y_train), (x_test_flat, y_test))
     model = ffr.RobustMLP(sess, input_shape, hidden_sizes, num_classes, dataset)
+
     print("Created model successfully. Now going to train")
-    model.fit(sess, x_train_flat, y_train, training_epochs = 3)
+    model.fit(sess, x_train_flat, y_train, training_epochs = 10)
+    writer = tf.summary.FileWriter("tmp/3")
+    writer.add_graph(sess.graph)
     print("Trained model successfully. Moving to robustify....")
 
     X_star = np.copy(x_train_flat)
@@ -119,7 +122,7 @@ if __name__ == "__main__":
         """
         for (idx,x_i) in enumerate(x_train_flat):
             print(idx)
-            perturbed_x = random_perturbation(x_i, num_samples = 10)
+            perturbed_x = random_perturbation(x_i, eps = eps_train, num_samples = 10)
             y_i = np.array([y_train[idx]])
             y_set = y_i.repeat(repeats = 10, axis = 0)
             x_i_star = find_worst_point_in_set(sess, model, perturbed_x, y_set)
@@ -132,14 +135,24 @@ if __name__ == "__main__":
         model.fit_robust_final_layer(sess, X_star, y_train, training_epochs = 100)
 
     #Find X_star: Method 2 by Ellipse
-    else:
+    if (method_2_flag):
         start = time.time()
-        X_featurized_star = calc_X_featurized_star(sess, model, y_train, x_train_flat, num_samples_perturb, num_samples_ellipse, display_step = 200)
+        #X_featurized_star = calc_X_featurized_star(sess, model, y_train, x_train_flat, num_samples_perturb, num_samples_ellipse, display_step = 200)
+        #np.save("X_feat_star_01", X_featurized_star)
+        X_featurized_star = np.load("X_feat_star_01.npy")
+        X_featurized_regular = model.get_activation(sess, x_train_flat)[-2]
+
+        X_feat_train = X_featurized_star.copy()
+        for i in range(len(X_feat_train)):
+            rnd = np.random.uniform()
+            if rnd < 0:
+                X_feat_train[i] = X_featurized_regular[i]
+
         """
-        #Testing code
         x_dummy = x_train_flat[0]
         perturbed_dummy = random_perturbation(x_dummy, num_samples =50)
         mapping_perturbed_dummy = model.get_activation(sess, perturbed_dummy)[-2]
+        ipdb.set_trace()
         print("Now going to find A, b")
         A, b = learn_constraint_setV2(mapping_perturbed_dummy)
         print("Now going to find x_star on boundary of the ellipse")
@@ -151,7 +164,7 @@ if __name__ == "__main__":
         print(model.evaluate(sess, x_train_flat, y_train))
         print(model.evaluate(sess, x_test_flat, y_test))
         print(model.evaluate(sess, x_test_noisy, y_test))
-        model.fit_robust_final_layer(sess, X_featurized_star, y_train, feed_features_flag = True, batch_size = 32, training_epochs = 10)
+        model.fit_robust_final_layer(sess, X_feat_train, y_train, feed_features_flag = True, batch_size = 60000, training_epochs = 400)
         print(model.evaluate(sess, x_train_flat, y_train))
         print(model.evaluate(sess, x_test_flat, y_test))
         print(model.evaluate(sess, x_test_noisy, y_test))
