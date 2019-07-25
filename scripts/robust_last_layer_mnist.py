@@ -15,6 +15,7 @@ method_2_flag = False
 num_samples_ellipse = 100
 num_samples_perturb = 50
 eps_train = 0.1
+eps_test = 0.1
 
 def calc_X_featurized_star(sess, model, y_train, x_train, num_samples_perturb, num_samples_ellipse, display_step = 1):
     A_list = []
@@ -108,14 +109,24 @@ if __name__ == "__main__":
     hidden_sizes = [32,32,32,32]
     dataset = ((x_train_flat, y_train), (x_test_flat, y_test))
     writer = tf.summary.FileWriter("tmp/2")
-    writer.add_graph(sess.graph)
-    model = ffr.RobustMLP(sess, input_shape, hidden_sizes, num_classes, dataset, writer = writer)
 
-    ipdb.set_trace()
-    print("Created model successfully. Now going to train")
-    model.fit(sess, x_train_flat, y_train, training_epochs = 3)
-    
-    print("Trained model successfully. Moving to robustify....")
+    with tf.variable_scope("model_non_robust") as scope:
+        model = ffr.RobustMLP(sess, input_shape, hidden_sizes, num_classes, dataset, writer = writer)
+
+        print("Created model successfully. Now going to train")
+        model.fit(sess, x_train_flat, y_train, training_epochs = 3)
+        print(model.evaluate(sess, x_test_flat, y_test))
+        print(model.adv_evaluate(sess, x_test_flat, y_test, eps_test))
+
+
+    with tf.variable_scope("model_robust") as scope:
+        print("Adversarial Training")
+        robust_model = ffr.RobustMLP(sess, input_shape, hidden_sizes, num_classes, dataset, writer = writer)
+        robust_model.adv_fit(sess, x_train_flat, y_train, eps_train, training_epochs = 3)
+        print(robust_model.evaluate(sess, x_test_flat, y_test))
+        print(robust_model.adv_evaluate(sess, x_test_flat, y_test, eps_test))
+
+    writer.add_graph(sess.graph)
 
     X_star = np.copy(x_train_flat)
     #Find X_star: Method 1 by sampling
