@@ -113,7 +113,7 @@ if __name__ == "__main__":
 
     ipdb.set_trace()
     print("Created model successfully. Now going to train")
-    model.fit(sess, x_train_flat, y_train, training_epochs = 10)
+    model.fit(sess, x_train_flat, y_train, training_epochs = 3)
     
     print("Trained model successfully. Moving to robustify....")
 

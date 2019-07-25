@@ -11,7 +11,7 @@ def fully_connected_layer(x, output_dim, scope_name, weight_initializer, bias_in
         w = tf.get_variable('weights', shape = weight_shape, initializer = weight_initializer)
         b = tf.get_variable('biases', output_dim, initializer=bias_initializer)
         z = tf.add(tf.matmul(x, w), b)
-        a = tf.nn.relu(z)
+        a = sigma(z)
         tf.summary.histogram("weights", w)
         tf.summary.histogram("biases", b)
         tf.summary.histogram("activations", a)
@@ -24,14 +24,13 @@ class RobustMLP(object):
         #Initialize instance variables
         self.sess = session
         self.input_shape = input_shape
-        self.hidden_sizes = hidden_sizes + [num_classes]
+        self.hidden_sizes = hidden_sizes 
         self.num_classes = num_classes
         (self.x_train, self.y_train), (self.x_test, self.y_test) = dataset
         self.writer = writer
 
         #TODO: Fix this hacky solution.
         input_shape = input_shape[0]
-
 
         initial = tf.contrib.layers.xavier_initializer(dtype = tf.float32)
         bias_initial = tf.initializers.zeros
@@ -51,8 +50,9 @@ class RobustMLP(object):
 
 
         #Save featurizations and predictions as instance vars
-        self.featurizations = self.activations[-2]
-        self.predictions = self.activations[-1] 
+        self.featurizations = act 
+        scope = 'fc_' + str(len(self.hidden_sizes))
+        self.predictions = fully_connected_layer(act, self.num_classes, scope, initial, bias_initial, tf.identity) 
 
         self.loss_vector = tf.nn.softmax_cross_entropy_with_logits(logits=self.predictions, labels=self.y)
         self.loss = tf.reduce_mean(self.loss_vector)
