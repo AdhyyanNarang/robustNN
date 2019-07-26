@@ -108,25 +108,30 @@ if __name__ == "__main__":
     sess = tf.Session()
     hidden_sizes = [32,32,32,32]
     dataset = ((x_train_flat, y_train), (x_test_flat, y_test))
-    writer = tf.summary.FileWriter("tmp/2")
 
-    with tf.variable_scope("model_non_robust") as scope:
-        model = ffr.RobustMLP(sess, input_shape, hidden_sizes, num_classes, dataset, writer = writer)
+    scope_name = "model_non_robust"
+    with tf.variable_scope(scope_name) as scope:
+
+        writer = tf.summary.FileWriter("tmp/2/non_robust")
+        model = ffr.RobustMLP(sess, input_shape, hidden_sizes, num_classes, dataset, writer = writer, scope = scope_name)
 
         print("Created model successfully. Now going to train")
         model.fit(sess, x_train_flat, y_train, training_epochs = 3)
         print(model.evaluate(sess, x_test_flat, y_test))
         print(model.adv_evaluate(sess, x_test_flat, y_test, eps_test))
 
+        writer.add_graph(sess.graph)
 
-    with tf.variable_scope("model_robust") as scope:
+    scope_name_rob = "model_robust"
+    with tf.variable_scope(scope_name_rob) as scope:
+        writer_robust = tf.summary.FileWriter("tmp/2/robust")
         print("Adversarial Training")
-        robust_model = ffr.RobustMLP(sess, input_shape, hidden_sizes, num_classes, dataset, writer = writer)
-        robust_model.adv_fit(sess, x_train_flat, y_train, eps_train, training_epochs = 3)
+        robust_model = ffr.RobustMLP(sess, input_shape, hidden_sizes, num_classes, dataset, writer = writer_robust, scope = scope_name_rob)
+        robust_model.adv_fit(sess, x_train_flat, y_train, eps_train, training_epochs = 1)
         print(robust_model.evaluate(sess, x_test_flat, y_test))
         print(robust_model.adv_evaluate(sess, x_test_flat, y_test, eps_test))
+        writer_robust.add_graph(sess.graph)
 
-    writer.add_graph(sess.graph)
 
     X_star = np.copy(x_train_flat)
     #Find X_star: Method 1 by sampling
