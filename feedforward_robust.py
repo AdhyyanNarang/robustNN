@@ -5,7 +5,10 @@ import tensorflow.contrib.layers as layers
 import ipdb
 
 def fully_connected_layer(x, output_dim, scope_name, weight_initializer, bias_initializer, sigma):
-    with tf.variable_scope(scope_name) as scope:
+
+    #Reuse = True because everytime we wish to call model(x), we want it to
+    #use the most recently learned weights.
+    with tf.variable_scope(scope_name, reuse = tf.AUTO_REUSE) as scope:
         weight_shape = (x.shape[1], output_dim)
         print(weight_shape)
         w = tf.get_variable('weights', shape = weight_shape, initializer = weight_initializer)
@@ -17,11 +20,28 @@ def fully_connected_layer(x, output_dim, scope_name, weight_initializer, bias_in
         tf.summary.histogram("activations", a)
         return a
 
+
 """
 Input: Placeholder x, sizes of hidden layers, num_classes
 Output: Activations of fully connected neural network 
 """
-def model(x, num_hidden, num_classes):
+def model(x, hidden_sizes, num_classes):
+    act = x
+    activations = []
+
+    initial = tf.contrib.layers.xavier_initializer(dtype = tf.float32)
+    bias_initial = tf.initializers.zeros
+
+    #Compute the prediction placeholder
+    for i in range(len(hidden_sizes)):
+        scope = 'fc_' + str(i)
+        act = fully_connected_layer(act, hidden_sizes[i], scope, initial, bias_initial, tf.nn.relu)
+        activations.append(act)
+
+    scope = 'fc_' + str(len(hidden_sizes))
+    predictions = fully_connected_layer(act, num_classes, scope, initial, bias_initial, tf.identity)
+
+    return activations, predictions
 
 
 class RobustMLP(object):
@@ -40,13 +60,12 @@ class RobustMLP(object):
         #TODO: Fix this hacky solution.
         input_shape = input_shape[0]
 
-        initial = tf.contrib.layers.xavier_initializer(dtype = tf.float32)
-        bias_initial = tf.initializers.zeros
-
         #Placeholders for the data
         x_shape = [None] + [input_shape]
         self.x = tf.placeholder("float", x_shape)
         self.y = tf.placeholder("float", [None, num_classes])
+
+        """
         act = self.x
         self.activations = []
 
@@ -61,6 +80,10 @@ class RobustMLP(object):
         self.featurizations = act
         scope = 'fc_' + str(len(self.hidden_sizes))
         self.predictions = fully_connected_layer(act, self.num_classes, scope, initial, bias_initial, tf.identity)
+        """
+
+        self.activations, self.predictions = model(self.x, self.hidden_sizes, self.num_classes)
+        self.featurizations = self.activations[-1]
 
         self.loss_vector = tf.nn.softmax_cross_entropy_with_logits(logits=self.predictions, labels=self.y)
         self.loss = tf.reduce_mean(self.loss_vector)
