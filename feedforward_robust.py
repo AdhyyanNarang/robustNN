@@ -17,9 +17,16 @@ def fully_connected_layer(x, output_dim, scope_name, weight_initializer, bias_in
         tf.summary.histogram("activations", a)
         return a
 
+"""
+Input: Placeholder x, sizes of hidden layers, num_classes
+Output: Activations of fully connected neural network 
+"""
+def model(x, num_hidden, num_classes):
+
+
 class RobustMLP(object):
 
-    def __init__(self,session,input_shape,hidden_sizes,num_classes, dataset, writer):
+    def __init__(self,session,input_shape,hidden_sizes,num_classes, dataset, writer, scope):
 
         #Initialize instance variables
         self.sess = session
@@ -28,6 +35,7 @@ class RobustMLP(object):
         self.num_classes = num_classes
         (self.x_train, self.y_train), (self.x_test, self.y_test) = dataset
         self.writer = writer
+        self.scope = scope
 
         #TODO: Fix this hacky solution.
         input_shape = input_shape[0]
@@ -62,7 +70,7 @@ class RobustMLP(object):
         self.accuracy = tf.reduce_mean(tf.cast(self.correct_prediction, "float"))
         tf.summary.scalar("accuracy", self.accuracy)
 
-        self.merged_summary = tf.summary.merge_all()
+        self.merged_summary = tf.summary.merge_all(scope = self.scope)
         self.sess.run(tf.global_variables_initializer())
 
     def get_activation(self, sess, x_input):
@@ -116,7 +124,6 @@ class RobustMLP(object):
                                  })
         return loss, accuracy
 
-
     def fit(self, sess, X, y, lr = 0.003, training_epochs=15, batch_size=32, display_step=1):
         temp = set(tf.all_variables())
         optimizer = tf.train.AdamOptimizer(learning_rate=lr).minimize(self.loss)
@@ -140,7 +147,8 @@ class RobustMLP(object):
                 if i % 100 == 0:
                     feed_dict = {self.x: x_batches[0], self.y: y_batches[0]}
                     summary = sess.run(self.merged_summary, feed_dict = feed_dict)
-                    self.writer.add_summary(summary, i)
+                    hor = epoch * total_batch + i
+                    self.writer.add_summary(summary, hor)
 
             if epoch % display_step == 0:
                 print("Epoch:", '%04d' % (epoch+1), "cost=", \
@@ -158,7 +166,8 @@ class RobustMLP(object):
         print("Final Train Accuracy:", final_acc)
         return True
 
-    def adv_fit(self, sess, X, y, eps, lr = 0.003, training_epochs=15, batch_size=32, display_step=1):
+    """
+    def adv_fit(self, sess, X, y, lr = 0.003, training_epochs=15, batch_size=32, display_step=1):
         temp = set(tf.all_variables())
         optimizer = tf.train.AdamOptimizer(learning_rate=lr).minimize(self.loss)
         sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
@@ -171,24 +180,66 @@ class RobustMLP(object):
             y_batches = np.array_split(y, total_batch)
 
             for i in range(total_batch):
-                if i % 10 == 0:
-                    print(i)
+                batch_x, batch_y = x_batches[i], y_batches[i]
+                _, c, acc = sess.run([optimizer, self.loss, self.accuracy],
+                                     feed_dict={
+                                         self.x: batch_x,
+                                         self.y: batch_y,
+                                     })
+                avg_cost += c / total_batch
+                if i % 100 == 0:
+                    feed_dict = {self.x: x_batches[0], self.y: y_batches[0]}
+                    summary = sess.run(self.merged_summary, feed_dict = feed_dict)
+                    hor = epoch * total_batch + i
+                    self.writer.add_summary(summary, hor)
+
+            if epoch % display_step == 0:
+                print("Epoch:", '%04d' % (epoch+1), "cost=", \
+                        "{:.9f}".format(avg_cost))
+                print("Accuracy on batch:", acc)
+        print("Optimization Finished!")
+
+        final_acc, final_loss = sess.run([self.accuracy, self.loss],
+                                         feed_dict={
+                                             self.x: X,
+                                             self.y: y,
+                                         }
+                                        )
+        print("Final Train Loss", final_loss)
+        print("Final Train Accuracy:", final_acc)
+        return True
+    """
+
+    def adv_fit(self, sess, X, y, eps, lr = 0.01, training_epochs=15, batch_size=32, display_step=1):
+        temp = set(tf.all_variables())
+        optimizer = tf.train.AdamOptimizer(learning_rate=lr).minimize(self.loss)
+        sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
+
+        for epoch in range(training_epochs):
+            avg_cost = 0.0
+            total_batch = int(len(X) / batch_size)
+            x_batches = np.array_split(X, total_batch)
+            y_batches = np.array_split(y, total_batch)
+
+            for i in range(total_batch):
+                if i % 30 == 0:
+                    print("Iteration:%d  Cost:%f" %(i, avg_cost))
                 batch_x, batch_y = x_batches[i], y_batches[i]
 
                 #Train on the adversarial points instead of regular points.
                 batch_x_adv = self.fgsm(sess, batch_x, batch_y, eps)
+                #batch_x_adv = batch_x
                 _, c, acc = sess.run([optimizer, self.loss, self.accuracy],
                                      feed_dict={
                                          self.x: batch_x_adv,
                                          self.y: batch_y
                                      })
                 avg_cost += c / total_batch
-                """
+
                 if i % 100 == 0:
-                    feed_dict = {self.x: x_batches[0], self.y: y_batches[0]}
-                    summary = sess.run(self.merged_summary, feed_dict = feed_dict)
-                    self.writer.add_summary(summary, i)
-                """
+                    summary = sess.run(self.merged_summary, feed_dict = {self.x: x_batches[0], self.y: y_batches[0]})
+                    hor = epoch * total_batch + i
+                    self.writer.add_summary(summary, hor)
 
             if epoch % display_step == 0:
                 print("Epoch:", '%04d' % (epoch+1), "cost=", \
@@ -213,10 +264,9 @@ class RobustMLP(object):
                                          }
                                         )
         print("Final Train Loss on Adv points", final_loss_adv)
-        print("Final Train Accuracy on regular points", final_acc_adv)
+        print("Final Train Accuracy on Adv points", final_acc_adv)
         return True
-
-
+    
 
     def fit_robust_final_layer(self, sess, X, y, feed_features_flag = False, lr = 0.001, training_epochs=15, batch_size=32, display_step=1):
         #Hacky solution below - Would be nice to fix it
