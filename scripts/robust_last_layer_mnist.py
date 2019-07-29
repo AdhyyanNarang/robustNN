@@ -8,94 +8,44 @@ import ellipsoid
 import ipdb
 from mnist_corruption import random_perturbation, gaussian_perturbation
 import cvxpy as cp
+from util import *
+
+
+"""
+TODO:
+    More elaborate test for the get_weight_norms function
+    Test whether the distance function has a bug - because results are different than keras (cascading effect less relevant here)
+    Repeat the norm experiments on these models
+    Repeat CCA experiments
+    TSNE - float plots
+
+    NOW:
+    Fix the robust_fit_final_layer function - find delta_star at each update 
+                                            - use gradient descent instead of mini-batch adam
+"""
+
 
 #Config
-method_1_flag = False
-method_2_flag = False
+
+#Four different methods to train the model.
+#These flags determine which ones we wish to run
+non_robust_flag = True
+adv_train_flag = False
+sampled_flag = True
+ellipse_flag = False
+
+
 num_samples_ellipse = 100
 num_samples_perturb = 50
 eps_train = 0.1
 eps_test = 0.1
 
-def calc_X_featurized_star(sess, model, y_train, x_train, num_samples_perturb, num_samples_ellipse, display_step = 1):
-    A_list = []
-    b_list = []
-    x_featurized_star = []
-    for (idx, x_i) in enumerate(x_train):
-        if idx % display_step == 0:
-            print("Training point number %d" % idx)
-        perturbed_x_i = random_perturbation(x_i, eps = eps_train, num_samples = num_samples_perturb)
-        featurized_perturbed_x = model.get_activation(sess, perturbed_x_i)[-2]
-        A_i, b_i = learn_constraint_setV2(featurized_perturbed_x)
-        A_list.append(A_i)
-        b_list.append(b_i)
-        x_i_star = solve_inner_opt_problem(sess, model, y_train[idx], num_samples_ellipse, A_i, b_i)
-        x_featurized_star.append(x_i_star)
-    return np.array(x_featurized_star)
-
-def find_worst_point_in_set(sess, model, X, y):
-    loss_vector = model.get_loss_vector(sess, X, y)
-    idx = np.argmax(loss_vector)
-    return X[idx]
-
-def find_worst_featurization_in_set(sess, model, X_featurized, y):
-    loss_vector = model.get_loss_vector_from_featurization(sess, X_featurized, y)
-    idx = np.argmax(loss_vector)
-    return X_featurized[idx]
-
-def objective_function(A):
-    return cp.atoms.log_det(A)
-
-def sample_spherical(npoints, ndim=3):
-    #Each sampled point is along a column
-    vec = np.random.randn(ndim, npoints)
-    vec /= np.linalg.norm(vec, axis=0)
-    return vec
-
-def solve_inner_opt_problem(sess, model, y, num_samples, A, b):
-    #Sample points from the boundary of the ellipse
-    V = sample_spherical(num_samples, len(b))
-
-    A_inverse = np.linalg.pinv(A)
-    to_add = A_inverse @ b
-    #TODO: Test the dimensions and ensure that adding works properly
-    X_feat_sampled_from_U = (A_inverse@V + to_add[:, np.newaxis]).T
-    y_two_d = np.array([y])
-    y_set = y_two_d.repeat(repeats = num_samples, axis = 0)
-
-    #Find the point that the model receives highest loss on
-    x_star = find_worst_featurization_in_set(sess, model, X_feat_sampled_from_U, y_set)
-    return x_star
-
-def learn_constraint_setV2(X):
-    tool = ellipsoid.EllipsoidTool()
-    A, b = tool.getMinVolEllipse(P = X)
-    return A, b
-
-def learn_constraint_set(sampled_points):
-    m,n = sampled_points.shape
-    A = cp.Variable(shape = (n,n), symmetric = True)
-    b = cp.Variable(n)
-    objective = cp.Maximize(objective_function(A))
-    constraints = []
-    for i in range(m):
-        x_i = sampled_points[i].T
-        constraints.append(cp.atoms.norm(A*x_i + b) <= 1)
-    prob = cp.Problem(objective, constraints)
-    result = prob.solve()
-    print(prob.value)
-    return A.value, b.value
-
-def flatten_mnist(x):
-    n, img_rows, img_cols = x.shape
-    D = img_rows * img_cols
-    x_flattened = x.reshape(n, D)
-    return x_flattened, (D, )
-
 if __name__ == "__main__":
     #Setup - Dataset stuff
     mnist = tf.keras.datasets.mnist
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
+    y_test_ogi = y_test
+    x_test_ogi = x_test
     x_train = x_train/255
     x_test = x_test/255
     num_classes = 10
@@ -110,33 +60,61 @@ if __name__ == "__main__":
     dataset = ((x_train_flat, y_train), (x_test_flat, y_test))
 
     scope_name = "model_non_robust"
-    with tf.variable_scope(scope_name) as scope:
+    
+    if(non_robust_flag):
+        with tf.variable_scope(scope_name) as scope:
+            
+            logdir = "tmp/2/non_robust"
+            #Create, train and test model
+            writer = tf.summary.FileWriter(logdir)
+            model = ffr.RobustMLP(sess, input_shape, hidden_sizes, num_classes, dataset, writer = writer, scope = scope_name)
+            print("Created model successfully. Now going to train")
+            model.fit(sess, x_train_flat, y_train, training_epochs = 3)
+            print(model.evaluate(sess, x_test_flat, y_test))
+            print(model.adv_evaluate(sess, x_test_flat, y_test, eps_test))
 
-        writer = tf.summary.FileWriter("tmp/2/non_robust")
-        model = ffr.RobustMLP(sess, input_shape, hidden_sizes, num_classes, dataset, writer = writer, scope = scope_name)
+            #Distances and norms
+            print(model.get_weight_norms(sess))
+            writer.add_graph(sess.graph)
+            #overall, correct, incorrect = model.get_distance(sess, eps_test, x_test_flat, y_test, order = 2)
+            #print(overall)
+            
+            #TSNE visualization of final layer.
+            x_test_flat_adv = model.fgsm_np(sess, x_test_flat, y_test, eps_test)
+            metadata_path = os.path.join(logdir, 'metadata.tsv')
+            write_metadata(metadata_path, y_test_ogi[0:1000])
+            sprite_path = os.path.join(logdir, 'sprite_images.png')
+            write_sprite_image(sprite_path, x_test_ogi[0:1000])
+            model.visualize_activation_tsne(sess, x_test_flat_adv[0:1000], 'metadata.tsv', 'sprite_images.png', logdir)
 
-        print("Created model successfully. Now going to train")
-        model.fit(sess, x_train_flat, y_train, training_epochs = 3)
-        print(model.evaluate(sess, x_test_flat, y_test))
-        print(model.adv_evaluate(sess, x_test_flat, y_test, eps_test))
+    if(adv_train_flag):
+        scope_name_rob = "model_robust"
+        with tf.variable_scope(scope_name_rob) as scope:
+            logdir = "tmp/2/robust"
+            writer_robust = tf.summary.FileWriter(logdir)
+            print("Adversarial Training")
+            robust_model = ffr.RobustMLP(sess, input_shape, hidden_sizes, num_classes, dataset, writer = writer_robust, scope = scope_name_rob)
+            robust_model.adv_fit(sess, x_train_flat, y_train, eps_train, lr = 3e-4, training_epochs = 25)
+            print(robust_model.evaluate(sess, x_test_flat, y_test))
+            print(robust_model.adv_evaluate(sess, x_test_flat, y_test, eps_test))
+            print(robust_model.get_weight_norms(sess))
+            overall, correct, incorrect = robust_model.get_distance(sess, eps_test, x_test_flat, y_test, order = 2)
+            print(overall)
+            writer_robust.add_graph(sess.graph)
 
-        writer.add_graph(sess.graph)
-
-    scope_name_rob = "model_robust"
-    with tf.variable_scope(scope_name_rob) as scope:
-        writer_robust = tf.summary.FileWriter("tmp/2/robust")
-        print("Adversarial Training")
-        robust_model = ffr.RobustMLP(sess, input_shape, hidden_sizes, num_classes, dataset, writer = writer_robust, scope = scope_name_rob)
-        robust_model.adv_fit(sess, x_train_flat, y_train, eps_train, training_epochs = 1)
-        print(robust_model.evaluate(sess, x_test_flat, y_test))
-        print(robust_model.adv_evaluate(sess, x_test_flat, y_test, eps_test))
-        writer_robust.add_graph(sess.graph)
+            #TSNE visualization of final layer.
+            x_test_flat_adv = robust_model.fgsm_np(sess, x_test_flat, y_test, eps_test)
+            metadata_path = os.path.join(logdir, 'metadata.tsv')
+            write_metadata(metadata_path, y_test_ogi[0:1000])
+            sprite_path = os.path.join(logdir, 'sprite_images.png')
+            write_sprite_image(sprite_path, x_test_ogi[0:1000])
+            robust_model.visualize_activation_tsne(sess, x_test_flat_adv[0:1000], 'metadata.tsv', 'sprite_images.png', logdir)
 
 
     X_star = np.copy(x_train_flat)
     #Find X_star: Method 1 by sampling
 
-    if (method_1_flag):
+    if (sampled_flag):
         """
         for (idx,x_i) in enumerate(x_train_flat):
             print(idx)
@@ -153,7 +131,7 @@ if __name__ == "__main__":
         model.fit_robust_final_layer(sess, X_star, y_train, training_epochs = 100)
 
     #Find X_star: Method 2 by Ellipse
-    if (method_2_flag):
+    if (ellipse_flag):
         start = time.time()
         #X_featurized_star = calc_X_featurized_star(sess, model, y_train, x_train_flat, num_samples_perturb, num_samples_ellipse, display_step = 200)
         #np.save("X_feat_star_01", X_featurized_star)
