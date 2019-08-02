@@ -105,7 +105,7 @@ class RobustMLP(object):
         g = tf.gradients(self.loss, self.x)
         delta = eps * tf.math.sign(g)
         x_adv = self.x + delta
-        x_adv = tf.clip_by_value(x_adv, clip_value_min = 0.0, clip_value_max = float("inf"))
+        #x_adv = tf.clip_by_value(x_adv, clip_value_min = 0.0, clip_value_max = float("inf"))
         return tf.squeeze(x_adv)
 
     def fgsm_np(self, sess, X, y, eps):
@@ -267,10 +267,9 @@ class RobustMLP(object):
         optimization_step = tf.train.AdamOptimizer(learning_rate=lr).minimize(self.loss)
         sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
 
-        self.fit_helper(sess, X, y, optimization_step, self.loss, 
-            self.accuracy, lr = 0.003, training_epochs=15, batch_size=32, display_step=1)
+        self.fit_helper(sess, X, y, optimization_step, self.loss,
+            self.accuracy, lr, training_epochs, batch_size, display_step)
         return True
-        
 
     def adv_fit(self, sess, X, y, eps, lr = 3e-4, training_epochs=15, batch_size=32, display_step=1):
         x_adv = self.fgsm(self.x, eps)
@@ -287,8 +286,8 @@ class RobustMLP(object):
         optimizer = tf.train.AdamOptimizer(learning_rate=lr).minimize(loss_adv)
         sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
 
-        self.fit_helper(sess, X, y, optimizer, loss_adv, accuracy_adv, 
-        lr = 3e-4, training_epochs=15, batch_size=32, display_step=1)
+        self.fit_helper(sess, X, y, optimizer, loss_adv, accuracy_adv,
+        lr, training_epochs, batch_size, display_step)
 
         X_adv = self.fgsm_np(sess, X, y, eps)
         final_acc_adv, final_loss_adv = sess.run([self.accuracy, self.loss],
@@ -329,10 +328,10 @@ class RobustMLP(object):
         optimization_update = optimizer.minimize(objective, var_list = var_list)
         sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
 
-        self.fit_helper(sess, X, y, optimization_update, loss_adv, accuracy_adv, feed_features_flag = False, lr = 0.001, training_epochs=15, batch_size=32, display_step=1)
+        self.fit_helper(sess, X, y, optimization_update, loss_adv, accuracy_adv, feed_features_flag, lr, training_epochs, batch_size, display_step)
         return True
 
-    def visualize_activation_tsne(self, sess, x_input, metadata_path, sprite_path, LOG_DIR, layer_number = -1, imgh = 28, imgw = 28):
+    def visualize_activation_tsne(self, sess, x_input, metadata_path, sprite_path, LOG_DIR, imgh = 28, imgw = 28):
         """
         Activations: To be visualized
         Metadata: Labels/Images
@@ -342,23 +341,25 @@ class RobustMLP(object):
         1. Save the data to be visualized to a log file.
         2. Create a projector object that looks at the log file and creates summaries for tensorboard.
 
-        ENSURE THAT: the logdir of self.writer and LOG_DIR are the same directory.
         """
-        #Step 1: Save data and metadata
         activations_all = self.get_activation(sess, x_input)
-        activations = activations_all[layer_number]
-        tf_data = tf.Variable(activations)
-        saver = tf.train.Saver([tf_data])
-        sess.run(tf_data.initializer)
-        saver.save(sess, os.path.join(LOG_DIR, 'tf_data.ckpt'))
-
-        #Step 2: Create the config object that knows where to look
         config = projector.ProjectorConfig()
-        embedding = config.embeddings.add()
-        embedding.tensor_name = tf_data.name
-        embedding.metadata_path = metadata_path
-        embedding.sprite.image_path = sprite_path
-        embedding.sprite.single_image_dim.extend([imgh, imgw])
+        var_list = []
+
+        for layer_number in range(len(self.activations)):
+            activation = activations_all[layer_number]
+            tf_data = tf.Variable(activation)
+            sess.run(tf_data.initializer)
+            var_list.append(tf_data)
+
+            embedding = config.embeddings.add()
+            embedding.tensor_name = tf_data.name
+            embedding.metadata_path = metadata_path
+            embedding.sprite.image_path = sprite_path
+            embedding.sprite.single_image_dim.extend([imgh, imgw])
+
+        saver = tf.train.Saver(var_list)
+        saver.save(sess, os.path.join(LOG_DIR, 'activations.ckpt'))
 
         projector.visualize_embeddings(self.writer, config)
         return True
