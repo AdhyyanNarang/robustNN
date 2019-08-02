@@ -95,20 +95,20 @@ def write_metadata(filename, labels):
     """
 
     def calc_X_featurized_star(sess, model, y_train, x_train, num_samples_perturb, num_samples_ellipse, display_step = 1):
-    A_list = []
-    b_list = []
-    x_featurized_star = []
-    for (idx, x_i) in enumerate(x_train):
-        if idx % display_step == 0:
-            print("Training point number %d" % idx)
-        perturbed_x_i = random_perturbation(x_i, eps = eps_train, num_samples = num_samples_perturb)
-        featurized_perturbed_x = model.get_activation(sess, perturbed_x_i)[-2]
-        A_i, b_i = learn_constraint_setV2(featurized_perturbed_x)
-        A_list.append(A_i)
-        b_list.append(b_i)
-        x_i_star = solve_inner_opt_problem(sess, model, y_train[idx], num_samples_ellipse, A_i, b_i)
-        x_featurized_star.append(x_i_star)
-    return np.array(x_featurized_star)
+        A_list = []
+        b_list = []
+        x_featurized_star = []
+        for (idx, x_i) in enumerate(x_train):
+            if idx % display_step == 0:
+                print("Training point number %d" % idx)
+            perturbed_x_i = random_perturbation(x_i, eps = eps_train, num_samples = num_samples_perturb)
+            featurized_perturbed_x = model.get_activation(sess, perturbed_x_i)[-2]
+            A_i, b_i = learn_constraint_setV2(featurized_perturbed_x)
+            A_list.append(A_i)
+            b_list.append(b_i)
+            x_i_star = solve_inner_opt_problem(sess, model, y_train[idx], num_samples_ellipse, A_i, b_i)
+            x_featurized_star.append(x_i_star)
+        return np.array(x_featurized_star)
 
 def find_worst_point_in_set(sess, model, X, y):
     loss_vector = model.get_loss_vector(sess, X, y)
@@ -148,20 +148,6 @@ def learn_constraint_setV2(X):
     tool = ellipsoid.EllipsoidTool()
     A, b = tool.getMinVolEllipse(P = X)
     return A, b
-
-def learn_constraint_set(sampled_points):
-    m,n = sampled_points.shape
-    A = cp.Variable(shape = (n,n), symmetric = True)
-    b = cp.Variable(n)
-    objective = cp.Maximize(objective_function(A))
-    constraints = []
-    for i in range(m):
-        x_i = sampled_points[i].T
-        constraints.append(cp.atoms.norm(A*x_i + b) <= 1)
-    prob = cp.Problem(objective, constraints)
-    result = prob.solve()
-    print(prob.value)
-    return A.value, b.value
 
 def flatten_mnist(x):
     n, img_rows, img_cols = x.shape
