@@ -6,6 +6,12 @@ from tensorflow.contrib.tensorboard.plugins import projector
 import ipdb
 from util import *
 
+"""
+Reorganization:
+Add documentation for all functions
+Create a new function to get loss/acc from predictions
+"""
+
 class RobustMLP(object):
 
     def __init__(self,session,input_shape,hidden_sizes,num_classes, dataset, writer, scope):
@@ -165,7 +171,6 @@ class RobustMLP(object):
         x_test_adv: adversarial test set
         order: order of the distance norm - either 2 or float("inf")
         """
-
         x_test_adv = self.fgsm_np(sess, x_test, y_test, eps)
 
         pred = self.get_prediction(sess, x_test_adv)
@@ -220,15 +225,7 @@ class RobustMLP(object):
                                  })
         return loss, accuracy
 
-    def train(self, sess, X, y, optimizer, lr = 0.003, training_epochs=15, batch_size=32, display_step=1):
-        return
-
-    def fit(self, sess, X, y, lr = 0.003, training_epochs=15, batch_size=32, display_step=1):
-        temp = set(tf.all_variables())
-        optimizer = tf.train.AdamOptimizer(learning_rate=lr).minimize(self.loss)
-        sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
-
-
+    def fit_helper(self, sess, X, y, optimizer, loss, accuracy, lr = 0.003, training_epochs=15, batch_size=32, display_step=1):
         for epoch in range(training_epochs):
             avg_cost = 0.0
             total_batch = int(len(X) / batch_size)
@@ -237,7 +234,7 @@ class RobustMLP(object):
 
             for i in range(total_batch):
                 batch_x, batch_y = x_batches[i], y_batches[i]
-                _, c, acc = sess.run([optimizer, self.loss, self.accuracy],
+                _, c, acc = sess.run([optimizer, loss, accuracy],
                                      feed_dict={
                                          self.x: batch_x,
                                          self.y: batch_y,
@@ -265,9 +262,19 @@ class RobustMLP(object):
         print("Final Train Accuracy:", final_acc)
         return True
 
+    def fit(self, sess, X, y, lr = 0.003, training_epochs=15, batch_size=32, display_step=1):
+        temp = set(tf.all_variables())
+        optimization_step = tf.train.AdamOptimizer(learning_rate=lr).minimize(self.loss)
+        sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
+
+        self.fit_helper(sess, X, y, optimization_step, self.loss, 
+            self.accuracy, lr = 0.003, training_epochs=15, batch_size=32, display_step=1)
+        return True
+        
+
     def adv_fit(self, sess, X, y, eps, lr = 3e-4, training_epochs=15, batch_size=32, display_step=1):
         x_adv = self.fgsm(self.x, eps)
-        activations, predictions = model(x_adv, self.hidden_sizes, self.num_classes)
+        _, predictions = model(x_adv, self.hidden_sizes, self.num_classes)
 
         loss_vector = tf.nn.softmax_cross_entropy_with_logits(logits=predictions, labels=self.y)
         loss_adv = tf.reduce_mean(loss_vector)
@@ -280,41 +287,8 @@ class RobustMLP(object):
         optimizer = tf.train.AdamOptimizer(learning_rate=lr).minimize(loss_adv)
         sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
 
-        for epoch in range(training_epochs):
-            avg_cost = 0.0
-            total_batch = int(len(X) / batch_size)
-            x_batches = np.array_split(X, total_batch)
-            y_batches = np.array_split(y, total_batch)
-
-            for i in range(total_batch):
-                batch_x, batch_y = x_batches[i], y_batches[i]
-
-                _, c, acc = sess.run([optimizer, loss_adv, accuracy_adv],
-                                     feed_dict={
-                                         self.x: batch_x,
-                                         self.y: batch_y
-                                     })
-                avg_cost += c / total_batch
-
-                if i % 100 == 0:
-                    summary = sess.run(self.merged_summary, feed_dict = {self.x: x_batches[0], self.y: y_batches[0]})
-                    hor = epoch * total_batch + i
-                    self.writer.add_summary(summary, hor)
-
-            if epoch % display_step == 0:
-                print("Epoch:", '%04d' % (epoch+1), "cost=", \
-                        "{:.9f}".format(avg_cost))
-                print("Accuracy on batch:", acc)
-        print("Optimization Finished!")
-
-        final_acc, final_loss = sess.run([self.accuracy, self.loss],
-                                         feed_dict={
-                                             self.x: X,
-                                             self.y: y,
-                                         }
-                                        )
-        print("Final Train Loss on Regular points", final_loss)
-        print("Final Train Accuracy on regular points", final_acc)
+        self.fit_helper(sess, X, y, optimizer, loss_adv, accuracy_adv, 
+        lr = 3e-4, training_epochs=15, batch_size=32, display_step=1)
 
         X_adv = self.fgsm_np(sess, X, y, eps)
         final_acc_adv, final_loss_adv = sess.run([self.accuracy, self.loss],
@@ -355,48 +329,8 @@ class RobustMLP(object):
         optimization_update = optimizer.minimize(objective, var_list = var_list)
         sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
 
-        for epoch in range(training_epochs):
-            avg_cost = 0.0
-            total_batch = int(len(X) / batch_size)
-            x_batches = np.array_split(X, total_batch)
-            y_batches = np.array_split(y, total_batch)
-
-            for i in range(total_batch):
-                batch_x, batch_y = x_batches[i], y_batches[i]
-                feed_dict = {}
-                if feed_features_flag:
-                    feed_dict = {
-                        self.featurizations: batch_x,
-                        self.y : batch_y
-                    }
-                else:
-                    feed_dict = {
-                        self.x : batch_x,
-                        self.y : batch_y
-                    }
-                _, c, acc = sess.run([optimization_update, loss_adv, accuracy_adv],
-                                     feed_dict= feed_dict
-                                     )
-                avg_cost += c / total_batch
-            if epoch % display_step == 0:
-                print("Epoch:", '%04d' % (epoch+1), "cost=", \
-                        "{:.9f}".format(avg_cost))
-                print("Accuracy on batch:", acc)
-        print("Optimization Finished!")
-
-        feed_dict = {}
-        feed_dict[self.y] = y
-        if feed_features_flag:
-            feed_dict[self.featurizations] = X
-        else:
-            feed_dict[self.x] = X
-
-        final_acc, final_loss = sess.run([self.accuracy, self.loss],
-                                         feed_dict= feed_dict
-                                        )
-        print("Final Train Loss", final_loss)
-
-        print("Final Train Accuracy:", final_acc)
+        self.fit_helper(sess, X, y, optimization_update, loss_adv, accuracy_adv, feed_features_flag = False, lr = 0.001, training_epochs=15, batch_size=32, display_step=1)
+        return True
 
     def visualize_activation_tsne(self, sess, x_input, metadata_path, sprite_path, LOG_DIR, layer_number = -1, imgh = 28, imgw = 28):
         """
