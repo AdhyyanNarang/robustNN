@@ -10,29 +10,24 @@ from mnist_corruption import random_perturbation, gaussian_perturbation
 import cvxpy as cp
 from util import *
 
-
 """
 TODO:
     More elaborate test for the get_weight_norms function
-    Test whether the distance function has a bug - because results are different than keras (cascading effect less relevant here)
-    Repeat the norm experiments on these models
     Repeat CCA experiments
     TSNE - float plots
 
     NOW:
-    Fix the robust_fit_final_layer function - find delta_star at each update 
-                                            - use gradient descent instead of mini-batch adam
 """
-
 
 #Config
 
 #Four different methods to train the model.
 #These flags determine which ones we wish to run
-non_robust_flag = True
-adv_train_flag = False
-sampled_flag = True
+non_robust_flag = True 
+adv_train_flag = True
+sampled_flag = False 
 ellipse_flag = False
+cca_flag = False
 
 
 num_samples_ellipse = 100
@@ -56,29 +51,38 @@ if __name__ == "__main__":
 
     #Create and train the model
     sess = tf.Session()
-    hidden_sizes = [32,32,32,32]
+    hidden_sizes = [32,32,32,32,32,32,32]
     dataset = ((x_train_flat, y_train), (x_test_flat, y_test))
 
-    scope_name = "model_non_robust"
-    
+
+    activation_non = None
+    activation_rob = None
+    activation_non_two = None
+    activation_rob_two = None
+    x_adv_cca = None
+
     if(non_robust_flag):
+        scope_name = "model_non_robust"
         with tf.variable_scope(scope_name) as scope:
-            
+
             logdir = "tmp/2/non_robust"
             #Create, train and test model
             writer = tf.summary.FileWriter(logdir)
             model = ffr.RobustMLP(sess, input_shape, hidden_sizes, num_classes, dataset, writer = writer, scope = scope_name)
             print("Created model successfully. Now going to train")
-            model.fit(sess, x_train_flat, y_train, training_epochs = 3)
+            model.fit(sess, x_train_flat, y_train, training_epochs = 25)
             print(model.evaluate(sess, x_test_flat, y_test))
             print(model.adv_evaluate(sess, x_test_flat, y_test, eps_test))
+
+            x_adv_flat = model.sample_attack_np(sess, x_test_flat, y_test, eps_test * 3)
+            print(model.evaluate(sess, x_adv_flat, y_test))
 
             #Distances and norms
             print(model.get_weight_norms(sess))
             writer.add_graph(sess.graph)
-            #overall, correct, incorrect = model.get_distance(sess, eps_test, x_test_flat, y_test, order = 2)
-            #print(overall)
-            
+            overall, correct, incorrect = model.get_distance(sess, eps_test, x_test_flat, y_test)
+            print(overall)
+
             #TSNE visualization of final layer.
             x_test_flat_adv = model.fgsm_np(sess, x_test_flat, y_test, eps_test)
             metadata_path = os.path.join(logdir, 'metadata.tsv')
@@ -86,6 +90,12 @@ if __name__ == "__main__":
             sprite_path = os.path.join(logdir, 'sprite_images.png')
             write_sprite_image(sprite_path, x_test_ogi[0:1000])
             model.visualize_activation_tsne(sess, x_test_flat_adv[0:1000], 'metadata.tsv', 'sprite_images.png', logdir)
+
+            #Activations for CCA
+            if(cca_flag):
+                x_adv_cca = model.fgsm_np(sess, x_test_flat, y_test, eps_test)
+                activation_non = model.get_activation(sess, x_adv_cca)
+
 
     if(adv_train_flag):
         scope_name_rob = "model_robust"
@@ -98,7 +108,7 @@ if __name__ == "__main__":
             print(robust_model.evaluate(sess, x_test_flat, y_test))
             print(robust_model.adv_evaluate(sess, x_test_flat, y_test, eps_test))
             print(robust_model.get_weight_norms(sess))
-            overall, correct, incorrect = robust_model.get_distance(sess, eps_test, x_test_flat, y_test, order = 2)
+            overall, correct, incorrect = robust_model.get_distance(sess, eps_test, x_test_flat, y_test)
             print(overall)
             writer_robust.add_graph(sess.graph)
 
@@ -109,6 +119,54 @@ if __name__ == "__main__":
             sprite_path = os.path.join(logdir, 'sprite_images.png')
             write_sprite_image(sprite_path, x_test_ogi[0:1000])
             robust_model.visualize_activation_tsne(sess, x_test_flat_adv[0:1000], 'metadata.tsv', 'sprite_images.png', logdir)
+
+            #Activations for CCA
+            if(cca_flag):
+                activation_rob = robust_model.get_activation(sess, x_adv_cca)
+
+    if cca_flag:
+        #Train new non-robust model
+        scope_name = "model_non_robust_two"
+        with tf.variable_scope(scope_name) as scope:
+            logdir = "tmp/2/non_robust"
+            #Create, train and test model
+            writer = tf.summary.FileWriter(logdir)
+            model = ffr.RobustMLP(sess, input_shape, hidden_sizes, num_classes, dataset, writer = writer, scope = scope_name)
+            print("Created model successfully. Now going to train")
+            model.fit(sess, x_train_flat, y_train, training_epochs = 25)
+            print(model.evaluate(sess, x_test_flat, y_test))
+            print(model.adv_evaluate(sess, x_test_flat, y_test, eps_test))
+            writer.add_graph(sess.graph)
+
+            x_adv_flat = model.sample_attack_np(sess, x_test_flat, y_test, eps_test * 3)
+            print(model.evaluate(sess, x_adv_flat, y_test))
+            activation_non_two = model.get_activation(sess, x_adv_cca)
+
+        #Train new robust model
+        scope_name_rob = "model_robust_two"
+        with tf.variable_scope(scope_name_rob) as scope:
+            logdir = "tmp/2/robust"
+            writer_robust = tf.summary.FileWriter(logdir)
+            print("Adversarial Training")
+            robust_model = ffr.RobustMLP(sess, input_shape, hidden_sizes, num_classes, dataset, writer = writer_robust, scope = scope_name_rob)
+            robust_model.adv_fit(sess, x_train_flat, y_train, eps_train, lr = 3e-4, training_epochs = 25)
+            print(robust_model.evaluate(sess, x_test_flat, y_test))
+            print(robust_model.adv_evaluate(sess, x_test_flat, y_test, eps_test))
+            writer_robust.add_graph(sess.graph)
+
+            #TSNE visualization of final layer.
+            x_test_flat_adv = robust_model.fgsm_np(sess, x_test_flat, y_test, eps_test)
+            metadata_path = os.path.join(logdir, 'metadata.tsv')
+            write_metadata(metadata_path, y_test_ogi[0:1000])
+            sprite_path = os.path.join(logdir, 'sprite_images.png')
+            write_sprite_image(sprite_path, x_test_ogi[0:1000])
+            robust_model.visualize_activation_tsne(sess, x_test_flat_adv[0:1000], 'metadata.tsv', 'sprite_images.png', logdir)
+
+            #Activations for CCA
+            if(cca_flag):
+                activation_rob = robust_model.get_activation(sess, x_adv_cca)
+
+        #Get CCA and print them
 
 
     X_star = np.copy(x_train_flat)
@@ -124,11 +182,39 @@ if __name__ == "__main__":
             x_i_star = find_worst_point_in_set(sess, model, perturbed_x, y_set)
             X_star[idx] = x_i_star
         print("Yes I found some X_star")
-        """
         X_star = np.load("X_star.npy")
         loss, accuracy = model.evaluate(sess, X_star, y_train)
         print(accuracy)
-        model.fit_robust_final_layer(sess, X_star, y_train, training_epochs = 100)
+        """
+        scope_name_sampled = "model_robust"
+        with tf.variable_scope(scope_name_sampled) as scope:
+            logdir = "tmp/2/sampled"
+            writer_robust = tf.summary.FileWriter(logdir)
+            print("Final layer training using sampled adversarial attack")
+
+            robust_model = ffr.RobustMLP(sess, input_shape, hidden_sizes, num_classes, dataset, writer = writer_robust, scope = scope_name_sampled)
+            robust_model.fit(sess, x_train_flat, y_train, training_epochs = 3)
+            print(robust_model.evaluate(sess, x_test_flat, y_test))
+            print(robust_model.adv_evaluate(sess, x_test_flat, y_test, eps_test))
+            robust_model.fit_robust_final_layer(sess, x_train_flat, y_train, eps = 0.10, training_epochs = 6)
+            print(robust_model.evaluate(sess, x_test_flat, y_test))
+            print(robust_model.adv_evaluate(sess, x_test_flat, y_test, eps_test))
+
+            #print(robust_model.get_weight_norms(sess))
+            #overall, correct, incorrect = robust_model.get_distance(sess, eps_test, x_test_flat, y_test, order = 2)
+            #print(overall)
+            writer_robust.add_graph(sess.graph)
+
+            """
+            #TSNE visualization of final layer.
+            x_test_flat_adv = robust_model.fgsm_np(sess, x_test_flat, y_test, eps_test)
+            metadata_path = os.path.join(logdir, 'metadata.tsv')
+            write_metadata(metadata_path, y_test_ogi[0:1000])
+            sprite_path = os.path.join(logdir, 'sprite_images.png')
+            write_sprite_image(sprite_path, x_test_ogi[0:1000])
+            robust_model.visualize_activation_tsne(sess, x_test_flat_adv[0:1000], 'metadata.tsv', 'sprite_images.png', logdir)
+            """
+
 
     #Find X_star: Method 2 by Ellipse
     if (ellipse_flag):
@@ -164,4 +250,3 @@ if __name__ == "__main__":
         print(model.evaluate(sess, x_train_flat, y_train))
         print(model.evaluate(sess, x_test_flat, y_test))
         print(model.evaluate(sess, x_test_noisy, y_test))
-
