@@ -65,12 +65,14 @@ if __name__ == "__main__":
         scope_name = "model_non_robust"
         with tf.variable_scope(scope_name) as scope:
 
-            logdir = "tmp/2/non_robust"
+            logdir = "tmp/5/non_robust"
             #Create, train and test model
             writer = tf.summary.FileWriter(logdir)
             model = ffr.RobustMLP(sess, input_shape, hidden_sizes, num_classes, dataset, writer = writer, scope = scope_name)
             print("Created model successfully. Now going to train")
-            model.fit(sess, x_train_flat, y_train, training_epochs = 25)
+
+            #TODO: Fit the model until convergence before running the distance experiments again
+            model.fit(sess, x_train_flat, y_train, training_epochs = 3)
             print(model.evaluate(sess, x_test_flat, y_test))
             print(model.adv_evaluate(sess, x_test_flat, y_test, eps_test))
 
@@ -100,11 +102,11 @@ if __name__ == "__main__":
     if(adv_train_flag):
         scope_name_rob = "model_robust"
         with tf.variable_scope(scope_name_rob) as scope:
-            logdir = "tmp/2/robust"
+            logdir = "tmp/5/robust"
             writer_robust = tf.summary.FileWriter(logdir)
             print("Adversarial Training")
             robust_model = ffr.RobustMLP(sess, input_shape, hidden_sizes, num_classes, dataset, writer = writer_robust, scope = scope_name_rob)
-            robust_model.adv_fit(sess, x_train_flat, y_train, eps_train, lr = 3e-4, training_epochs = 25)
+            robust_model.adv_fit(sess, x_train_flat, y_train, eps_train, lr = 3e-4, training_epochs = 20)
             print(robust_model.evaluate(sess, x_test_flat, y_test))
             print(robust_model.adv_evaluate(sess, x_test_flat, y_test, eps_test))
             print(robust_model.get_weight_norms(sess))
