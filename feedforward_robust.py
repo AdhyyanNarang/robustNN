@@ -77,18 +77,36 @@ class RobustMLP(object):
         loss_vector = sess.run(self.loss_vector, feed_dict = feed_dict)
         return loss_vector
 
-    def get_weights_np(self, sess):
+    def get_weights(self):
         weights = []
         for i in range(len(self.hidden_sizes) + 1):
             scope_name = 'fc_' + str(i)
             with tf.variable_scope(scope_name, reuse = True):
                 w = tf.get_variable('weights')
                 weights.append(w)
+        return weights
 
+    def get_weights_np(self, sess):
+        weights = self.get_weights()
         weights_np = sess.run(weights)
         return weights_np
 
-    def get_weight_norms(self, sess, matrix_norm_fxn = lambda x: np.linalg.norm(x.T, ord = 1)):
+    def slash_weights(self, sess):
+        weights = []
+        assign_ops = []
+        for i in range(len(self.hidden_sizes) + 1):
+            scope_name = 'fc_' + str(i)
+            with tf.variable_scope(scope_name, reuse = True):
+                w = tf.get_variable('weights')
+                weights.append(w)
+                assign_op = tf.assign(w, w * 0.9)
+                assign_ops.append(assign_op)
+
+        sess.run(assign_ops)
+        weights_np = sess.run(weights)
+        return weights_np
+
+    def get_weight_norms(self, sess, matrix_norm_fxn = lambda x: np.linalg.norm(x, ord = 1)):
         """
         Getter method for the norms of the weight matrices of
         the network
@@ -96,7 +114,7 @@ class RobustMLP(object):
         model_norms = []
         weights_list = self.get_weights_np(sess)
         for weights in weights_list:
-            norm = matrix_norm_fxn(weights[0])
+            norm = matrix_norm_fxn(weights)
             model_norms.append(norm)
         return model_norms
 
@@ -199,9 +217,10 @@ class RobustMLP(object):
         activation_adv = np.array(self.get_activation(sess, adv_image))
 
         difference = activation_reg - activation_adv
+        difference = difference.squeeze()
         L = len(difference)
         if L == 1:
-                return np.linalg.norm(activation_reg - activation_adv, ord = order)
+                return np.linalg.norm(difference, ord = order)
         else:
             distances = []
             for i in range(L):
@@ -263,11 +282,14 @@ class RobustMLP(object):
         return True
 
     def fit(self, sess, X, y, lr = 0.003, training_epochs=15, batch_size=32, display_step=1):
+
+        #loss = self.loss + 0.05*regularize_op_norm(self.get_weights())
+        loss = self.loss
         temp = set(tf.all_variables())
-        optimization_step = tf.train.AdamOptimizer(learning_rate=lr).minimize(self.loss)
+        optimization_step = tf.train.AdamOptimizer(learning_rate=lr).minimize(loss)
         sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
 
-        self.fit_helper(sess, X, y, optimization_step, self.loss,
+        self.fit_helper(sess, X, y, optimization_step, loss,
             self.accuracy, lr, training_epochs, batch_size, display_step)
         return True
 
