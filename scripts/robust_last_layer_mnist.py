@@ -24,7 +24,7 @@ TODO:
 #Four different methods to train the model.
 #These flags determine which ones we wish to run
 non_robust_flag = True 
-adv_train_flag = True
+adv_train_flag = True 
 sampled_flag = False 
 ellipse_flag = False
 cca_flag = False
@@ -72,19 +72,20 @@ if __name__ == "__main__":
             print("Created model successfully. Now going to train")
 
             #TODO: Fit the model until convergence before running the distance experiments again
-            model.fit(sess, x_train_flat, y_train, training_epochs = 3)
+            model.fit(sess, x_train_flat, y_train, training_epochs = 6)
             print(model.evaluate(sess, x_test_flat, y_test))
             print(model.adv_evaluate(sess, x_test_flat, y_test, eps_test))
-
-            x_adv_flat = model.sample_attack_np(sess, x_test_flat, y_test, eps_test * 3)
-            print(model.evaluate(sess, x_adv_flat, y_test))
 
             #Distances and norms
             print(model.get_weight_norms(sess))
             writer.add_graph(sess.graph)
             overall, correct, incorrect = model.get_distance(sess, eps_test, x_test_flat, y_test)
             print(overall)
+            x_test_flat_adv = model.fgsm_np(sess, x_test_flat, y_test, eps_test)
+            ipdb.set_trace()
+            dist = model.dist_calculator(sess, x_test_flat[0], x_test_flat-adv[0])
 
+            """
             #TSNE visualization of final layer.
             x_test_flat_adv = model.fgsm_np(sess, x_test_flat, y_test, eps_test)
             metadata_path = os.path.join(logdir, 'metadata.tsv')
@@ -93,6 +94,17 @@ if __name__ == "__main__":
             write_sprite_image(sprite_path, x_test_ogi[0:1000])
             model.visualize_activation_tsne(sess, x_test_flat_adv[0:1000], 'metadata.tsv', 'sprite_images.png', logdir)
 
+            print("-----After slashing-------")
+            weights_new = model.slash_weights(sess)
+            print(model.evaluate(sess, x_test_flat, y_test))
+            print(model.adv_evaluate(sess, x_test_flat, y_test, eps_test))
+
+            #Distances and norms
+            print(model.get_weight_norms(sess))
+            writer.add_graph(sess.graph)
+            overall, correct, incorrect = model.get_distance(sess, eps_test, x_test_flat, y_test)
+            print(overall)
+            """
             #Activations for CCA
             if(cca_flag):
                 x_adv_cca = model.fgsm_np(sess, x_test_flat, y_test, eps_test)
@@ -113,14 +125,15 @@ if __name__ == "__main__":
             overall, correct, incorrect = robust_model.get_distance(sess, eps_test, x_test_flat, y_test)
             print(overall)
             writer_robust.add_graph(sess.graph)
-
+            
+            ipdb.set_trace()
             #TSNE visualization of final layer.
             x_test_flat_adv = robust_model.fgsm_np(sess, x_test_flat, y_test, eps_test)
             metadata_path = os.path.join(logdir, 'metadata.tsv')
             write_metadata(metadata_path, y_test_ogi[0:1000])
             sprite_path = os.path.join(logdir, 'sprite_images.png')
             write_sprite_image(sprite_path, x_test_ogi[0:1000])
-            robust_model.visualize_activation_tsne(sess, x_test_flat_adv[0:1000], 'metadata.tsv', 'sprite_images.png', logdir)
+            robust_model.visualize_activation_tsne(sess, x_test_flat[0:1000], 'metadata.tsv', 'sprite_images.png', logdir)
 
             #Activations for CCA
             if(cca_flag):
@@ -155,7 +168,6 @@ if __name__ == "__main__":
             print(robust_model.evaluate(sess, x_test_flat, y_test))
             print(robust_model.adv_evaluate(sess, x_test_flat, y_test, eps_test))
             writer_robust.add_graph(sess.graph)
-
             #TSNE visualization of final layer.
             x_test_flat_adv = robust_model.fgsm_np(sess, x_test_flat, y_test, eps_test)
             metadata_path = os.path.join(logdir, 'metadata.tsv')
