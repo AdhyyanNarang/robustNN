@@ -24,7 +24,7 @@ TODO:
 #Four different methods to train the model.
 #These flags determine which ones we wish to run
 non_robust_flag = True 
-adv_train_flag = True 
+adv_train_flag = False
 sampled_flag = False 
 ellipse_flag = False
 cca_flag = False
@@ -72,18 +72,24 @@ if __name__ == "__main__":
             print("Created model successfully. Now going to train")
 
             #TODO: Fit the model until convergence before running the distance experiments again
-            model.fit(sess, x_train_flat, y_train, training_epochs = 6)
+            model.fit(sess, x_train_flat, y_train, training_epochs = 150, reg = 0.00000, lr = 3e-3)
             print(model.evaluate(sess, x_test_flat, y_test))
             print(model.adv_evaluate(sess, x_test_flat, y_test, eps_test))
 
             #Distances and norms
-            print(model.get_weight_norms(sess))
+            norms = get_norms(model.get_weights())
+            norms_np = sess.run(norms)
+            print(norms_np)
+
             writer.add_graph(sess.graph)
-            overall, correct, incorrect = model.get_distance(sess, eps_test, x_test_flat, y_test)
+            overall, overall_std, correct, _, incorrect, _ = model.get_distance(sess, eps_test, x_test_flat, y_test)
             print(overall)
+            print(overall_std)
+            """
             x_test_flat_adv = model.fgsm_np(sess, x_test_flat, y_test, eps_test)
-            ipdb.set_trace()
-            dist = model.dist_calculator(sess, x_test_flat[0], x_test_flat-adv[0])
+            dist = model.dist_calculator(sess, x_test_flat[0], x_test_flat_adv[0], order = float("inf"))
+            print(dist)
+            """
 
             """
             #TSNE visualization of final layer.
@@ -122,7 +128,7 @@ if __name__ == "__main__":
             print(robust_model.evaluate(sess, x_test_flat, y_test))
             print(robust_model.adv_evaluate(sess, x_test_flat, y_test, eps_test))
             print(robust_model.get_weight_norms(sess))
-            overall, correct, incorrect = robust_model.get_distance(sess, eps_test, x_test_flat, y_test)
+            overall, _, correct, _, incorrect, _ = robust_model.get_distance(sess, eps_test, x_test_flat, y_test)
             print(overall)
             writer_robust.add_graph(sess.graph)
             

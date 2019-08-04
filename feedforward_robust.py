@@ -196,18 +196,18 @@ class RobustMLP(object):
         incorrect_indices = [i for i,v in enumerate(pred) if np.argmax(v) != np.argmax(y_test[i])]
         correct_indices = [i for i,v in enumerate(pred) if np.argmax(v) == np.argmax(y_test[i])]
 
-        overall = self.dist_average(sess, x_test, x_test_adv, order = order)
-        correct_dist = self.dist_average(sess, x_test[correct_indices], x_test_adv[correct_indices], order)
-        incorrect_dist = self.dist_average(sess, x_test[incorrect_indices], x_test_adv[incorrect_indices], order)
+        overall, overall_std  = self.dist_average(sess, x_test, x_test_adv, order = order)
+        correct_dist, correct_std = self.dist_average(sess, x_test[correct_indices], x_test_adv[correct_indices], order)
+        incorrect_dist, incorrect_std = self.dist_average(sess, x_test[incorrect_indices], x_test_adv[incorrect_indices], order)
 
-        return overall, correct_dist, incorrect_dist
+        return overall, overall_std, correct_dist, correct_std, incorrect_dist, incorrect_std
 
     def dist_average(self, sess, x_test, x_test_adv, order):
         distances = []
         for i in range(len(x_test)):
             dist = self.dist_calculator(sess, x_test[i], x_test_adv[i], order)
             distances.append(dist)
-        return np.average(distances, axis = 0)
+        return np.average(distances, axis = 0), np.std(distances, axis = 0)
 
     def dist_calculator(self,sess, x, x_adv, order):
         reg_image = x.reshape(1, 784)
@@ -281,10 +281,9 @@ class RobustMLP(object):
         print("Final Train Accuracy:", final_acc)
         return True
 
-    def fit(self, sess, X, y, lr = 0.003, training_epochs=15, batch_size=32, display_step=1):
+    def fit(self, sess, X, y, lr = 0.003, training_epochs=15, batch_size=32, display_step=1, reg = 0.005):
 
-        #loss = self.loss + 0.05*regularize_op_norm(self.get_weights())
-        loss = self.loss
+        loss = self.loss + reg*regularize_op_norm(self.get_weights())
         temp = set(tf.all_variables())
         optimization_step = tf.train.AdamOptimizer(learning_rate=lr).minimize(loss)
         sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
