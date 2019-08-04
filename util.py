@@ -36,7 +36,9 @@ def model(x, hidden_sizes, num_classes):
     #Compute the prediction placeholder
     for i in range(len(hidden_sizes)):
         scope = 'fc_' + str(i)
-        act = fully_connected_layer(act, hidden_sizes[i], scope, initial, bias_initial, tf.nn.relu)
+        #act_fxn = tf.nn.relu
+        act_fxn = tf.math.sigmoid
+        act = fully_connected_layer(act, hidden_sizes[i], scope, initial, bias_initial, act_fxn)
         activations.append(act)
 
     scope = 'fc_' + str(len(hidden_sizes))
@@ -44,6 +46,22 @@ def model(x, hidden_sizes, num_classes):
 
     return activations, predictions
 
+def op_norm(matrix):
+    column_norms = tf.norm(matrix, ord = 1, axis = 0)
+    op_inf_inf = tf.reduce_max(column_norms)
+    return op_inf_inf
+
+def get_norms(weights_list):
+    norms = []
+    for weights in weights_list:
+        norms.append(op_norm(weights))
+    return norms 
+
+def regularize_op_norm(weights_list):
+    penalty = 0
+    for weights in weights_list:
+        penalty += op_norm(weights)
+    return penalty
 
 #Functions that aid with visualization
 def write_sprite_image(filename, images, img_h = 28, img_w = 28):
