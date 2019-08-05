@@ -1,0 +1,14 @@
+2019-08-04 23:43:49,719 - robustness - INFO - Something happened
+2019-08-04 23:43:50,389 - robustness - INFO - Created model successfully. Now going to train
+2019-08-04 23:43:53,051 - robustness - INFO - Epoch: 0001    cost: 1.235331757 
+2019-08-04 23:43:53,051 - robustness - INFO - Accuracy on batch: 0.906250
+2019-08-04 23:43:53,051 - robustness - INFO - Optimization Finished!
+2019-08-04 23:43:53,267 - robustness - INFO - Final Train Loss 0.686801
+2019-08-04 23:43:53,267 - robustness - INFO - Final Train Accuracy 0.791717:
+2019-08-04 23:43:53,476 - robustness - INFO - (0.6927952, 0.7919)
+2019-08-04 23:43:53,476 - robustness - INFO - (4.6913853, 0.0581)
+2019-08-04 23:43:53,538 - robustness - INFO - [161.3701, 16.096449, 13.8834915, 13.536786, 16.398365, 15.800787, 19.826483, 19.728008]
+2019-08-04 23:44:09,648 - robustness - INFO - [0.9306673  0.6533018  0.6531849  0.6674277  0.6947321  0.75724566
+ 0.7961144 ]
+2019-08-04 23:44:09,648 - robustness - INFO - [0.12860596 0.21376085 0.2273934  0.23029868 0.24765433 0.2517104
+ 0.25700787]

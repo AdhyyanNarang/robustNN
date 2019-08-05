@@ -14,7 +14,7 @@ Create a new function to get loss/acc from predictions
 
 class RobustMLP(object):
 
-    def __init__(self,session,input_shape,hidden_sizes,num_classes, dataset, writer, scope):
+    def __init__(self,session,input_shape,hidden_sizes,num_classes, dataset, writer, scope, logger):
 
         #Initialize instance variables
         self.sess = session
@@ -24,6 +24,7 @@ class RobustMLP(object):
         (self.x_train, self.y_train), (self.x_test, self.y_test) = dataset
         self.writer = writer
         self.scope = scope
+        self.logger = logger
 
         #TODO: Fix this hacky solution.
         input_shape = input_shape[0]
@@ -266,10 +267,11 @@ class RobustMLP(object):
                     self.writer.add_summary(summary, hor)
 
             if epoch % display_step == 0:
-                print("Epoch:", '%04d' % (epoch+1), "cost=", \
-                        "{:.9f}".format(avg_cost))
-                print("Accuracy on batch:", acc)
-        print("Optimization Finished!")
+                #self.logger.info("Epoch:", '%04d' % (epoch+1), "cost=", \
+                        #"{:.9f}".format(avg_cost))
+                self.logger.info("Epoch: %04d    cost: %.9f " %(epoch+1, avg_cost))
+                self.logger.info("Accuracy on batch: %f" %acc)
+        self.logger.info("Optimization Finished!")
 
         final_acc, final_loss = sess.run([self.accuracy, self.loss],
                                          feed_dict={
@@ -277,8 +279,8 @@ class RobustMLP(object):
                                              self.y: y,
                                          }
                                         )
-        print("Final Train Loss", final_loss)
-        print("Final Train Accuracy:", final_acc)
+        self.logger.info("Final Train Loss %f" %final_loss)
+        self.logger.info("Final Train Accuracy %f:" %final_acc)
         return True
 
     def fit(self, sess, X, y, lr = 0.003, training_epochs=15, batch_size=32, display_step=1, reg = 0.005):
@@ -317,8 +319,8 @@ class RobustMLP(object):
                                              self.y: y,
                                          }
                                         )
-        print("Final Train Loss on Adv points", final_loss_adv)
-        print("Final Train Accuracy on Adv points", final_acc_adv)
+        self.logger.info("Final Train Loss on Adv points %f" %final_loss_adv)
+        self.logger.info("Final Train Accuracy on Adv points %f" %final_acc_adv)
         return True
 
     def fit_robust_final_layer(self, sess, X, y, eps, feed_features_flag = False, lr = 0.001, training_epochs=15, batch_size=32, display_step=1):

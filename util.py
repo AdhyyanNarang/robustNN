@@ -4,6 +4,7 @@ import tensorflow as tf
 import tensorflow.contrib.layers as layers
 import ipdb
 import matplotlib.pyplot as plt
+import pandas as pd
 
 """
 Helper functions for feedforward_robust
@@ -55,7 +56,7 @@ def get_norms(weights_list):
     norms = []
     for weights in weights_list:
         norms.append(op_norm(weights))
-    return norms 
+    return norms
 
 def regularize_op_norm(weights_list):
     penalty = 0
@@ -63,7 +64,16 @@ def regularize_op_norm(weights_list):
         penalty += op_norm(weights)
     return penalty
 
-#Functions that aid with visualization
+def write_to_results_csv(epochs, op_reg, lr, adv_train_flag, activation, acc_reg, acc_robust, loss_reg, loss_robust, logdir, tb_dir, dist, norms):
+    df = pd.read_excel("results.xlsx")
+    index = len(df)
+    df.loc[index] = [index, epochs, op_reg, lr, adv_train_flag, activation, acc_reg, acc_robust, loss_reg, loss_robust, logdir, tb_dir, dist, norms]
+    df.to_excel("results.xlsx")
+    return True
+
+"""
+Functions that aid with visualization
+"""
 def write_sprite_image(filename, images, img_h = 28, img_w = 28):
     """
         Create a sprite image consisting of sample images
@@ -128,6 +138,9 @@ def write_metadata(filename, labels):
             x_featurized_star.append(x_i_star)
         return np.array(x_featurized_star)
 
+"""
+Functions for ellipsoid and sampling
+"""
 def find_worst_point_in_set(sess, model, X, y):
     loss_vector = model.get_loss_vector(sess, X, y)
     idx = np.argmax(loss_vector)
