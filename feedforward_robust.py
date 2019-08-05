@@ -323,37 +323,6 @@ class RobustMLP(object):
         self.logger.info("Final Train Accuracy on Adv points %f" %final_acc_adv)
         return True
 
-    def fit_robust_final_layer(self, sess, X, y, eps, feed_features_flag = False, lr = 0.001, training_epochs=15, batch_size=32, display_step=1):
-        #Generate new loss and accuracy variables
-        #x_adv = self.sample_attack(eps)
-        x_adv = self.fgsm(self.x, eps)
-        activations, predictions = model(x_adv, self.hidden_sizes, self.num_classes)
-        loss_vector = tf.nn.softmax_cross_entropy_with_logits(logits=predictions, labels=self.y)
-        loss_adv = tf.reduce_mean(loss_vector)
-        tf.summary.scalar("loss", loss_adv)
-        correct_prediction = tf.equal(tf.argmax(predictions, 1), tf.argmax(self.y, 1))
-        accuracy_adv = tf.reduce_mean(tf.cast(correct_prediction, "float"))
-
-        #Create var list
-        var_list = []
-        scope_name = 'fc_' + str(len(self.hidden_sizes))
-        with tf.variable_scope(scope_name, reuse = True ) as scope:
-            w = tf.get_variable('weights')
-            b = tf.get_variable('biases')
-            var_list.append(w)
-            var_list.append(b)
-
-        #Crete optimizer variable
-        temp = set(tf.all_variables())
-        #optimizer = tf.train.AdamOptimizer(learning_rate=lr)
-        optimizer = tf.train.GradientDescentOptimizer(learning_rate=lr)
-        objective = 0.9*loss_adv + 0.1*self.loss
-        optimization_update = optimizer.minimize(objective, var_list = var_list)
-        sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
-
-        self.fit_helper(sess, X, y, optimization_update, loss_adv, accuracy_adv, feed_features_flag, lr, training_epochs, batch_size, display_step)
-        return True
-
     def visualize_activation_tsne(self, sess, x_input, metadata_path, sprite_path, LOG_DIR, imgh = 28, imgw = 28):
         """
         Activations: To be visualized
