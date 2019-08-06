@@ -1,0 +1,32 @@
+2019-08-05 16:40:59,282 - robustness - INFO - Created model successfully. Now going to train
+2019-08-05 16:41:02,063 - robustness - INFO - Epoch: 0001    cost: 1.364411390 
+2019-08-05 16:41:02,063 - robustness - INFO - Accuracy on batch: 0.781250
+2019-08-05 16:41:04,094 - robustness - INFO - Epoch: 0002    cost: 0.694173029 
+2019-08-05 16:41:04,094 - robustness - INFO - Accuracy on batch: 0.875000
+2019-08-05 16:41:06,076 - robustness - INFO - Epoch: 0003    cost: 0.394638025 
+2019-08-05 16:41:06,076 - robustness - INFO - Accuracy on batch: 0.937500
+2019-08-05 16:41:08,042 - robustness - INFO - Epoch: 0004    cost: 0.314637960 
+2019-08-05 16:41:08,042 - robustness - INFO - Accuracy on batch: 0.875000
+2019-08-05 16:41:09,957 - robustness - INFO - Epoch: 0005    cost: 0.276624741 
+2019-08-05 16:41:09,958 - robustness - INFO - Accuracy on batch: 0.937500
+2019-08-05 16:41:11,878 - robustness - INFO - Epoch: 0006    cost: 0.250098024 
+2019-08-05 16:41:11,878 - robustness - INFO - Accuracy on batch: 0.968750
+2019-08-05 16:41:13,839 - robustness - INFO - Epoch: 0007    cost: 0.227766318 
+2019-08-05 16:41:13,839 - robustness - INFO - Accuracy on batch: 0.968750
+2019-08-05 16:41:15,774 - robustness - INFO - Epoch: 0008    cost: 0.212459101 
+2019-08-05 16:41:15,774 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-05 16:41:17,691 - robustness - INFO - Epoch: 0009    cost: 0.198620647 
+2019-08-05 16:41:17,691 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-05 16:41:19,623 - robustness - INFO - Epoch: 0010    cost: 0.185602236 
+2019-08-05 16:41:19,623 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-05 16:41:19,623 - robustness - INFO - Optimization Finished!
+2019-08-05 16:41:19,974 - robustness - INFO - Final Train Loss 0.194197
+2019-08-05 16:41:19,974 - robustness - INFO - Final Train Accuracy 0.951133:
+2019-08-05 16:41:25,996 - robustness - INFO - (0.2546896, 0.9369)
+2019-08-05 16:41:25,996 - robustness - INFO - (6.354927, 0.1234)
+2019-08-05 16:41:26,203 - robustness - INFO - [325.33728, 32.12922, 22.591274, 19.652607, 20.43904, 26.104446, 38.55416, 27.83214]
+2019-08-05 16:41:42,814 - robustness - INFO - [0.9097431  0.59459233 0.6237213  0.646627   0.70321494 0.7542059
+ 0.80426776]
+2019-08-05 16:41:42,815 - robustness - INFO - [0.17234719 0.22440211 0.25743318 0.2794751  0.29468    0.29433632
+ 0.29679775]
+2019-08-05 16:41:43,301 - robustness - INFO - [0.8327289, 0.5889309, 0.5309653, 0.21181002, 0.12971053, 0.114086, 0.045053333]
