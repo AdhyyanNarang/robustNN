@@ -23,7 +23,7 @@ def fully_connected_layer(x, output_dim, scope_name, weight_initializer, bias_in
         tf.summary.histogram("activations", a)
         return a
 
-def model(x, hidden_sizes, num_classes):
+def model(x, hidden_sizes, num_classes, act_fxn = tf.nn.relu):
     """
     Input: Placeholder x, sizes of hidden layers, num_classes
     Output: Activations of fully connected neural network
@@ -37,8 +37,6 @@ def model(x, hidden_sizes, num_classes):
     #Compute the prediction placeholder
     for i in range(len(hidden_sizes)):
         scope = 'fc_' + str(i)
-        #act_fxn = tf.nn.relu
-        act_fxn = tf.math.sigmoid
         act = fully_connected_layer(act, hidden_sizes[i], scope, initial, bias_initial, act_fxn)
         activations.append(act)
 
@@ -64,11 +62,11 @@ def regularize_op_norm(weights_list):
         penalty += op_norm(weights)
     return penalty
 
-def write_to_results_csv(epochs, op_reg, lr, adv_train_flag, activation, acc_reg, acc_robust, loss_reg, loss_robust, logdir, tb_dir, dist, norms):
+def write_to_results_csv(epochs, op_reg, lr, adv_train_flag, activation, acc_reg, acc_fgsm, acc_pgd,  loss_reg, loss_fgsm, loss_pgd, logdir, weights_path, tb_dir, dist, norms):
     df = pd.read_excel("results.xlsx")
     index = len(df)
-    df.loc[index] = [index, epochs, op_reg, lr, adv_train_flag, activation, acc_reg, acc_robust, loss_reg, loss_robust, logdir, tb_dir, dist, norms]
-    df.to_excel("results.xlsx")
+    df.loc[index] = [index, epochs, op_reg, lr, adv_train_flag, activation, acc_reg, acc_fgsm, acc_pgd, loss_reg, loss_fgsm, loss_pgd, logdir, weights_path, tb_dir, dist, norms]
+    df.to_excel("results.xlsx", index = False)
     return True
 
 """

@@ -2,4 +2,5 @@
 **/.vscode
 **/ellipsoidV3
 *.npy
-scripts/tmp
+scripts/tb
+scripts/weights

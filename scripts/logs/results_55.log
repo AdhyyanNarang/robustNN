@@ -1,0 +1,27 @@
+2019-08-05 22:51:47,089 - robustness - INFO - Created model successfully. Now going to train
+2019-08-05 22:51:50,306 - robustness - INFO - Epoch: 0001    cost: 0.401722333 
+2019-08-05 22:51:50,307 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-05 22:51:52,180 - robustness - INFO - Epoch: 0002    cost: 0.211874868 
+2019-08-05 22:51:52,181 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-05 22:51:54,197 - robustness - INFO - Epoch: 0003    cost: 0.175624523 
+2019-08-05 22:51:54,197 - robustness - INFO - Accuracy on batch: 0.968750
+2019-08-05 22:51:56,157 - robustness - INFO - Epoch: 0004    cost: 0.160553633 
+2019-08-05 22:51:56,157 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-05 22:51:58,093 - robustness - INFO - Epoch: 0005    cost: 0.141879035 
+2019-08-05 22:51:58,094 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-05 22:51:59,950 - robustness - INFO - Epoch: 0006    cost: 0.131651216 
+2019-08-05 22:51:59,950 - robustness - INFO - Accuracy on batch: 0.968750
+2019-08-05 22:52:01,844 - robustness - INFO - Epoch: 0007    cost: 0.125356361 
+2019-08-05 22:52:01,844 - robustness - INFO - Accuracy on batch: 0.968750
+2019-08-05 22:52:03,824 - robustness - INFO - Epoch: 0008    cost: 0.116923867 
+2019-08-05 22:52:03,824 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-05 22:52:05,730 - robustness - INFO - Epoch: 0009    cost: 0.108531131 
+2019-08-05 22:52:05,731 - robustness - INFO - Accuracy on batch: 0.906250
+2019-08-05 22:52:07,762 - robustness - INFO - Epoch: 0010    cost: 0.104703356 
+2019-08-05 22:52:07,762 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-05 22:52:07,762 - robustness - INFO - Optimization Finished!
+2019-08-05 22:52:08,007 - robustness - INFO - Final Train Loss 0.115925
+2019-08-05 22:52:08,007 - robustness - INFO - Final Train Accuracy 0.970500:
+2019-08-05 22:52:08,365 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-08-05 22:52:08,365 - robustness - INFO - (0.17525391, 0.9602)
+2019-08-05 22:52:08,366 - robustness - INFO - ----FGSM test accuracy and loss ----

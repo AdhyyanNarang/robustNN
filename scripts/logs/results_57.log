@@ -1,0 +1,20 @@
+2019-08-05 23:01:02,481 - robustness - INFO - Created model successfully. Now going to train
+2019-08-05 23:01:05,219 - robustness - INFO - Epoch: 0001    cost: 0.398834879 
+2019-08-05 23:01:05,219 - robustness - INFO - Accuracy on batch: 0.968750
+2019-08-05 23:01:07,144 - robustness - INFO - Epoch: 0002    cost: 0.207016124 
+2019-08-05 23:01:07,144 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-05 23:01:09,125 - robustness - INFO - Epoch: 0003    cost: 0.176332046 
+2019-08-05 23:01:09,125 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-05 23:01:09,125 - robustness - INFO - Optimization Finished!
+2019-08-05 23:01:09,350 - robustness - INFO - Final Train Loss 0.213114
+2019-08-05 23:01:09,350 - robustness - INFO - Final Train Accuracy 0.934567:
+2019-08-05 23:01:09,684 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-08-05 23:01:09,684 - robustness - INFO - (0.23705049, 0.9299)
+2019-08-05 23:01:09,685 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-08-05 23:01:09,685 - robustness - INFO - (6.7755094, 0.0392)
+2019-08-05 23:01:17,053 - robustness - INFO - ----PGD test accuracy and loss ----
+2019-08-05 23:01:17,053 - robustness - INFO - (24.619421, 0.006)
+2019-08-05 23:01:17,189 - robustness - INFO - [138.91463, 9.132495, 8.988977, 8.27085, 8.298483, 7.1643567, 7.5375657, 11.348869]
+2019-08-05 23:01:33,482 - robustness - INFO - [7.4477954 6.8025093 7.2666335 7.3556733 8.691928  8.399956  8.053249 ]
+2019-08-05 23:01:33,483 - robustness - INFO - [1.7039893 1.8637614 2.328683  3.05964   3.7666526 3.2342098 2.7209752]
+2019-08-05 23:01:34,037 - robustness - INFO - [7.0085144, 8.330761, 7.592351, 9.0060005, 16.049797, 10.835815, 9.767885]

@@ -14,7 +14,7 @@ Create a new function to get loss/acc from predictions
 
 class RobustMLP(object):
 
-    def __init__(self,session,input_shape,hidden_sizes,num_classes, dataset, writer, scope, logger):
+    def __init__(self,session,input_shape,hidden_sizes,num_classes, dataset, writer, scope, logger, sigma):
 
         #Initialize instance variables
         self.sess = session
@@ -25,6 +25,7 @@ class RobustMLP(object):
         self.writer = writer
         self.scope = scope
         self.logger = logger
+        self.sigma = sigma
 
         #TODO: Fix this hacky solution.
         input_shape = input_shape[0]
@@ -34,7 +35,7 @@ class RobustMLP(object):
         self.x = tf.placeholder("float", x_shape)
         self.y = tf.placeholder("float", [None, num_classes])
 
-        self.activations, self.predictions = model(self.x, self.hidden_sizes, self.num_classes)
+        self.activations, self.predictions = model(self.x, self.hidden_sizes, self.num_classes, sigma)
         self.featurizations = self.activations[-1]
 
         self.loss_vector = tf.nn.softmax_cross_entropy_with_logits(logits=self.predictions, labels=self.y)
@@ -80,15 +81,18 @@ class RobustMLP(object):
 
     def get_weights(self):
         weights = []
+        biases = []
         for i in range(len(self.hidden_sizes) + 1):
             scope_name = 'fc_' + str(i)
             with tf.variable_scope(scope_name, reuse = True):
                 w = tf.get_variable('weights')
+                b = tf.get_variable('biases')
                 weights.append(w)
-        return weights
+                biases.append(b)
+        return weights, biases
 
     def get_weights_np(self, sess):
-        weights = self.get_weights()
+        weights = self.get_weights()[0]
         weights_np = sess.run(weights)
         return weights_np
 
@@ -136,6 +140,61 @@ class RobustMLP(object):
         x_adv_conc = sess.run(x_adv, feed_dict = feed_dict)
         return x_adv_conc
 
+    #TODO: Fix and test
+    def pgd_adam(self, sess, X, y, eps, eta, num_iter):
+        #Initialize the variables
+        temp = set(tf.all_variables())
+        x_ph = tf.placeholder("float", X.shape)
+        delta = tf.get_variable("delta", shape = X.shape, initializer = tf.initializers.zeros(dtype = tf.float32))
+        x_tilde = x_ph + delta
+        y_ph = tf.placeholder("float", y.shape)
+
+        #New predictions and loss - call to model will reuse learned weights
+        activations, predictions = model(x_tilde, self.hidden_sizes, self.num_classes, self.sigma)
+        loss_vector = tf.nn.softmax_cross_entropy_with_logits(logits=predictions, labels=y_ph)
+        loss_tilde = tf.reduce_mean(loss_vector)
+
+        #Optimization
+        optimization_step = tf.train.AdamOptimizer(learning_rate = eta).minimize(-loss_tilde, var_list = [delta])
+        tmp = tf.clip_by_value(delta, clip_value_min = -eps, clip_value_max = eps)
+        project_op = tf.assign(delta, tmp)
+        sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
+
+        for i in range(num_iter):
+            print("iteration: %d"%i)
+            feed_dict = {x_ph: X, y_ph: y}
+            sess.run([optimization_step, project_op], feed_dict = feed_dict)
+
+        return x_tilde, x_ph, y_ph
+
+    def pgd_adam_np(self, sess, x, y, eps, eta, num_iter):
+        x_tilde, x_ph, y_ph = self.pgd_adam(sess, x, y, eps, eta, num_iter)
+        feed_dict = {x_ph : x, y_ph: y}
+        x_tilde_np = sess.run(x_tilde, feed_dict = feed_dict)
+        return x_tilde_np
+
+    #TODO: Finish according to website implementation
+    def pgd(self, sess, X, y, eps, eta, num_iter):
+        delta = tf.zeros_like(self.x)
+        x_tilde = tf.zeros_like(self.x)
+
+        for i in range(num_iter):
+            print("iteration: %d"%i)
+            x_tilde = self.x + delta
+            _, predictions = model(x_tilde, self.hidden_sizes, self.num_classes)
+            loss_tilde = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=predictions, labels=y))
+            g = tf.gradients(loss_tilde, delta)
+            delta = delta + eta*tf.sign(g)
+            delta = tf.clip_by_value(delta, clip_value_min = -eps, clip_value_max = eps)
+
+        return x_tilde
+
+    def pgd_np(self, sess, x, y, eps, eta, num_iter):
+        x_tilde = self.pgd(sess, x, y, eps, eta, num_iter)
+        feed_dict = {self.x: x, self.y : y}
+        x_tilde_np = sess.run(x_tilde, feed_dict = feed_dict)
+        return x_tilde_np
+
     def sample_attack(self, eps, num_samples = 100):
         """
         Returns only x_adv in the interest of generalizable code
@@ -154,7 +213,7 @@ class RobustMLP(object):
         x_pert = x_ext + tf.random.uniform(tf.shape(x_ext), minval = -eps, maxval = eps)
 
         #Get loss for x_pert
-        activations, predictions = model(x_pert, self.hidden_sizes, self.num_classes)
+        activations, predictions = model(x_pert, self.hidden_sizes, self.num_classes, self.sigma)
         loss_vector_ext = tf.nn.softmax_cross_entropy_with_logits(logits=predictions, labels=y_ext)
 
         #Reshape into desired shapes
@@ -236,8 +295,12 @@ class RobustMLP(object):
                                  })
         return loss, accuracy
 
-    def adv_evaluate(self, sess, X, y, eps):
-        X_adv = self.fgsm_np(sess, X, y, eps)
+    def adv_evaluate(self, sess, X, y, eps, pgd = False, eta = 1e-2, num_iter = 500):
+        if not pgd:
+            X_adv = self.fgsm_np(sess, X, y, eps)
+        else:
+            X_adv = self.pgd_adam_np(sess, X, y, eps, eta, num_iter)
+
         loss, accuracy = sess.run([self.loss, self.accuracy],
                                  feed_dict = {
                                      self.x : X_adv,
@@ -285,7 +348,7 @@ class RobustMLP(object):
 
     def fit(self, sess, X, y, lr = 0.003, training_epochs=15, batch_size=32, display_step=1, reg = 0.005):
 
-        loss = self.loss + reg*regularize_op_norm(self.get_weights())
+        loss = self.loss + reg*regularize_op_norm(self.get_weights()[0])
         temp = set(tf.all_variables())
         optimization_step = tf.train.AdamOptimizer(learning_rate=lr).minimize(loss)
         sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
@@ -296,7 +359,7 @@ class RobustMLP(object):
 
     def adv_fit(self, sess, X, y, eps, lr = 3e-4, training_epochs=15, batch_size=32, display_step=1):
         x_adv = self.fgsm(self.x, eps)
-        _, predictions = model(x_adv, self.hidden_sizes, self.num_classes)
+        _, predictions = model(x_adv, self.hidden_sizes, self.num_classes, self.sigma)
 
         loss_vector = tf.nn.softmax_cross_entropy_with_logits(logits=predictions, labels=self.y)
         loss_adv = tf.reduce_mean(loss_vector)
