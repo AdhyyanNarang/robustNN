@@ -1,0 +1,7 @@
+2019-08-06 12:54:23,417 - robustness - INFO - Created model successfully. Now going to load weights
+2019-08-06 12:54:23,526 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-08-06 12:54:23,526 - robustness - INFO - (0.18300788, 0.9518)
+2019-08-06 12:54:37,272 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-08-06 12:54:37,274 - robustness - INFO - (0.18300788, 0.9518)
+2019-08-06 12:54:37,516 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-08-06 12:54:37,516 - robustness - INFO - (0.6702156, 0.8099)

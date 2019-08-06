@@ -25,7 +25,7 @@ eps_test = 0.1
 tensorboard_dir = "tb/"
 weights_dir = "weights/"
 load_weights = False 
-load_counter = 52
+load_counter = 58 
 sigma = tf.nn.relu
 
 #Configuring the logger
@@ -82,7 +82,7 @@ if __name__ == "__main__":
             logger.info("Created model successfully. Now going to train")
 
             #TODO: Fit the model until convergence before running the distance experiments again
-            epochs, reg, lr = 3, 0.0, 3e-3
+            epochs, reg, lr = 70, 0.008, 3e-3
             model.fit(sess, x_train_flat,y_train, training_epochs = epochs, reg = reg , lr = lr)
 
             #Save weights
@@ -90,6 +90,7 @@ if __name__ == "__main__":
             #weights = model.get_weights()[0] + model.get_weights()[1]
             saver = tf.train.Saver(weights)
             weights_path = saver.save(sess, weights_dir + "model_" + str(counter) + ".ckpt")
+
 
             loss_reg, acc_reg = model.evaluate(sess, x_test_flat, y_test)
             loss_fgsm, acc_fgsm = model.adv_evaluate(sess, x_test_flat, y_test, eps_test, pgd = False)
@@ -132,19 +133,39 @@ if __name__ == "__main__":
 
             #Create, train and test model
             writer = tf.summary.FileWriter(logdir)
-            model = ffr.RobustMLP(sess, input_shape, hidden_sizes, num_classes, dataset, writer = writer, scope = scope_name, logger = logger)
+            model = ffr.RobustMLP(sess, input_shape, hidden_sizes, num_classes, dataset, writer = writer, scope = scope_name, logger = logger, sigma =sigma)
             logger.info("Created model successfully. Now going to load weights")
 
-            #Save weights
+            #Restore weights
             weights = tf.trainable_variables()
             saver = tf.train.Saver(weights)
             weights_path = saver.restore(sess, weights_dir + "model_" + str(load_counter) + ".ckpt")
 
-            loss_reg, acc_reg = model.evaluate(sess, x_test_flat, y_test)
-            logger.info((loss_reg, acc_reg))
-            loss_adv, acc_adv = model.adv_evaluate(sess, x_test_flat, y_test, eps_test, pgd = False)
-            logger.info((loss_adv, acc_adv))
             writer.add_graph(sess.graph)
+
+            loss_reg, acc_reg = model.evaluate(sess, x_test_flat, y_test)
+            logger.info("----Regular test accuracy and loss ----")
+            logger.info((loss_reg, acc_reg))
+            ipdb.set_trace()
+
+            with tf.variable_scope("testing_benign") as scope:
+                loss_reg, acc_reg = model.evaluate(sess, x_test_flat, y_test)
+                logger.info("----Regular test accuracy and loss ----")
+                logger.info((loss_reg, acc_reg))
+                feed_dict = {model.x: x_test_flat, model.y: y_test}
+                summary = sess.run(model.merged_summary, feed_dict = feed_dict)
+                model.writer.add_summary(summary, 0)
+
+
+            with tf.variable_scope("testing_adversarial") as scope:
+                loss_fgsm, acc_fgsm = model.adv_evaluate(sess, x_test_flat, y_test, eps_test, pgd = False)
+                logger.info("----FGSM test accuracy and loss ----")
+                logger.info((loss_fgsm, acc_fgsm))
+                x_test_flat_adv = model.fgsm_np(sess, x_test_flat, y_test, eps_test)
+                feed_dict = {model.x: x_test_flat_adv, model.y: y_test}
+                summary = sess.run(model.merged_summary, feed_dict = feed_dict)
+                model.writer.add_summary(summary, 100)
+
 
             #Distances and norms
 
@@ -159,7 +180,7 @@ if __name__ == "__main__":
                 logger.info(overall_std)
 
 
-            if False:
+            if True:
                 #TSNE visualization of final layer.
                 x_test_flat_adv = model.fgsm_np(sess, x_test_flat, y_test, eps_test)
                 metadata_path = os.path.join(logdir, 'metadata.tsv')
