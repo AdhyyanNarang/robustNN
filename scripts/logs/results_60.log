@@ -1,0 +1,3 @@
+2019-08-06 00:01:48,225 - robustness - INFO - Created model successfully. Now going to load weights
+2019-08-06 00:01:48,486 - robustness - INFO - (0.21287823, 0.9474)
+2019-08-06 00:01:58,389 - robustness - INFO - (10.401986, 0.1081)

@@ -140,7 +140,6 @@ class RobustMLP(object):
         x_adv_conc = sess.run(x_adv, feed_dict = feed_dict)
         return x_adv_conc
 
-    #TODO: Fix and test
     def pgd_adam(self, sess, X, y, eps, eta, num_iter):
         #Initialize the variables
         temp = set(tf.all_variables())
@@ -172,22 +171,6 @@ class RobustMLP(object):
         feed_dict = {x_ph : x, y_ph: y}
         x_tilde_np = sess.run(x_tilde, feed_dict = feed_dict)
         return x_tilde_np
-
-    #TODO: Finish according to website implementation
-    def pgd(self, sess, X, y, eps, eta, num_iter):
-        delta = tf.zeros_like(self.x)
-        x_tilde = tf.zeros_like(self.x)
-
-        for i in range(num_iter):
-            print("iteration: %d"%i)
-            x_tilde = self.x + delta
-            _, predictions = model(x_tilde, self.hidden_sizes, self.num_classes)
-            loss_tilde = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=predictions, labels=y))
-            g = tf.gradients(loss_tilde, delta)
-            delta = delta + eta*tf.sign(g)
-            delta = tf.clip_by_value(delta, clip_value_min = -eps, clip_value_max = eps)
-
-        return x_tilde
 
     def pgd_np(self, sess, x, y, eps, eta, num_iter):
         x_tilde = self.pgd(sess, x, y, eps, eta, num_iter)
@@ -241,6 +224,7 @@ class RobustMLP(object):
         x_adv_conc = sess.run(x_adv, feed_dict = feed_dict)
         return x_adv_conc
 
+    #TODO: Implement option to get distance for PGD points as well
     def get_distance(self, sess, eps, x_test, y_test, order = float("inf")):
         """
         Getter method to get distances between regular and adversarial points
