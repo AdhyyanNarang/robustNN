@@ -3,4 +3,5 @@
 **/ellipsoidV3
 *.npy
 scripts/tb
+scripts/tb-imp
 scripts/weights
