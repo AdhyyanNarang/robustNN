@@ -25,9 +25,9 @@ eps_test = 0.1
 tensorboard_dir = "tb/"
 weights_dir = "weights/"
 load_weights = False
-load_counter = 58
+load_counter = 98
 sigma = tf.nn.relu
-epochs, reg, lr = 20, 0.000, 3e-3
+epochs, reg, lr = 10, 0.000, 3e-3
 
 #Configuring the logger
 
@@ -60,26 +60,25 @@ if __name__ == "__main__":
     y_train, y_test = y_train.astype('int'), y_test.astype('int')
     indices_train = []
     for idx, label in enumerate(y_train):
-        if label == 1 or label == 7:
+        if label == 0 or label == 6:
             indices_train.append(idx)
-    ones_test = np.argwhere(y_test== 1)[:, 0]
-    sevens_test = np.argwhere(y_test == 7)[:, 0]
+    ones_test = np.argwhere(y_test== 0)[:, 0]
+    sevens_test = np.argwhere(y_test == 6)[:, 0]
     indices_test= np.concatenate((ones_test, sevens_test))
     x_train, y_train, x_test, y_test = x_train[indices_train], y_train[indices_train], x_test[indices_test], y_test[indices_test]
 
     #Replace with labels as 1's and -1's
     for idx, label in enumerate(y_train):
-        if y_train[idx] == 1:
+        if y_train[idx] == 0:
             y_train[idx] = -1
         else:
             y_train[idx] = 1
 
     for idx, label in enumerate(y_test):
-        if y_test[idx] == 1:
+        if y_test[idx] == 0:
             y_test[idx] = -1
         else:
             y_test[idx] = 1
-
 
 
     x_train = x_train/255
@@ -119,7 +118,7 @@ if __name__ == "__main__":
             logger.info((loss_reg, acc_reg))
             logger.info("----FGSM test accuracy and loss ----")
             logger.info((loss_fgsm, acc_fgsm))
-            loss_pgd, acc_pgd = model.adv_evaluate(sess, x_test_flat, y_test, eps_test, pgd = True, eta=5e-2, num_iter = 100)
+            loss_pgd, acc_pgd = model.adv_evaluate(sess, x_test_flat, y_test, eps_test, pgd = True, eta=5e-1, num_iter = 10)
             logger.info("----PGD test accuracy and loss ----")
             logger.info((loss_pgd , acc_pgd))
 
@@ -128,14 +127,18 @@ if __name__ == "__main__":
             #Distances and norms
             norms = get_norms(model.get_weights()[0])
             norms_np = sess.run(norms)
+            logger.info("------ Norms --------")
             logger.info(norms_np)
 
-            ipdb.set_trace()
             overall, overall_std, correct, _, incorrect, _ = model.get_distance(sess, eps_test, x_test_flat, y_test)
             logger.info("---Distances----")
             logger.info(overall)
             logger.info("------Std devs on Distances----")
             logger.info(overall_std)
+
+            margin = model.get_margin(sess)
+            logger.info("------ Margin ------")
+            logger.info(margin)
 
             write_to_results_csv(epochs, reg, lr, "Regular", str(sigma), acc_reg, acc_fgsm, acc_pgd, loss_reg, loss_fgsm, acc_fgsm, logfile, weights_path, logdir, tuple(overall), tuple(norms_np))
             x_test_flat_adv = model.fgsm_np(sess, x_test_flat, y_test, eps_test)
@@ -167,7 +170,6 @@ if __name__ == "__main__":
             loss_reg, acc_reg = model.evaluate(sess, x_test_flat, y_test)
             logger.info("----Regular test accuracy and loss ----")
             logger.info((loss_reg, acc_reg))
-            ipdb.set_trace()
 
             with tf.variable_scope("testing_benign") as scope:
                 loss_reg, acc_reg = model.evaluate(sess, x_test_flat, y_test)

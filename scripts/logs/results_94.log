@@ -1,0 +1,24 @@
+2019-08-10 21:34:09,226 - robustness - INFO - Created model successfully. Now going to train
+2019-08-10 21:34:10,078 - robustness - INFO - Epoch: 0001    cost: 0.034446797 
+2019-08-10 21:34:10,078 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-10 21:34:10,448 - robustness - INFO - Epoch: 0002    cost: 0.014626472 
+2019-08-10 21:34:10,448 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-10 21:34:10,809 - robustness - INFO - Epoch: 0003    cost: 0.012766250 
+2019-08-10 21:34:10,809 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-10 21:34:11,170 - robustness - INFO - Epoch: 0004    cost: 0.010117597 
+2019-08-10 21:34:11,170 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-10 21:34:11,528 - robustness - INFO - Epoch: 0005    cost: 0.009824390 
+2019-08-10 21:34:11,528 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-10 21:34:11,884 - robustness - INFO - Epoch: 0006    cost: 0.008662184 
+2019-08-10 21:34:11,884 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-10 21:34:12,243 - robustness - INFO - Epoch: 0007    cost: 0.006346207 
+2019-08-10 21:34:12,243 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-10 21:34:12,600 - robustness - INFO - Epoch: 0008    cost: 0.006578518 
+2019-08-10 21:34:12,600 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-10 21:34:12,962 - robustness - INFO - Epoch: 0009    cost: 0.006626630 
+2019-08-10 21:34:12,962 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-10 21:34:13,321 - robustness - INFO - Epoch: 0010    cost: 0.007043049 
+2019-08-10 21:34:13,321 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-10 21:34:13,321 - robustness - INFO - Optimization Finished!
+2019-08-10 21:34:13,386 - robustness - INFO - Final Train Loss 0.004123
+2019-08-10 21:34:13,386 - robustness - INFO - Final Train Accuracy 1.000000:

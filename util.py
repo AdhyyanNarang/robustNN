@@ -9,6 +9,7 @@ import pandas as pd
 """
 Helper functions for feedforward_robust
 """
+
 def fully_connected_layer(x, output_dim, scope_name, weight_initializer, bias_initializer, sigma):
     #Reuse = True because everytime we wish to call model(x), we want it to
     #use the most recently learned weights.

@@ -1,0 +1,39 @@
+2019-08-10 22:52:00,428 - robustness - INFO - Created model successfully. Now going to train
+2019-08-10 22:52:01,956 - robustness - INFO - Epoch: 0001    cost: 0.188327754 
+2019-08-10 22:52:01,957 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-10 22:52:02,545 - robustness - INFO - Epoch: 0002    cost: 0.089693173 
+2019-08-10 22:52:02,546 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-10 22:52:03,090 - robustness - INFO - Epoch: 0003    cost: 0.076253478 
+2019-08-10 22:52:03,090 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-10 22:52:03,723 - robustness - INFO - Epoch: 0004    cost: 0.058627889 
+2019-08-10 22:52:03,723 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-10 22:52:04,291 - robustness - INFO - Epoch: 0005    cost: 0.061515509 
+2019-08-10 22:52:04,291 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-10 22:52:04,840 - robustness - INFO - Epoch: 0006    cost: 0.055722136 
+2019-08-10 22:52:04,841 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-10 22:52:05,415 - robustness - INFO - Epoch: 0007    cost: 0.061087320 
+2019-08-10 22:52:05,415 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-10 22:52:05,979 - robustness - INFO - Epoch: 0008    cost: 0.053449272 
+2019-08-10 22:52:05,979 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-10 22:52:06,544 - robustness - INFO - Epoch: 0009    cost: 0.048264638 
+2019-08-10 22:52:06,545 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-10 22:52:07,110 - robustness - INFO - Epoch: 0010    cost: 0.051017303 
+2019-08-10 22:52:07,110 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-10 22:52:07,110 - robustness - INFO - Optimization Finished!
+2019-08-10 22:52:07,179 - robustness - INFO - Final Train Loss 0.013303
+2019-08-10 22:52:07,179 - robustness - INFO - Final Train Accuracy 1.000000:
+2019-08-10 22:52:07,352 - robustness - INFO - Final Train Loss on Adv points 0.049828
+2019-08-10 22:52:07,353 - robustness - INFO - Final Train Accuracy on Adv points 1.000000
+2019-08-10 22:52:07,699 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-08-10 22:52:07,699 - robustness - INFO - (0.018984444, 1.0)
+2019-08-10 22:52:07,699 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-08-10 22:52:07,699 - robustness - INFO - (0.05481624, 1.0)
+2019-08-10 22:52:09,289 - robustness - INFO - ----PGD test accuracy and loss ----
+2019-08-10 22:52:09,289 - robustness - INFO - (0.9112544, 1.0)
+2019-08-10 22:52:09,412 - robustness - INFO - [107.223724, 7.3879747, 6.3947926, 5.007269]
+2019-08-10 22:52:10,967 - robustness - INFO - ---Distances----
+2019-08-10 22:52:10,967 - robustness - INFO - [4.2600565 3.2923791 1.4908074]
+2019-08-10 22:52:10,968 - robustness - INFO - ------Std devs on Distances----
+2019-08-10 22:52:10,968 - robustness - INFO - [1.3237612  1.13638    0.48080912]
+2019-08-10 22:52:10,988 - robustness - INFO - ------ Margin ------
+2019-08-10 22:52:10,989 - robustness - INFO - 1.7756176137052166

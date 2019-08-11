@@ -42,11 +42,19 @@ class RobustMLP(object):
 
         logits=tf.squeeze(self.predictions)
         labels=tf.squeeze(self.y)
-        self.loss_vector = tf.losses.hinge_loss(labels = labels,logits = logits)
+        self.loss_vector = tf.losses.hinge_loss(labels = labels,logits = logits, reduction = tf.losses.Reduction.NONE)
         self.loss = tf.reduce_mean(self.loss_vector)
         tf.summary.scalar("loss", self.loss)
 
-        self.correct_prediction = tf.equal(tf.argmax(self.predictions, -1), tf.argmax(self.y, -1))
+        dist = tf.math.multiply(logits, labels)
+        self.correct_prediction = tf.math.greater_equal(dist, 0) 
+        """
+        num_correct = tf.count_nonzero(self.correct_prediction)
+        num_correct = tf.cast(num_correct, tf.float32)
+        total_num = self.correct_prediction.shape[0]
+        total_num = tf.cast(total_num, tf.float32)
+        self.accuracy = num_correct / total_num 
+        """
         self.accuracy = tf.reduce_mean(tf.cast(self.correct_prediction, "float"))
         tf.summary.scalar("accuracy", self.accuracy)
 
@@ -82,6 +90,12 @@ class RobustMLP(object):
         }
         loss_vector = sess.run(self.loss_vector, feed_dict = feed_dict)
         return loss_vector
+
+    def get_margin(self, sess):
+        weights_last = self.get_weights_np(sess)[-1]
+        norm = np.linalg.norm(weights_last)
+        margin = 2./norm
+        return margin
 
     def get_weights(self):
         weights = []
@@ -129,7 +143,11 @@ class RobustMLP(object):
 
     def fgsm(self, x, eps):
         #TODO: Remove x as a parameter and change all function calls accordingly
-        g = tf.gradients(self.loss, self.x)
+        logits=tf.squeeze(self.predictions)
+        labels=tf.squeeze(self.y)
+        loss_vector_proxy = tf.nn.sigmoid_cross_entropy_with_logits(labels = labels, logits = logits) 
+
+        g = tf.gradients(loss_vector_proxy, self.x)
         delta = eps * tf.math.sign(g)
         x_adv = self.x + delta
         #x_adv = tf.clip_by_value(x_adv, clip_value_min = 0.0, clip_value_max = float("inf"))
@@ -145,36 +163,36 @@ class RobustMLP(object):
         x_adv_conc = sess.run(x_adv, feed_dict = feed_dict)
         return x_adv_conc
 
-    def pgd_adam(self, sess, X, y, eps, eta, num_iter):
+    def pgd_adam(self, sess, X, y, eps, eta, num_iter, scope_name = "test"):
         #Initialize the variables
-        temp = set(tf.all_variables())
-        x_ph = tf.placeholder("float", X.shape)
-        delta = tf.get_variable("delta", shape = X.shape, initializer = tf.initializers.zeros(dtype = tf.float32))
-        x_tilde = x_ph + delta
-        y_ph = tf.placeholder("float", y.shape)
+        with tf.variable_scope(scope_name, reuse = False) as scope:
+            temp = set(tf.all_variables())
+            x_ph = tf.placeholder("float", X.shape)
+            delta = tf.get_variable("delta", shape = X.shape, initializer = tf.initializers.zeros(dtype = tf.float32))
+            x_tilde = x_ph + delta
+            y_ph = tf.placeholder("float", y.shape)
 
-        #New predictions and loss - call to model will reuse learned weights
-        activations, predictions = model(x_tilde, self.hidden_sizes, self.num_classes, self.sigma)
-        #loss_vector = tf.nn.softmax_cross_entropy_with_logits(logits=predictions, labels=y_ph)
-        loss_vector = tf.losses.hinge_loss(labels = y_ph,logits = predictions)
+            #New predictions and loss - call to model will reuse learned weights
+            activations, predictions = model(x_tilde, self.hidden_sizes, self.num_classes, self.sigma)
+            loss_vector = tf.nn.sigmoid_cross_entropy_with_logits(logits=predictions, labels=y_ph)
 
-        loss_tilde = tf.reduce_mean(loss_vector)
+            loss_tilde = tf.reduce_mean(loss_vector)
 
-        #Optimization
-        optimization_step = tf.train.AdamOptimizer(learning_rate = eta).minimize(-loss_tilde, var_list = [delta])
-        tmp = tf.clip_by_value(delta, clip_value_min = -eps, clip_value_max = eps)
-        project_op = tf.assign(delta, tmp)
-        sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
+            #Optimization
+            optimization_step = tf.train.AdamOptimizer(learning_rate = eta).minimize(-loss_tilde, var_list = [delta])
+            tmp = tf.clip_by_value(delta, clip_value_min = -eps, clip_value_max = eps)
+            project_op = tf.assign(delta, tmp)
+            sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
 
-        for i in range(num_iter):
-            print("iteration: %d"%i)
-            feed_dict = {x_ph: X, y_ph: y}
-            sess.run([optimization_step, project_op], feed_dict = feed_dict)
+            for i in range(num_iter):
+                #print("iteration: %d"%i)
+                feed_dict = {x_ph: X, y_ph: y}
+                sess.run([optimization_step, project_op], feed_dict = feed_dict)
 
         return x_tilde, x_ph, y_ph
 
-    def pgd_adam_np(self, sess, x, y, eps, eta, num_iter):
-        x_tilde, x_ph, y_ph = self.pgd_adam(sess, x, y, eps, eta, num_iter)
+    def pgd_adam_np(self, sess, x, y, eps, eta, num_iter, scope_name = "Test"):
+        x_tilde, x_ph, y_ph = self.pgd_adam(sess, x, y, eps, eta, num_iter, scope_name)
         feed_dict = {x_ph : x, y_ph: y}
         x_tilde_np = sess.run(x_tilde, feed_dict = feed_dict)
         return x_tilde_np
@@ -244,14 +262,13 @@ class RobustMLP(object):
         #correct_dist, correct_std = self.dist_average(sess, x_test[correct_indices], x_test_adv[correct_indices], order)
         #incorrect_dist, incorrect_std = self.dist_average(sess, x_test[incorrect_indices], x_test_adv[incorrect_indices], order)
 
-        return overall, overall_std, None, None, None, None 
+        return overall, overall_std, None, None, None, None
 
     def dist_average(self, sess, x_test, x_test_adv, order):
         distances = []
         for i in range(len(x_test)):
             dist = self.dist_calculator(sess, x_test[i], x_test_adv[i], order)
             distances.append(dist)
-        ipdb.set_trace()
         return np.average(distances, axis = 0), np.std(distances, axis = 0)
 
     def dist_calculator(self,sess, x, x_adv, order):
@@ -287,15 +304,11 @@ class RobustMLP(object):
             X_adv = self.fgsm_np(sess, X, y, eps)
         else:
             X_adv = self.pgd_adam_np(sess, X, y, eps, eta, num_iter)
-
-        loss, accuracy = sess.run([self.loss, self.accuracy],
-                                 feed_dict = {
-                                     self.x : X_adv,
-                                     self.y: y
-                                 })
+        feed_dict = {self.x: X_adv, self.y:y}
+        loss, accuracy, loss_vec = sess.run([self.loss, self.accuracy, self.loss_vector], feed_dict = feed_dict)
         return loss, accuracy
 
-    def fit_helper(self, sess, X, y, optimizer, loss, accuracy, lr = 0.003, training_epochs=15, batch_size=32, display_step=1):
+    def fit_helper(self, sess, X, y, optimizer, loss, accuracy, lr = 0.003, training_epochs=15, batch_size=32, display_step=1, pgd = False, eps_train = 0.1):
         y = y.reshape(len(y), 1)
         for epoch in range(training_epochs):
             avg_cost = 0.0
@@ -305,6 +318,10 @@ class RobustMLP(object):
 
             for i in range(total_batch):
                 batch_x, batch_y = x_batches[i], y_batches[i]
+                if pgd:
+                    it_num = epoch * total_batch + i
+                    sc_name = "train_" + str(it_num)
+                    batch_x = self.pgd_adam_np(sess, batch_x, batch_y, eps = eps_train, eta = 5e-1, num_iter = 10, scope_name = sc_name)
                 _, c, acc = sess.run([optimizer, loss, accuracy],
                                      feed_dict={
                                          self.x: batch_x,
@@ -315,6 +332,7 @@ class RobustMLP(object):
                     feed_dict = {self.x: x_batches[0], self.y: y_batches[0]}
                     summary = sess.run(self.merged_summary, feed_dict = feed_dict)
                     hor = epoch * total_batch + i
+                    print("Iteration %d"%hor)
                     self.writer.add_summary(summary, hor)
 
             if epoch % display_step == 0:
@@ -335,7 +353,6 @@ class RobustMLP(object):
         return True
 
     def fit(self, sess, X, y, lr = 0.003, training_epochs=15, batch_size=32, display_step=1, reg = 0.005):
-
         loss = self.loss + reg*regularize_op_norm(self.get_weights()[0])
         temp = set(tf.all_variables())
         optimization_step = tf.train.AdamOptimizer(learning_rate=lr).minimize(loss)
@@ -344,6 +361,17 @@ class RobustMLP(object):
         self.fit_helper(sess, X, y, optimization_step, loss,
             self.accuracy, lr, training_epochs, batch_size, display_step)
         return True
+
+    def pgd_fit(self, sess, X, y, eps, lr = 0.003, training_epochs=40, batch_size=32, display_step=1, reg = 0.005):
+        loss = self.loss + reg*regularize_op_norm(self.get_weights()[0])
+        temp = set(tf.all_variables())
+        optimization_step = tf.train.AdamOptimizer(learning_rate=lr).minimize(loss)
+        sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
+        batch_size = len(X)
+        self.fit_helper(sess, X, y, optimization_step, loss,
+            self.accuracy, lr, training_epochs, batch_size, display_step, pgd = True)
+        return True
+
 
     def adv_fit(self, sess, X, y, eps, lr = 3e-4, training_epochs=15, batch_size=32, display_step=1):
         y = y.reshape(len(y), 1)

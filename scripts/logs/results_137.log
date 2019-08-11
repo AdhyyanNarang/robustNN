@@ -1,0 +1,38 @@
+2019-08-11 14:56:06,698 - robustness - INFO - Created model successfully. Now going to train
+2019-08-11 14:56:07,488 - robustness - INFO - Epoch: 0001    cost: 0.051568029 
+2019-08-11 14:56:07,489 - robustness - INFO - Accuracy on batch: 0.968750
+2019-08-11 14:56:07,836 - robustness - INFO - Epoch: 0002    cost: 0.021967183 
+2019-08-11 14:56:07,836 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-11 14:56:08,171 - robustness - INFO - Epoch: 0003    cost: 0.017240906 
+2019-08-11 14:56:08,171 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-11 14:56:08,504 - robustness - INFO - Epoch: 0004    cost: 0.014566502 
+2019-08-11 14:56:08,504 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-11 14:56:08,837 - robustness - INFO - Epoch: 0005    cost: 0.011007041 
+2019-08-11 14:56:08,837 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-11 14:56:09,168 - robustness - INFO - Epoch: 0006    cost: 0.009102225 
+2019-08-11 14:56:09,168 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-11 14:56:09,507 - robustness - INFO - Epoch: 0007    cost: 0.008690520 
+2019-08-11 14:56:09,507 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-11 14:56:09,836 - robustness - INFO - Epoch: 0008    cost: 0.008716005 
+2019-08-11 14:56:09,836 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-11 14:56:10,175 - robustness - INFO - Epoch: 0009    cost: 0.005643249 
+2019-08-11 14:56:10,176 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-11 14:56:10,502 - robustness - INFO - Epoch: 0010    cost: 0.005489919 
+2019-08-11 14:56:10,502 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-11 14:56:10,502 - robustness - INFO - Optimization Finished!
+2019-08-11 14:56:10,552 - robustness - INFO - Final Train Loss 0.003151
+2019-08-11 14:56:10,553 - robustness - INFO - Final Train Accuracy 0.998311:
+2019-08-11 14:56:10,787 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-08-11 14:56:10,788 - robustness - INFO - (0.0055716243, 0.996904)
+2019-08-11 14:56:10,788 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-08-11 14:56:10,788 - robustness - INFO - (2.3663456, 0.48400414)
+2019-08-11 14:56:11,145 - robustness - INFO - ----PGD test accuracy and loss ----
+2019-08-11 14:56:11,145 - robustness - INFO - (13.002639, 0.39576882)
+2019-08-11 14:56:11,230 - robustness - INFO - ------ Norms --------
+2019-08-11 14:56:11,230 - robustness - INFO - [82.88454, 7.249249, 6.479921, 3.6827447]
+2019-08-11 14:56:12,662 - robustness - INFO - ---Distances----
+2019-08-11 14:56:12,663 - robustness - INFO - [5.181602  5.7295084 5.6048174]
+2019-08-11 14:56:12,663 - robustness - INFO - ------Std devs on Distances----
+2019-08-11 14:56:12,663 - robustness - INFO - [1.6024541 1.9458301 3.2544568]
+2019-08-11 14:56:12,677 - robustness - INFO - ------ Margin ------
+2019-08-11 14:56:12,678 - robustness - INFO - 2.2693177634285964
