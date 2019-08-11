@@ -22,6 +22,8 @@ class RobustMLP(object):
         self.hidden_sizes = hidden_sizes
         self.num_classes = num_classes
         (self.x_train, self.y_train), (self.x_test, self.y_test) = dataset
+        self.y_train = self.y_train.reshape(len(self.y_train), 1)
+        self.y_test = self.y_test.reshape(len(self.y_test), 1)
         self.writer = writer
         self.scope = scope
         self.logger = logger
@@ -38,11 +40,13 @@ class RobustMLP(object):
         self.activations, self.predictions = model(self.x, self.hidden_sizes, self.num_classes, sigma)
         self.featurizations = self.activations[-1]
 
-        self.loss_vector = tf.nn.softmax_cross_entropy_with_logits(logits=self.predictions, labels=self.y)
+        logits=tf.squeeze(self.predictions)
+        labels=tf.squeeze(self.y)
+        self.loss_vector = tf.losses.hinge_loss(labels = labels,logits = logits)
         self.loss = tf.reduce_mean(self.loss_vector)
         tf.summary.scalar("loss", self.loss)
 
-        self.correct_prediction = tf.equal(tf.argmax(self.predictions, 1), tf.argmax(self.y, 1))
+        self.correct_prediction = tf.equal(tf.argmax(self.predictions, -1), tf.argmax(self.y, -1))
         self.accuracy = tf.reduce_mean(tf.cast(self.correct_prediction, "float"))
         tf.summary.scalar("accuracy", self.accuracy)
 
@@ -132,6 +136,7 @@ class RobustMLP(object):
         return tf.squeeze(x_adv)
 
     def fgsm_np(self, sess, X, y, eps):
+        y = y.reshape(len(y), 1)
         x_adv = self.fgsm(X, eps)
         feed_dict = {
             self.x : X,
@@ -150,7 +155,9 @@ class RobustMLP(object):
 
         #New predictions and loss - call to model will reuse learned weights
         activations, predictions = model(x_tilde, self.hidden_sizes, self.num_classes, self.sigma)
-        loss_vector = tf.nn.softmax_cross_entropy_with_logits(logits=predictions, labels=y_ph)
+        #loss_vector = tf.nn.softmax_cross_entropy_with_logits(logits=predictions, labels=y_ph)
+        loss_vector = tf.losses.hinge_loss(labels = y_ph,logits = predictions)
+
         loss_tilde = tf.reduce_mean(loss_vector)
 
         #Optimization
@@ -172,19 +179,12 @@ class RobustMLP(object):
         x_tilde_np = sess.run(x_tilde, feed_dict = feed_dict)
         return x_tilde_np
 
-    def pgd_np(self, sess, x, y, eps, eta, num_iter):
-        x_tilde = self.pgd(sess, x, y, eps, eta, num_iter)
-        feed_dict = {self.x: x, self.y : y}
-        x_tilde_np = sess.run(x_tilde, feed_dict = feed_dict)
-        return x_tilde_np
-
     def sample_attack(self, eps, num_samples = 100):
         """
         Returns only x_adv in the interest of generalizable code
         """
         #Repeat x num_sample times
         n, d = self.x.shape
-        #ipdb.set_trace()
         x_ext = tf.keras.backend.repeat(self.x, num_samples)
         big_shape = tf.shape(x_ext)
         x_ext = tf.reshape(x_ext, [-1, d])
@@ -241,16 +241,17 @@ class RobustMLP(object):
         correct_indices = [i for i,v in enumerate(pred) if np.argmax(v) == np.argmax(y_test[i])]
 
         overall, overall_std  = self.dist_average(sess, x_test, x_test_adv, order = order)
-        correct_dist, correct_std = self.dist_average(sess, x_test[correct_indices], x_test_adv[correct_indices], order)
-        incorrect_dist, incorrect_std = self.dist_average(sess, x_test[incorrect_indices], x_test_adv[incorrect_indices], order)
+        #correct_dist, correct_std = self.dist_average(sess, x_test[correct_indices], x_test_adv[correct_indices], order)
+        #incorrect_dist, incorrect_std = self.dist_average(sess, x_test[incorrect_indices], x_test_adv[incorrect_indices], order)
 
-        return overall, overall_std, correct_dist, correct_std, incorrect_dist, incorrect_std
+        return overall, overall_std, None, None, None, None 
 
     def dist_average(self, sess, x_test, x_test_adv, order):
         distances = []
         for i in range(len(x_test)):
             dist = self.dist_calculator(sess, x_test[i], x_test_adv[i], order)
             distances.append(dist)
+        ipdb.set_trace()
         return np.average(distances, axis = 0), np.std(distances, axis = 0)
 
     def dist_calculator(self,sess, x, x_adv, order):
@@ -272,6 +273,7 @@ class RobustMLP(object):
             return distances
 
     def evaluate(self, sess, X, y):
+        y = y.reshape(len(y), 1)
         loss, accuracy = sess.run([self.loss, self.accuracy],
                                  feed_dict = {
                                      self.x : X,
@@ -280,6 +282,7 @@ class RobustMLP(object):
         return loss, accuracy
 
     def adv_evaluate(self, sess, X, y, eps, pgd = False, eta = 1e-2, num_iter = 500):
+        y = y.reshape(len(y), 1)
         if not pgd:
             X_adv = self.fgsm_np(sess, X, y, eps)
         else:
@@ -293,6 +296,7 @@ class RobustMLP(object):
         return loss, accuracy
 
     def fit_helper(self, sess, X, y, optimizer, loss, accuracy, lr = 0.003, training_epochs=15, batch_size=32, display_step=1):
+        y = y.reshape(len(y), 1)
         for epoch in range(training_epochs):
             avg_cost = 0.0
             total_batch = int(len(X) / batch_size)
@@ -342,10 +346,13 @@ class RobustMLP(object):
         return True
 
     def adv_fit(self, sess, X, y, eps, lr = 3e-4, training_epochs=15, batch_size=32, display_step=1):
+        y = y.reshape(len(y), 1)
         x_adv = self.fgsm(self.x, eps)
         _, predictions = model(x_adv, self.hidden_sizes, self.num_classes, self.sigma)
 
-        loss_vector = tf.nn.softmax_cross_entropy_with_logits(logits=predictions, labels=self.y)
+        #loss_vector = tf.nn.softmax_cross_entropy_with_logits(logits=predictions, labels=self.y)
+        loss_vector = tf.losses.hinge_loss(labels = self.y, logits = predictions)
+
         loss_adv = tf.reduce_mean(loss_vector)
         tf.summary.scalar("loss", loss_adv)
 

@@ -24,9 +24,10 @@ eps_train = 0.1
 eps_test = 0.1
 tensorboard_dir = "tb/"
 weights_dir = "weights/"
-load_weights = False 
-load_counter = 58 
+load_weights = False
+load_counter = 58
 sigma = tf.nn.relu
+epochs, reg, lr = 20, 0.000, 3e-3
 
 #Configuring the logger
 
@@ -56,18 +57,39 @@ if __name__ == "__main__":
     #Setup - Dataset stuff
     mnist = tf.keras.datasets.mnist
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
-    y_test_ogi = y_test
-    x_test_ogi = x_test
+    y_train, y_test = y_train.astype('int'), y_test.astype('int')
+    indices_train = []
+    for idx, label in enumerate(y_train):
+        if label == 1 or label == 7:
+            indices_train.append(idx)
+    ones_test = np.argwhere(y_test== 1)[:, 0]
+    sevens_test = np.argwhere(y_test == 7)[:, 0]
+    indices_test= np.concatenate((ones_test, sevens_test))
+    x_train, y_train, x_test, y_test = x_train[indices_train], y_train[indices_train], x_test[indices_test], y_test[indices_test]
+
+    #Replace with labels as 1's and -1's
+    for idx, label in enumerate(y_train):
+        if y_train[idx] == 1:
+            y_train[idx] = -1
+        else:
+            y_train[idx] = 1
+
+    for idx, label in enumerate(y_test):
+        if y_test[idx] == 1:
+            y_test[idx] = -1
+        else:
+            y_test[idx] = 1
+
+
+
     x_train = x_train/255
     x_test = x_test/255
-    num_classes = 10
-    y_train = tf.keras.utils.to_categorical(y_train, num_classes)
-    y_test = tf.keras.utils.to_categorical(y_test, num_classes)
+    num_classes = 1
     x_train_flat, input_shape = flatten_mnist(x_train)
     x_test_flat, _ = flatten_mnist(x_test)
 
     sess = tf.Session()
-    hidden_sizes = [32,32,32,32,32,32,32]
+    hidden_sizes = [32,32,32]
     dataset = ((x_train_flat, y_train), (x_test_flat, y_test))
 
     scope_name = "model_non_robust"
@@ -82,7 +104,6 @@ if __name__ == "__main__":
             logger.info("Created model successfully. Now going to train")
 
             #TODO: Fit the model until convergence before running the distance experiments again
-            epochs, reg, lr = 70, 0.008, 3e-3
             model.fit(sess, x_train_flat,y_train, training_epochs = epochs, reg = reg , lr = lr)
 
             #Save weights
@@ -109,6 +130,7 @@ if __name__ == "__main__":
             norms_np = sess.run(norms)
             logger.info(norms_np)
 
+            ipdb.set_trace()
             overall, overall_std, correct, _, incorrect, _ = model.get_distance(sess, eps_test, x_test_flat, y_test)
             logger.info("---Distances----")
             logger.info(overall)
@@ -121,11 +143,10 @@ if __name__ == "__main__":
             #TSNE visualization of final layer.
             x_test_flat_adv = model.fgsm_np(sess, x_test_flat, y_test, eps_test)
             metadata_path = os.path.join(logdir, 'metadata.tsv')
-            write_metadata(metadata_path, y_test_ogi[0:1000])
+            write_metadata(metadata_path, y_test)
             sprite_path = os.path.join(logdir, 'sprite_images.png')
-            write_sprite_image(sprite_path, x_test_ogi[0:1000])
-            model.visualize_activation_tsne(sess, x_test_flat_adv[0:1000], 'metadata.tsv', 'sprite_images.png', logdir)
-
+            write_sprite_image(sprite_path, x_test)
+            model.visualize_activation_tsne(sess, x_test_flat_adv, 'metadata.tsv', 'sprite_images.png', logdir)
 
     else:
         with tf.variable_scope(scope_name) as scope:
@@ -184,7 +205,7 @@ if __name__ == "__main__":
                 #TSNE visualization of final layer.
                 x_test_flat_adv = model.fgsm_np(sess, x_test_flat, y_test, eps_test)
                 metadata_path = os.path.join(logdir, 'metadata.tsv')
-                write_metadata(metadata_path, y_test_ogi[0:1000])
+                write_metadata(metadata_path, y_test)
                 sprite_path = os.path.join(logdir, 'sprite_images.png')
-                write_sprite_image(sprite_path, x_test_ogi[0:1000])
+                write_sprite_image(sprite_path, x_test)
                 model.visualize_activation_tsne(sess, x_test_flat_adv[0:1000], 'metadata.tsv', 'sprite_images.png', logdir)

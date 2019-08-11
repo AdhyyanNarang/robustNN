@@ -1,0 +1,55 @@
+2019-08-09 18:53:14,491 - robustness - INFO - Created model successfully. Now going to train
+2019-08-09 18:53:15,352 - robustness - INFO - Epoch: 0001    cost: 0.030731847 
+2019-08-09 18:53:15,352 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-09 18:53:15,719 - robustness - INFO - Epoch: 0002    cost: 0.012985075 
+2019-08-09 18:53:15,719 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-09 18:53:16,083 - robustness - INFO - Epoch: 0003    cost: 0.011202761 
+2019-08-09 18:53:16,084 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-09 18:53:16,432 - robustness - INFO - Epoch: 0004    cost: 0.008603547 
+2019-08-09 18:53:16,433 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-09 18:53:16,790 - robustness - INFO - Epoch: 0005    cost: 0.007803474 
+2019-08-09 18:53:16,790 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-09 18:53:17,136 - robustness - INFO - Epoch: 0006    cost: 0.004986719 
+2019-08-09 18:53:17,136 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-09 18:53:17,494 - robustness - INFO - Epoch: 0007    cost: 0.004383238 
+2019-08-09 18:53:17,495 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-09 18:53:17,850 - robustness - INFO - Epoch: 0008    cost: 0.004170946 
+2019-08-09 18:53:17,850 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-09 18:53:18,210 - robustness - INFO - Epoch: 0009    cost: 0.005978798 
+2019-08-09 18:53:18,210 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-09 18:53:18,567 - robustness - INFO - Epoch: 0010    cost: 0.005745721 
+2019-08-09 18:53:18,567 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-09 18:53:18,914 - robustness - INFO - Epoch: 0011    cost: 0.003660905 
+2019-08-09 18:53:18,914 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-09 18:53:19,273 - robustness - INFO - Epoch: 0012    cost: 0.004858212 
+2019-08-09 18:53:19,273 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-09 18:53:19,626 - robustness - INFO - Epoch: 0013    cost: 0.004766812 
+2019-08-09 18:53:19,627 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-09 18:53:19,970 - robustness - INFO - Epoch: 0014    cost: 0.002319889 
+2019-08-09 18:53:19,970 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-09 18:53:20,318 - robustness - INFO - Epoch: 0015    cost: 0.002888067 
+2019-08-09 18:53:20,318 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-09 18:53:20,668 - robustness - INFO - Epoch: 0016    cost: 0.002371038 
+2019-08-09 18:53:20,668 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-09 18:53:21,032 - robustness - INFO - Epoch: 0017    cost: 0.004002083 
+2019-08-09 18:53:21,032 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-09 18:53:21,379 - robustness - INFO - Epoch: 0018    cost: 0.004712908 
+2019-08-09 18:53:21,379 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-09 18:53:21,739 - robustness - INFO - Epoch: 0019    cost: 0.001149855 
+2019-08-09 18:53:21,739 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-09 18:53:22,088 - robustness - INFO - Epoch: 0020    cost: 0.001317792 
+2019-08-09 18:53:22,089 - robustness - INFO - Accuracy on batch: 1.000000
+2019-08-09 18:53:22,089 - robustness - INFO - Optimization Finished!
+2019-08-09 18:53:22,152 - robustness - INFO - Final Train Loss 0.000747
+2019-08-09 18:53:22,152 - robustness - INFO - Final Train Accuracy 1.000000:
+2019-08-09 18:53:22,388 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-08-09 18:53:22,388 - robustness - INFO - (0.007750564, 1.0)
+2019-08-09 18:53:22,388 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-08-09 18:53:22,388 - robustness - INFO - (0.19202287, 1.0)
+2019-08-09 18:53:23,966 - robustness - INFO - ----PGD test accuracy and loss ----
+2019-08-09 18:53:23,968 - robustness - INFO - (51.763107, 1.0)
+2019-08-09 18:53:24,062 - robustness - INFO - [109.61839, 8.210519, 6.61972, 2.5461638]
+2019-08-09 18:53:26,704 - robustness - INFO - ---Distances----
+2019-08-09 18:53:26,704 - robustness - INFO - [0.18897994 0.41342703 0.28442824]
+2019-08-09 18:53:26,705 - robustness - INFO - ------Std devs on Distances----
+2019-08-09 18:53:26,705 - robustness - INFO - [2.202045  4.8861094 3.3264635]
