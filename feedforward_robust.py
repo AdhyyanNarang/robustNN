@@ -14,10 +14,12 @@ Create a new function to get loss/acc from predictions
 
 class RobustMLP(object):
 
-    def __init__(self,session,input_shape,hidden_sizes,num_classes, dataset, writer, scope, logger, sigma):
+    def __init__(self,input_shape,hidden_sizes,num_classes, writer, scope, logger, sigma):
 
         #Initialize instance variables
-        self.sess = session
+        #TODO: Fix this hacky solution.
+        self.logger.debug("Initialized instance variables of the robust model class")
+        input_shape = input_shape[0]
         self.input_shape = input_shape
         self.hidden_sizes = hidden_sizes
         self.num_classes = num_classes
@@ -27,27 +29,28 @@ class RobustMLP(object):
         self.logger = logger
         self.sigma = sigma
 
-        #TODO: Fix this hacky solution.
-        input_shape = input_shape[0]
-
-        #Placeholders for the data
-        x_shape = [None] + [input_shape]
+        #Creates the graph
+        x_shape = [None] + [self.input_shape]
         self.x = tf.placeholder("float", x_shape)
         self.y = tf.placeholder("float", [None, num_classes])
+        self.logger.debug("Created placeholders for x and y")
 
         self.activations, self.predictions = model(self.x, self.hidden_sizes, self.num_classes, sigma)
         self.featurizations = self.activations[-1]
+        self.logger.debug("Created layers and tensor for logits")
 
         self.loss_vector = tf.nn.softmax_cross_entropy_with_logits(logits=self.predictions, labels=self.y)
         self.loss = tf.reduce_mean(self.loss_vector)
         tf.summary.scalar("loss", self.loss)
+        self.logger.debug("Added loss computation to the graph")
 
         self.correct_prediction = tf.equal(tf.argmax(self.predictions, 1), tf.argmax(self.y, 1))
         self.accuracy = tf.reduce_mean(tf.cast(self.correct_prediction, "float"))
+        self.logger.debug("Added accuracy computation to the graph")
         tf.summary.scalar("accuracy", self.accuracy)
 
+        self.logger.info("Model graph was created")
         self.merged_summary = tf.summary.merge_all(scope = self.scope)
-        self.sess.run(tf.global_variables_initializer())
 
     def get_activation(self, sess, x_input):
         activations = sess.run(self.activations,
@@ -96,21 +99,6 @@ class RobustMLP(object):
         weights_np = sess.run(weights)
         return weights_np
 
-    def slash_weights(self, sess):
-        weights = []
-        assign_ops = []
-        for i in range(len(self.hidden_sizes) + 1):
-            scope_name = 'fc_' + str(i)
-            with tf.variable_scope(scope_name, reuse = True):
-                w = tf.get_variable('weights')
-                weights.append(w)
-                assign_op = tf.assign(w, w * 0.9)
-                assign_ops.append(assign_op)
-
-        sess.run(assign_ops)
-        weights_np = sess.run(weights)
-        return weights_np
-
     def get_weight_norms(self, sess, matrix_norm_fxn = lambda x: np.linalg.norm(x, ord = 1)):
         """
         Getter method for the norms of the weight matrices of
@@ -122,6 +110,7 @@ class RobustMLP(object):
             norm = matrix_norm_fxn(weights)
             model_norms.append(norm)
         return model_norms
+
 
     def fgsm(self, x, eps):
         #TODO: Remove x as a parameter and change all function calls accordingly
@@ -169,12 +158,6 @@ class RobustMLP(object):
     def pgd_adam_np(self, sess, x, y, eps, eta, num_iter):
         x_tilde, x_ph, y_ph = self.pgd_adam(sess, x, y, eps, eta, num_iter)
         feed_dict = {x_ph : x, y_ph: y}
-        x_tilde_np = sess.run(x_tilde, feed_dict = feed_dict)
-        return x_tilde_np
-
-    def pgd_np(self, sess, x, y, eps, eta, num_iter):
-        x_tilde = self.pgd(sess, x, y, eps, eta, num_iter)
-        feed_dict = {self.x: x, self.y : y}
         x_tilde_np = sess.run(x_tilde, feed_dict = feed_dict)
         return x_tilde_np
 
@@ -233,10 +216,12 @@ class RobustMLP(object):
         x_test_adv: adversarial test set
         order: order of the distance norm - either 2 or float("inf")
         """
+        self.logger.info("Getting activation distances between regular and FGSM data")
         x_test_adv = self.fgsm_np(sess, x_test, y_test, eps)
 
         pred = self.get_prediction(sess, x_test_adv)
 
+        self.logger.debug("Found correct and incorrect indices")
         incorrect_indices = [i for i,v in enumerate(pred) if np.argmax(v) != np.argmax(y_test[i])]
         correct_indices = [i for i,v in enumerate(pred) if np.argmax(v) == np.argmax(y_test[i])]
 
@@ -251,6 +236,7 @@ class RobustMLP(object):
         for i in range(len(x_test)):
             dist = self.dist_calculator(sess, x_test[i], x_test_adv[i], order)
             distances.append(dist)
+        self.logger.debug("Found average and standard deviation of distances")
         return np.average(distances, axis = 0), np.std(distances, axis = 0)
 
     def dist_calculator(self,sess, x, x_adv, order):
@@ -277,12 +263,15 @@ class RobustMLP(object):
                                      self.x : X,
                                      self.y: y
                                  })
+        self.logger.info("Model was evaluated on benign data")
         return loss, accuracy
 
     def adv_evaluate(self, sess, X, y, eps, pgd = False, eta = 1e-2, num_iter = 500):
         if not pgd:
             X_adv = self.fgsm_np(sess, X, y, eps)
+            self.logger.info("Model is being evaluated on FGSM data")
         else:
+            self.logger.info("Model is being evaluated on PGD points generated using %f learning rate and %d iterations" %(eta, num_iter))
             X_adv = self.pgd_adam_np(sess, X, y, eps, eta, num_iter)
 
         loss, accuracy = sess.run([self.loss, self.accuracy],
@@ -314,11 +303,11 @@ class RobustMLP(object):
                     self.writer.add_summary(summary, hor)
 
             if epoch % display_step == 0:
-                #self.logger.info("Epoch:", '%04d' % (epoch+1), "cost=", \
+                #self.logger.debug("Epoch:", '%04d' % (epoch+1), "cost=", \
                         #"{:.9f}".format(avg_cost))
-                self.logger.info("Epoch: %04d    cost: %.9f " %(epoch+1, avg_cost))
-                self.logger.info("Accuracy on batch: %f" %acc)
-        self.logger.info("Optimization Finished!")
+                self.logger.debug("Epoch: %04d    cost: %.9f " %(epoch+1, avg_cost))
+                self.logger.debug("Accuracy on batch: %f" %acc)
+        self.logger.debug("Optimization Finished!")
 
         final_acc, final_loss = sess.run([self.accuracy, self.loss],
                                          feed_dict={
@@ -326,8 +315,8 @@ class RobustMLP(object):
                                              self.y: y,
                                          }
                                         )
-        self.logger.info("Final Train Loss %f" %final_loss)
-        self.logger.info("Final Train Accuracy %f:" %final_acc)
+        self.logger.debug("Final Train Loss %f" %final_loss)
+        self.logger.debug("Final Train Accuracy %f:" %final_acc)
         return True
 
     def fit(self, sess, X, y, lr = 0.003, training_epochs=15, batch_size=32, display_step=1, reg = 0.005):
@@ -339,6 +328,7 @@ class RobustMLP(object):
 
         self.fit_helper(sess, X, y, optimization_step, loss,
             self.accuracy, lr, training_epochs, batch_size, display_step)
+        self.logger.info("Model was trained on benign data")
         return True
 
     def adv_fit(self, sess, X, y, eps, lr = 3e-4, training_epochs=15, batch_size=32, display_step=1):
@@ -366,9 +356,25 @@ class RobustMLP(object):
                                              self.y: y,
                                          }
                                         )
-        self.logger.info("Final Train Loss on Adv points %f" %final_loss_adv)
-        self.logger.info("Final Train Accuracy on Adv points %f" %final_acc_adv)
+        self.logger.debug("Final Train Loss on Adv points %f" %final_loss_adv)
+        self.logger.debug("Final Train Accuracy on Adv points %f" %final_acc_adv)
+        self.logger.info("Model was trained on adversarial data")
         return True
+
+    def slash_weights(self, sess):
+        weights = []
+        assign_ops = []
+        for i in range(len(self.hidden_sizes) + 1):
+            scope_name = 'fc_' + str(i)
+            with tf.variable_scope(scope_name, reuse = True):
+                w = tf.get_variable('weights')
+                weights.append(w)
+                assign_op = tf.assign(w, w * 0.9)
+                assign_ops.append(assign_op)
+
+        sess.run(assign_ops)
+        weights_np = sess.run(weights)
+        return weights_np
 
     def visualize_activation_tsne(self, sess, x_input, metadata_path, sprite_path, LOG_DIR, imgh = 28, imgw = 28):
         """
@@ -397,8 +403,10 @@ class RobustMLP(object):
             embedding.sprite.image_path = sprite_path
             embedding.sprite.single_image_dim.extend([imgh, imgw])
 
+
         saver = tf.train.Saver(var_list)
         saver.save(sess, os.path.join(LOG_DIR, 'activations.ckpt'))
 
         projector.visualize_embeddings(self.writer, config)
+        self.logger.info("Created embeddings for visualization")
         return True
