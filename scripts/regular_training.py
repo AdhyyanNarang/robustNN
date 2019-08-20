@@ -4,11 +4,9 @@ import numpy as np
 import tensorflow as tf
 import tensorflow.contrib.layers as layers
 sys.path.append('../')
+sys.path.append('../util/')
 import feedforward_robust as ffr
-import ellipsoid
 import ipdb
-from mnist_corruption import random_perturbation, gaussian_perturbation
-import cvxpy as cp
 from util import *
 
 """
@@ -24,9 +22,10 @@ eps_train = 0.1
 eps_test = 0.1
 tensorboard_dir = "tb/"
 weights_dir = "weights/"
-load_weights = False 
-load_counter = 58 
+load_weights = False
+load_counter = 112
 sigma = tf.nn.relu
+epochs, reg, lr = 30, 0.000, 3e-4
 
 #Configuring the logger
 
@@ -45,27 +44,17 @@ logfile = "logs/results_" + str(counter) + ".log"
 logger = logging.getLogger("robustness")
 logger.setLevel(logging.DEBUG)
 fh = logging.FileHandler(logfile)
-fh.setLevel(logging.DEBUG)
+fh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 fh.setFormatter(formatter)
 logger.addHandler(fh)
 
 if __name__ == "__main__":
 
-    #TODO: Replace this whole section with the function from util
     #Setup - Dataset stuff
-    mnist = tf.keras.datasets.mnist
-    (x_train, y_train), (x_test, y_test) = mnist.load_data()
-    y_test_ogi = y_test
-    x_test_ogi = x_test
-    x_train = x_train/255
-    x_test = x_test/255
-    num_classes = 10
-    y_train = tf.keras.utils.to_categorical(y_train, num_classes)
-    y_test = tf.keras.utils.to_categorical(y_test, num_classes)
-    x_train_flat, input_shape = flatten_mnist(x_train)
-    x_test_flat, _ = flatten_mnist(x_test)
-
+    dataset, input_shape, num_classes  = get_dataset()
+    x_train_flat, y_train = dataset[0]
+    x_test_flat, y_test = dataset[1]
     sess = tf.Session()
     hidden_sizes = [32,32,32,32,32,32,32]
     dataset = ((x_train_flat, y_train), (x_test_flat, y_test))
@@ -78,11 +67,11 @@ if __name__ == "__main__":
 
             #Create, train and test model
             writer = tf.summary.FileWriter(logdir)
-            model = ffr.RobustMLP(sess, input_shape, hidden_sizes, num_classes, dataset, writer = writer, scope = scope_name, logger = logger, sigma = sigma)
+            model = ffr.RobustMLP(input_shape, hidden_sizes, num_classes, writer = writer, scope = scope_name, logger = logger, sigma = sigma)
+            sess.run(tf.global_variables_initializer())
             logger.info("Created model successfully. Now going to train")
 
             #TODO: Fit the model until convergence before running the distance experiments again
-            epochs, reg, lr = 70, 0.008, 3e-3
             model.fit(sess, x_train_flat,y_train, training_epochs = epochs, reg = reg , lr = lr)
 
             #Save weights
@@ -133,7 +122,7 @@ if __name__ == "__main__":
 
             #Create, train and test model
             writer = tf.summary.FileWriter(logdir)
-            model = ffr.RobustMLP(sess, input_shape, hidden_sizes, num_classes, dataset, writer = writer, scope = scope_name, logger = logger, sigma =sigma)
+            model = ffr.RobustMLP(input_shape, hidden_sizes, num_classes, writer = writer, scope = scope_name, logger = logger, sigma =sigma)
             logger.info("Created model successfully. Now going to load weights")
 
             #Restore weights

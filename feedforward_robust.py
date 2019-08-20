@@ -4,6 +4,7 @@ import tensorflow as tf
 import tensorflow.contrib.layers as layers
 from tensorflow.contrib.tensorboard.plugins import projector
 import ipdb
+sys.path.append("util/")
 from util import *
 
 """
@@ -18,16 +19,15 @@ class RobustMLP(object):
 
         #Initialize instance variables
         #TODO: Fix this hacky solution.
-        self.logger.debug("Initialized instance variables of the robust model class")
         input_shape = input_shape[0]
         self.input_shape = input_shape
         self.hidden_sizes = hidden_sizes
         self.num_classes = num_classes
-        (self.x_train, self.y_train), (self.x_test, self.y_test) = dataset
         self.writer = writer
         self.scope = scope
         self.logger = logger
         self.sigma = sigma
+        self.logger.debug("Initialized instance variables of the robust model class")
 
         #Creates the graph
         x_shape = [None] + [self.input_shape]
@@ -110,7 +110,6 @@ class RobustMLP(object):
             norm = matrix_norm_fxn(weights)
             model_norms.append(norm)
         return model_norms
-
 
     def fgsm(self, x, eps):
         #TODO: Remove x as a parameter and change all function calls accordingly
