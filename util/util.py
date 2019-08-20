@@ -9,6 +9,22 @@ import pandas as pd
 """
 Helper functions for feedforward_robust
 """
+def get_dataset():
+    mnist = tf.keras.datasets.mnist
+    (x_train, y_train), (x_test, y_test) = mnist.load_data()
+    y_test_ogi = y_test
+    x_test_ogi = x_test
+    x_train = x_train/255
+    x_test = x_test/255
+    num_classes = 10
+    y_train = tf.keras.utils.to_categorical(y_train, num_classes)
+    y_test = tf.keras.utils.to_categorical(y_test, num_classes)
+    x_train_flat, input_shape = flatten_mnist(x_train)
+    x_test_flat, _ = flatten_mnist(x_test)
+    hidden_sizes = [32,32,32,32,32,32,32]
+    dataset = ((x_train_flat, y_train), (x_test_flat, y_test))
+    return dataset, input_shape, num_classes
+
 def fully_connected_layer(x, output_dim, scope_name, weight_initializer, bias_initializer, sigma):
     #Reuse = True because everytime we wish to call model(x), we want it to
     #use the most recently learned weights.
@@ -32,6 +48,7 @@ def model(x, hidden_sizes, num_classes, act_fxn = tf.nn.relu):
     activations = []
 
     initial = tf.contrib.layers.xavier_initializer(dtype = tf.float32)
+    #initial = tf.initializers.truncated_normal(mean = -0.001, stddev = 0.9)
     bias_initial = tf.initializers.zeros
 
     #Compute the prediction placeholder
@@ -68,6 +85,7 @@ def write_to_results_csv(epochs, op_reg, lr, adv_train_flag, activation, acc_reg
     df.loc[index] = [index, epochs, op_reg, lr, adv_train_flag, activation, acc_reg, acc_fgsm, acc_pgd, loss_reg, loss_fgsm, loss_pgd, logdir, weights_path, tb_dir, dist, norms]
     df.to_excel("results.xlsx", index = False)
     return True
+
 
 """
 Functions that aid with visualization
@@ -135,6 +153,7 @@ def write_metadata(filename, labels):
             x_i_star = solve_inner_opt_problem(sess, model, y_train[idx], num_samples_ellipse, A_i, b_i)
             x_featurized_star.append(x_i_star)
         return np.array(x_featurized_star)
+
 
 """
 Functions for ellipsoid and sampling
