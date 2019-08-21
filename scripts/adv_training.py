@@ -5,10 +5,7 @@ import tensorflow as tf
 import tensorflow.contrib.layers as layers
 sys.path.append('../')
 import feedforward_robust as ffr
-import ellipsoid
 import ipdb
-from mnist_corruption import random_perturbation, gaussian_perturbation
-import cvxpy as cp
 from util import *
 
 """
@@ -24,9 +21,11 @@ eps_train = 0.1
 eps_test = 0.1
 tensorboard_dir = "tb/"
 weights_dir = "weights/"
-load_weights = True 
-load_counter = 75 
+load_weights = False 
+load_counter = 75
 sigma = tf.nn.relu
+epochs, reg, lr, batch_size = 30, 0, 3e-3, 32 
+eta, num_iter_pgd = eps_train, 1
 
 #Configuring the logger
 
@@ -78,12 +77,14 @@ if __name__ == "__main__":
 
             #Create, train and test model
             writer = tf.summary.FileWriter(logdir)
-            model = ffr.RobustMLP(sess, input_shape, hidden_sizes, num_classes, dataset, writer = writer, scope = scope_name, logger = logger, sigma = sigma)
+            model = ffr.RobustMLP(input_shape, hidden_sizes, num_classes, writer = writer, scope = scope_name, logger = logger, sigma = sigma)
             logger.info("Created model successfully. Now going to train")
+            sess.run(tf.global_variables_initializer())
 
             #TODO: Fit the model until convergence before running the distance experiments again
-            epochs, reg, lr = 30, 0, 3e-3
-            model.adv_fit(sess, x_train_flat,y_train, eps_train, training_epochs = epochs, lr = lr)
+            batch_size = len(x_train_flat)
+            model.pgd_fit(sess, x_train_flat, y_train, eps_train, eta, num_iter_pgd, lr = lr, training_epochs = epochs, batch_size = batch_size, reg = reg)
+            #model.adv_fit(sess, x_train_flat,y_train, eps_train, training_epochs = epochs, lr = lr)
 
             #Save weights
             weights = tf.trainable_variables()
@@ -102,7 +103,7 @@ if __name__ == "__main__":
             logger.info("----PGD test accuracy and loss ----")
             logger.info((loss_pgd , acc_pgd))
 
-            writer.add_graph(sess.graph)
+            #writer.add_graph(sess.graph)
 
             #Distances and norms
             norms = get_norms(model.get_weights()[0])
