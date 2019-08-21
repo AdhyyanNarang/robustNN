@@ -25,7 +25,7 @@ weights_dir = "weights/"
 load_weights = False
 load_counter = 112
 sigma = tf.nn.relu
-epochs, reg, lr = 30, 0.000, 3e-4
+epochs, reg, lr = 30, 0.020, 3e-4
 
 #Configuring the logger
 
