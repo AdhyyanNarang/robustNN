@@ -5,10 +5,9 @@ import tensorflow as tf
 import tensorflow.contrib.layers as layers
 sys.path.append('../')
 import feedforward_robust as ffr
-import ellipsoid
 import ipdb
-from mnist_corruption import random_perturbation, gaussian_perturbation
-import cvxpy as cp
+#from mnist_corruption import random_perturbation, gaussian_perturbation
+sys.path.append('../utils/')
 from util import *
 
 """
@@ -72,11 +71,11 @@ if __name__ == "__main__":
         logdir = tensorboard_dir + str(counter) + "/robust"
         writer_robust = tf.summary.FileWriter(logdir)
         logger.info("Adversarial Training")
-        robust_model = ffr.RobustMLP(sess, input_shape, hidden_sizes, num_classes, dataset, writer = writer_robust, scope = scope_name_rob, logger = logger)
-        robust_model.adv_fit(sess, x_train_flat, y_train, eps_train, lr = 3e-4, training_epochs = 20)
+        robust_model = ffr.RobustMLP(input_shape, hidden_sizes, num_classes, writer = writer_robust, scope = scope_name_rob, logger = logger, sigma = tf.nn.relu)
 
-        epochs, reg, lr = 1, 0.0, 3e-3
-        robust_model.adv_fit(sess, x_train_flat,y_train, training_epochs = epochs, lr = lr)
+        sess.run(tf.global_variables_initializer())
+        epochs, reg, lr, batch_size = 20, 0.0, 3e-3, len(x_train)
+        robust_model.adv_fit(sess, x_train_flat,y_train, training_epochs = epochs, lr = lr, eps = 0.1)
         loss_reg, acc_reg = robust_model.evaluate(sess, x_test_flat, y_test)
         loss_adv, acc_adv = robust_model.adv_evaluate(sess, x_test_flat, y_test, eps_test)
         norms_np = robust_model.get_weight_norms(sess)
@@ -86,7 +85,7 @@ if __name__ == "__main__":
         logger.info(norms_np)
         overall, _, correct, _, incorrect, _ = robust_model.get_distance(sess, eps_test, x_test_flat, y_test)
         logger.info(overall)
-        writer_robust.add_graph(sess.graph)
+        #writer_robust.add_graph(sess.graph)
 
         #TODO: Test this untested function call.
         write_to_results_csv(epochs, reg, lr, True, "sigmoid", acc_reg, acc_adv, loss_reg, loss_adv, logfile, logdir, tuple(overall), tuple(norms_np))

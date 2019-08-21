@@ -1,0 +1,8 @@
+2019-08-21 07:46:16,036 - robustness - INFO - Something happened
+2019-08-21 07:46:16,546 - robustness - INFO - Adversarial Training
+2019-08-21 07:46:16,547 - robustness - DEBUG - Initialized instance variables of the robust model class
+2019-08-21 07:46:16,617 - robustness - DEBUG - Created placeholders for x and y
+2019-08-21 07:46:16,826 - robustness - DEBUG - Created layers and tensor for logits
+2019-08-21 07:46:16,921 - robustness - DEBUG - Added loss computation to the graph
+2019-08-21 07:46:16,925 - robustness - DEBUG - Added accuracy computation to the graph
+2019-08-21 07:46:16,926 - robustness - INFO - Model graph was created

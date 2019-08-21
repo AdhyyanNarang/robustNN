@@ -67,6 +67,14 @@ def op_norm(matrix):
     op_inf_inf = tf.reduce_max(column_norms)
     return op_inf_inf
 
+def trace_norm_approx(A):
+    """
+    Whereas the actual trace norm computes the sums of the singular values of the matrix,
+    this norm computes the sums of squares of the singular values
+    """
+    prod = tf.matmul(A, tf.linalg.transpose(A))
+    return tf.linalg.trace(prod)
+
 def get_norms(weights_list):
     norms = []
     for weights in weights_list:
@@ -77,6 +85,12 @@ def regularize_op_norm(weights_list):
     penalty = 0
     for weights in weights_list:
         penalty += op_norm(weights)
+    return penalty
+
+def regularize_trace_norm(weights_list):
+    penalty = 0
+    for weights in weights_list:
+        penalty += trace_norm_approx(weights)
     return penalty
 
 def write_to_results_csv(epochs, op_reg, lr, adv_train_flag, activation, acc_reg, acc_fgsm, acc_pgd,  loss_reg, loss_fgsm, loss_pgd, logdir, weights_path, tb_dir, dist, norms):
