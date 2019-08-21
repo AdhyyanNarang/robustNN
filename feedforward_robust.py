@@ -128,8 +128,8 @@ class RobustMLP(object):
         x_adv_conc = sess.run(x_adv, feed_dict = feed_dict)
         return x_adv_conc
 
-    def pgd_create_adv_graph(self, sess, X, y, eps, eta):
-        with tf.variable_scope("pgd", reuse = tf.AUTO_REUSE) as scope:
+    def pgd_create_adv_graph(self, sess, X, y, eps, eta, scope):
+        with tf.variable_scope(scope, reuse = tf.AUTO_REUSE) as scope:
             temp = set(tf.all_variables())
 
             #TODO:This hack needs to change to accept variable shape
@@ -161,7 +161,7 @@ class RobustMLP(object):
         return True
 
     def pgd_adam(self, sess, X, y, eps, eta, num_iter, scope_name):
-        x_ph, y_ph, optimization_step, project_op, x_tilde, assign_op  = self.pgd_create_adv_graph(sess, X, y, eps, eta)
+        x_ph, y_ph, optimization_step, project_op, x_tilde, assign_op  = self.pgd_create_adv_graph(sess, X, y, eps, eta, scope = "test")
         success = self.pgd_optimizer(sess, X, y, x_ph, y_ph, optimization_step, project_op, assign_op, num_iter)
         return x_tilde, x_ph, y_ph
 
@@ -389,7 +389,7 @@ class RobustMLP(object):
         total_batch = int(len(X) / batch_size)
         x_batches = np.array_split(X, total_batch)
         y_batches = np.array_split(y, total_batch)
-        x_ph, y_ph, optimization_pgd, project_op, x_tilde, zeros_assign_op = self.pgd_create_adv_graph(sess, x_batches[0], y_batches[0], eps, eta)
+        x_ph, y_ph, optimization_pgd, project_op, x_tilde, zeros_assign_op = self.pgd_create_adv_graph(sess, x_batches[0], y_batches[0], eps, eta, scope = "train")
 
         #Alternating optimization
         for epoch in range(training_epochs):
