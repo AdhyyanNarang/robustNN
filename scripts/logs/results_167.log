@@ -1,0 +1,26 @@
+2019-08-28 13:01:50,466 - robustness - INFO - Model graph was created
+2019-08-28 13:01:50,467 - robustness - INFO - Created model successfully. Now going to load weights
+2019-08-28 13:01:50,585 - robustness - INFO - Model was evaluated on benign data
+2019-08-28 13:01:50,585 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-08-28 13:01:50,585 - robustness - INFO - (0.21541685, 0.9385)
+2019-08-28 13:01:51,966 - robustness - INFO - Model was evaluated on benign data
+2019-08-28 13:01:51,966 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-08-28 13:01:51,967 - robustness - INFO - (0.21541685, 0.9385)
+2019-08-28 13:01:52,202 - robustness - INFO - Model is being evaluated on FGSM data
+2019-08-28 13:01:52,213 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-08-28 13:01:52,214 - robustness - INFO - (4.516582, 0.2345)
+2019-08-28 13:01:52,383 - robustness - INFO - Model is being evaluated on PGD points generated using 0.050000 learning rate and 100 iterations
+2019-08-28 13:05:29,688 - robustness - INFO - Model graph was created
+2019-08-28 13:05:29,690 - robustness - INFO - Created model successfully. Now going to load weights
+2019-08-28 13:05:29,813 - robustness - INFO - Model was evaluated on benign data
+2019-08-28 13:05:29,813 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-08-28 13:05:29,813 - robustness - INFO - (0.21541685, 0.9385)
+2019-08-28 13:05:32,902 - robustness - INFO - Model was evaluated on benign data
+2019-08-28 13:05:32,902 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-08-28 13:05:32,902 - robustness - INFO - (0.21541685, 0.9385)
+2019-08-28 13:05:33,134 - robustness - INFO - Model is being evaluated on FGSM data
+2019-08-28 13:05:33,145 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-08-28 13:05:33,146 - robustness - INFO - (4.516582, 0.2345)
+2019-08-28 13:05:33,320 - robustness - INFO - Model is being evaluated on PGD points generated using 0.050000 learning rate and 100 iterations
+2019-08-28 13:05:40,850 - robustness - INFO - ----PGD test accuracy and loss ----
+2019-08-28 13:05:40,850 - robustness - INFO - (0.26608932, 0.9231)

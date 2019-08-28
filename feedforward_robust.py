@@ -138,36 +138,36 @@ class RobustMLP(object):
         return x_adv_conc
 
     def pgd_create_adv_graph(self, sess, X, y, eps, eta, scope):
-        with tf.variable_scope(scope, reuse = tf.AUTO_REUSE) as scope:
-            temp = set(tf.all_variables())
+        #with tf.variable_scope(scope, reuse = tf.AUTO_REUSE) as scope:
+        temp = set(tf.all_variables())
 
-            #TODO:This hack needs to change to accept variable shape
-            x_ph = tf.placeholder("float", X.shape)
-            delta = tf.get_variable("delta", shape = X.shape, initializer = tf.initializers.zeros(dtype = tf.float32))
-            x_tilde = x_ph + delta
-            y_ph = tf.placeholder("float", y.shape)
+        #TODO:This hack needs to change to accept variable shape
+        x_ph = tf.placeholder("float", X.shape)
+        delta = tf.get_variable("delta", shape = X.shape, initializer = tf.initializers.zeros(dtype = tf.float32))
+        x_tilde = x_ph + delta
+        y_ph = tf.placeholder("float", y.shape)
 
-            #New predictions and loss - call to model will reuse learned weights
-            activations, predictions = model(x_tilde, self.hidden_sizes, self.num_classes, self.sigma)
-            loss_vector = tf.nn.softmax_cross_entropy_with_logits(logits=predictions, labels=y_ph)
-            loss_tilde = tf.reduce_mean(loss_vector)
+        #New predictions and loss - call to model will reuse learned weights
+        activations, predictions = model(x_tilde, self.hidden_sizes, self.num_classes, self.sigma)
+        loss_vector = tf.nn.softmax_cross_entropy_with_logits(logits=predictions, labels=y_ph)
+        loss_tilde = tf.reduce_mean(loss_vector)
 
-            #Optimization
-            zeros_delta = tf.zeros_like(delta)
-            delta_zero_assign_op = tf.assign(delta, zeros_delta)
-            optimization_step = tf.train.AdamOptimizer(learning_rate = eta).minimize(-loss_tilde, var_list = [delta])
-            tmp = tf.clip_by_value(delta, clip_value_min = -eps, clip_value_max = eps)
-            project_op = tf.assign(delta, tmp)
-            sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
-            return x_ph, y_ph, optimization_step, project_op, x_tilde, delta_zero_assign_op, loss_tilde
+        #Optimization
+        zeros_delta = tf.zeros_like(delta)
+        delta_zero_assign_op = tf.assign(delta, zeros_delta)
+        optimization_step = tf.train.AdamOptimizer(learning_rate = eta).minimize(-loss_tilde, var_list = [delta])
+        tmp = tf.clip_by_value(delta, clip_value_min = -eps, clip_value_max = eps)
+        project_op = tf.assign(delta, tmp)
+        sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
+        return x_ph, y_ph, optimization_step, project_op, x_tilde, delta_zero_assign_op, loss_tilde
 
     def pgd_optimizer(self, sess, X, y, x_ph, y_ph, optimization_step, project_op, assign_op, num_iter, loss):
         sess.run(assign_op)
         for i in range(num_iter):
             print("iteration: %d"%i)
             feed_dict = {x_ph: X, y_ph: y}
-            _, _, loss = sess.run([optimization_step, project_op, objective_fxn], feed_dict = feed_dict)
-            print("loss %f" %loss)
+            _, _, loss_adv = sess.run([optimization_step, project_op, loss], feed_dict = feed_dict)
+            print("loss %f" %loss_adv)
         return True
 
     def pgd_adam(self, sess, X, y, eps, eta, num_iter, scope_name):
@@ -287,6 +287,7 @@ class RobustMLP(object):
         return loss, accuracy
 
     def adv_evaluate(self, sess, X, y, eps, pgd = False, eta = 1e-2, num_iter = 500):
+        X_adv = None
         if not pgd:
             X_adv = self.fgsm_np(sess, X, y, eps)
             self.logger.info("Model is being evaluated on FGSM data")
