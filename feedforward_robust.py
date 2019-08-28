@@ -159,19 +159,20 @@ class RobustMLP(object):
             tmp = tf.clip_by_value(delta, clip_value_min = -eps, clip_value_max = eps)
             project_op = tf.assign(delta, tmp)
             sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
-            return x_ph, y_ph, optimization_step, project_op, x_tilde, delta_zero_assign_op
+            return x_ph, y_ph, optimization_step, project_op, x_tilde, delta_zero_assign_op, loss_tilde
 
-    def pgd_optimizer(self, sess, X, y, x_ph, y_ph, optimization_step, project_op, assign_op, num_iter):
+    def pgd_optimizer(self, sess, X, y, x_ph, y_ph, optimization_step, project_op, assign_op, num_iter, loss):
         sess.run(assign_op)
         for i in range(num_iter):
             print("iteration: %d"%i)
             feed_dict = {x_ph: X, y_ph: y}
-            sess.run([optimization_step, project_op], feed_dict = feed_dict)
+            _, _, loss = sess.run([optimization_step, project_op, objective_fxn], feed_dict = feed_dict)
+            print("loss %f" %loss)
         return True
 
     def pgd_adam(self, sess, X, y, eps, eta, num_iter, scope_name):
-        x_ph, y_ph, optimization_step, project_op, x_tilde, assign_op  = self.pgd_create_adv_graph(sess, X, y, eps, eta, scope = "test")
-        success = self.pgd_optimizer(sess, X, y, x_ph, y_ph, optimization_step, project_op, assign_op, num_iter)
+        x_ph, y_ph, optimization_step, project_op, x_tilde, assign_op, loss = self.pgd_create_adv_graph(sess, X, y, eps, eta, scope = "test")
+        success = self.pgd_optimizer(sess, X, y, x_ph, y_ph, optimization_step, project_op, assign_op, num_iter, loss)
         return x_tilde, x_ph, y_ph
 
     def pgd_adam_np(self, sess, x, y, eps, eta, num_iter, scope_name = "Test"):
@@ -398,7 +399,7 @@ class RobustMLP(object):
         total_batch = int(len(X) / batch_size)
         x_batches = np.array_split(X, total_batch)
         y_batches = np.array_split(y, total_batch)
-        x_ph, y_ph, optimization_pgd, project_op, x_tilde, zeros_assign_op = self.pgd_create_adv_graph(sess, x_batches[0], y_batches[0], eps, eta, scope = "train")
+        x_ph, y_ph, optimization_pgd, project_op, x_tilde, zeros_assign_op, _ = self.pgd_create_adv_graph(sess, x_batches[0], y_batches[0], eps, eta, scope = "train")
 
         #Alternating optimization
         for epoch in range(training_epochs):
