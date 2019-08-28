@@ -400,7 +400,7 @@ class RobustMLP(object):
         total_batch = int(len(X) / batch_size)
         x_batches = np.array_split(X, total_batch)
         y_batches = np.array_split(y, total_batch)
-        x_ph, y_ph, optimization_pgd, project_op, x_tilde, zeros_assign_op, _ = self.pgd_create_adv_graph(sess, x_batches[0], y_batches[0], eps, eta, scope = "train")
+        x_ph, y_ph, optimization_pgd, project_op, x_tilde, zeros_assign_op, loss_pgd= self.pgd_create_adv_graph(sess, x_batches[0], y_batches[0], eps, eta, scope = "train")
 
         #Alternating optimization
         for epoch in range(training_epochs):
@@ -412,7 +412,7 @@ class RobustMLP(object):
             for i in range(total_batch):
                 batch_x, batch_y = x_batches[i], y_batches[i]
                 #PGD optimization
-                success = self.pgd_optimizer(sess, batch_x, batch_y, x_ph, y_ph, optimization_pgd, project_op, zeros_assign_op, num_iter_pgd)
+                success = self.pgd_optimizer(sess, batch_x, batch_y, x_ph, y_ph, optimization_pgd, project_op, zeros_assign_op, num_iter_pgd, loss_pgd)
                 feed_dict = {x_ph : batch_x, y_ph: batch_y}
                 batch_x_pgd = sess.run(x_tilde, feed_dict = feed_dict)
 
