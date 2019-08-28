@@ -111,6 +111,15 @@ class RobustMLP(object):
             model_norms.append(norm)
         return model_norms
 
+    def get_dphi_dx(self, sess, x_train):
+        """
+        Gets gradients of features with respect to input
+        """
+        dphi_dx = tf.gradients(self.featurizations, self.x)
+        feed_dict = {self.x: x_train}
+        dphi_dx_np = sess.run(dphi_dx, feed_dict = feed_dict)
+        return dphi_dx_np
+
     def fgsm(self, x, eps):
         #TODO: Remove x as a parameter and change all function calls accordingly
         g = tf.gradients(self.loss, self.x)
