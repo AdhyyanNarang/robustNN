@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
     scope_name = "model_robust"
     if not load_weights:
-        with tf.variable_scope(scope_name) as scope:
+        with tf.variable_scope(scope_name, reuse = tf.AUTO_REUSE) as scope:
 
             logdir = tensorboard_dir + str(counter) + "/robust"
 
@@ -127,7 +127,7 @@ if __name__ == "__main__":
             model.visualize_activation_tsne(sess, x_test_flat_adv[0:1000], 'metadata.tsv', 'sprite_images.png', logdir)
 
     else:
-        with tf.variable_scope(scope_name) as scope:
+        with tf.variable_scope(scope_name, reuse = tf.AUTO_REUSE) as scope:
             logdir = tensorboard_dir + str(counter) + "/robust"
 
             #Create, train and test model
