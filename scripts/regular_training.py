@@ -22,10 +22,10 @@ eps_train = 0.1
 eps_test = 0.1
 tensorboard_dir = "tb/"
 weights_dir = "weights/"
-load_weights = True
-load_counter = 74
+load_weights = True 
+load_counter = 234 
 sigma = tf.nn.relu
-epochs, reg, lr = 30, 0.020, 3e-4
+epochs, reg, lr = 3, 0.00, 3e-3
 pgd_eta, pgd_num_iter = 1.0, 20
 
 #Configuring the logger
@@ -88,7 +88,7 @@ if __name__ == "__main__":
             logger.info((loss_reg, acc_reg))
             logger.info("----FGSM test accuracy and loss ----")
             logger.info((loss_fgsm, acc_fgsm))
-            loss_pgd, acc_pgd = model.adv_evaluate(sess, x_test_flat, y_test, eps_test, pgd = True, eta=5e-2, num_iter = 100)
+            loss_pgd, acc_pgd = model.adv_evaluate(sess, x_test_flat, y_test, eps_test, pgd = True, eta=pgd_eta, num_iter = pgd_num_iter)
             logger.info("----PGD test accuracy and loss ----")
             logger.info((loss_pgd , acc_pgd))
 
@@ -160,7 +160,6 @@ if __name__ == "__main__":
             loss_pgd, acc_pgd = model.adv_evaluate(sess, x_test_flat, y_test, eps_test, pgd = True, eta=pgd_eta, num_iter = pgd_num_iter)
             logger.info("----PGD test accuracy and loss ----")
             logger.info((loss_pgd , acc_pgd))
-
 
             #Distances and norms
             if False:

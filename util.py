@@ -9,6 +9,9 @@ import pandas as pd
 """
 Helper functions for feedforward_robust
 """
+def get_max_abs(mat):
+    return np.max(np.abs(mat))
+
 def get_dataset():
     mnist = tf.keras.datasets.mnist
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
