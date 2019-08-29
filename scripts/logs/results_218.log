@@ -1,0 +1,12 @@
+2019-08-28 23:29:37,832 - robustness - INFO - Model graph was created
+2019-08-28 23:29:37,837 - robustness - INFO - Created model successfully. Now going to load weights
+2019-08-28 23:29:38,126 - robustness - INFO - Model was evaluated on benign data
+2019-08-28 23:29:38,126 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-08-28 23:29:38,126 - robustness - INFO - (0.21541685, 0.9385)
+2019-08-28 23:29:40,246 - robustness - INFO - Model was evaluated on benign data
+2019-08-28 23:29:40,246 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-08-28 23:29:40,247 - robustness - INFO - (0.21541685, 0.9385)
+2019-08-28 23:29:40,807 - robustness - INFO - Model is being evaluated on FGSM data
+2019-08-28 23:29:40,833 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-08-28 23:29:40,834 - robustness - INFO - (4.516582, 0.2345)
+2019-08-28 23:29:41,261 - robustness - INFO - Model is being evaluated on PGD points generated using 1.000000 learning rate and 20 iterations

@@ -154,49 +154,41 @@ class RobustMLP(object):
 
         #Optimization
         zeros_delta = tf.zeros_like(delta)
-        delta_zero_assign_op = tf.assign(delta, zeros_delta)
+        delta_zero_assign_op = tf.assign(delta, zeros_delta).op
+
         optimization_step = tf.train.AdamOptimizer(learning_rate = eta).minimize(-loss_tilde, var_list = [delta])
+
         tmp = tf.clip_by_value(delta, clip_value_min = -eps, clip_value_max = eps)
+        #project_op = tf.assign(delta, tf.clip_by_value(delta, clip_value_min = -eps, clip_value_max = eps))
         project_op = tf.assign(delta, tmp)
+
         sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
         return x_ph, y_ph, optimization_step, project_op, x_tilde, delta_zero_assign_op, loss_tilde, delta
 
     def pgd_optimizer(self, sess, X, y, x_ph, y_ph, optimization_step, project_op, assign_op, num_iter, loss, delta):
-        sess.run(assign_op)
+        _, delta_init_np = sess.run([assign_op, delta])
         for i in range(num_iter):
             print("iteration: %d"%i)
             feed_dict = {x_ph: X, y_ph: y}
-            #_, _, loss_adv = sess.run([optimization_step, project_op, loss], feed_dict = feed_dict)
-            sess.run(optimization_step, feed_dict = feed_dict)
-            if i == 0:
-                self.logger.debug("Max difference before projecting")
-                delta_before = sess.run(delta, feed_dict = feed_dict)
-                self.logger.debug(get_max_abs(delta_before))
-
-            sess.run(project_op)
-
-            if i == 0:
-                delta_after = sess.run(delta, feed_dict = feed_dict)
-                self.logger.debug("Max difference after projecting")
-                self.logger.debug(get_max_abs(delta_after))
-
-            loss_adv = sess.run(loss, feed_dict = feed_dict)
+            #_, _, loss_adv, delta_np = sess.run([optimization_step, project_op, loss, delta], feed_dict = feed_dict)
+            _ = sess.run([optimization_step], feed_dict = feed_dict)
+            delta_before= sess.run([delta], feed_dict = feed_dict)
+            ipdb.set_trace()
+            _ = sess.run([project_op], feed_dict = feed_dict)
+            delta_after, loss_adv = sess.run([delta, loss], feed_dict = feed_dict)
+            ipdb.set_trace()
             print("loss %f" %loss_adv)
         return True
 
     def pgd_adam(self, sess, X, y, eps, eta, num_iter, scope_name):
-        x_ph, y_ph, optimization_step, project_op, x_tilde, assign_op, loss , delta = self.pgd_create_adv_graph(sess, X, y, eps, eta, scope = "test")
+        x_ph, y_ph, optimization_step, project_op, x_tilde, assign_op, loss, delta = self.pgd_create_adv_graph(sess, X, y, eps, eta, scope = "test")
         success = self.pgd_optimizer(sess, X, y, x_ph, y_ph, optimization_step, project_op, assign_op, num_iter, loss, delta)
-        return x_tilde, x_ph, y_ph
+        return x_tilde, x_ph, y_ph, delta
 
     def pgd_adam_np(self, sess, x, y, eps, eta, num_iter, scope_name = "Test"):
-        x_tilde, x_ph, y_ph = self.pgd_adam(sess, x, y, eps, eta, num_iter, scope_name)
+        x_tilde, x_ph, y_ph, delta = self.pgd_adam(sess, x, y, eps, eta, num_iter, scope_name)
         feed_dict = {x_ph : x, y_ph: y}
         x_tilde_np = sess.run(x_tilde, feed_dict = feed_dict)
-        diff = x_tilde_np - x
-        self.logger.debug("This is to confirm that attack does not violate constraints")
-        self.logger.debug("Should be no more than eps")
-        self.logger.debug(np.max(np.abs(diff)))
         return x_tilde_np
 
     def sample_attack(self, eps, num_samples = 100):
