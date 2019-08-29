@@ -414,14 +414,14 @@ class RobustMLP(object):
         #batch_size = len(X)
 
         #Create the pgd graph which we can optimize below
-        x_ph, y_ph, optimization_pgd, project_op, x_tilde, zeros_assign_op, loss_pgd= self.pgd_create_adv_graph(sess, X, y, eps, eta, scope = "train")
+        x_ph, y_ph, optimization_pgd, project_op, x_tilde, zeros_assign_op, loss_pgd, delta= self.pgd_create_adv_graph(sess, X, y, eps, eta, scope = "train")
 
         #Alternating optimization
         for epoch in range(training_epochs):
             avg_cost = 0.0
 
             #PGD optimization
-            success = self.pgd_optimizer(sess, X, y, x_ph, y_ph, optimization_pgd, project_op, zeros_assign_op, num_iter_pgd, loss_pgd)
+            success = self.pgd_optimizer(sess, X, y, x_ph, y_ph, optimization_pgd, project_op, zeros_assign_op, num_iter_pgd, loss_pgd, delta)
             feed_dict = {x_ph : X, y_ph: y}
             X_adv = sess.run(x_tilde, feed_dict = feed_dict)
 
