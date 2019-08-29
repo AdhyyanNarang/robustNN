@@ -393,33 +393,31 @@ class RobustMLP(object):
         temp = set(tf.all_variables())
         optimization_good = tf.train.AdamOptimizer(learning_rate=lr).minimize(loss)
         sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
-        batch_size = len(X)
+        #batch_size = len(X)
 
-        #Define pgd graph
-        #TODO: Fix this hack later
-        total_batch = int(len(X) / batch_size)
-        x_batches = np.array_split(X, total_batch)
-        y_batches = np.array_split(y, total_batch)
-        x_ph, y_ph, optimization_pgd, project_op, x_tilde, zeros_assign_op, loss_pgd= self.pgd_create_adv_graph(sess, x_batches[0], y_batches[0], eps, eta, scope = "train")
+        #Create the pgd graph which we can optimize below
+        x_ph, y_ph, optimization_pgd, project_op, x_tilde, zeros_assign_op, loss_pgd= self.pgd_create_adv_graph(sess, X, y, eps, eta, scope = "train")
 
         #Alternating optimization
         for epoch in range(training_epochs):
             avg_cost = 0.0
-            total_batch = int(len(X) / batch_size)
-            x_batches = np.array_split(X, total_batch)
+
+            #PGD optimization
+            success = self.pgd_optimizer(sess, X, y, x_ph, y_ph, optimization_pgd, project_op, zeros_assign_op, num_iter_pgd, loss_pgd)
+            feed_dict = {x_ph : X, y_ph: y}
+            X_adv = sess.run(x_tilde, feed_dict = feed_dict)
+
+            total_batch = int(len(X_adv) / batch_size)
+            x_batches = np.array_split(X_adv, total_batch)
             y_batches = np.array_split(y, total_batch)
+
 
             for i in range(total_batch):
                 batch_x, batch_y = x_batches[i], y_batches[i]
-                #PGD optimization
-                success = self.pgd_optimizer(sess, batch_x, batch_y, x_ph, y_ph, optimization_pgd, project_op, zeros_assign_op, num_iter_pgd, loss_pgd)
-                feed_dict = {x_ph : batch_x, y_ph: batch_y}
-                batch_x_pgd = sess.run(x_tilde, feed_dict = feed_dict)
-
                 #Actual optimization
                 _, c, acc = sess.run([optimization_good, loss, self.accuracy],
                                      feed_dict={
-                                         self.x: batch_x_pgd,
+                                         self.x: batch_x,
                                          self.y: batch_y,
                                      })
                 avg_cost += c / total_batch
