@@ -21,11 +21,11 @@ eps_train = 0.1
 eps_test = 0.1
 tensorboard_dir = "tb/"
 weights_dir = "weights/"
-load_weights = True 
-load_counter = 155 
+load_weights = False 
+load_counter = 74 
 sigma = tf.nn.relu
-epochs, reg, lr, batch_size = 30, 0, 3e-3, 32 
-eta, num_iter_pgd = eps_train, 1
+epochs, reg, lr, batch_size = 20, 0, 3e-3, 32 
+pgd_eta, pgd_num_iter = 0.1, 3
 
 #Configuring the logger
 
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     hidden_sizes = [32,32,32,32,32,32,32]
     dataset = ((x_train_flat, y_train), (x_test_flat, y_test))
 
-    scope_name = "model_robust"
+    scope_name = "model_non_robust"
     if not load_weights:
         with tf.variable_scope(scope_name, reuse = tf.AUTO_REUSE) as scope:
 
@@ -82,8 +82,7 @@ if __name__ == "__main__":
             sess.run(tf.global_variables_initializer())
 
             #TODO: Fit the model until convergence before running the distance experiments again
-            batch_size = len(x_train_flat)
-            model.pgd_fit(sess, x_train_flat, y_train, eps_train, eta, num_iter_pgd, lr = lr, training_epochs = epochs, batch_size = batch_size, reg = reg)
+            model.pgd_fit(sess, x_train_flat, y_train, eps_train, pgd_eta, pgd_num_iter, lr = lr, training_epochs = epochs, batch_size = batch_size, reg = reg)
             #model.adv_fit(sess, x_train_flat,y_train, eps_train, training_epochs = epochs, lr = lr)
 
             #Save weights
@@ -163,12 +162,9 @@ if __name__ == "__main__":
             model.writer.add_summary(summary, 100)
 
             logger.info("-------- PGD test acc and loss -----")
-            loss_pgd, acc_pgd = model.adv_evaluate(sess, x_test_flat, y_test, eps_test, pgd = True, eta=5e-2, num_iter = 100)
+            loss_pgd, acc_pgd = model.adv_evaluate(sess, x_test_flat, y_test, eps_test, pgd = True, eta= pgd_eta, num_iter = pgd_num_iter)
             logger.info((loss_pgd, acc_pgd))
 
-            logger.info("-------- PGD test acc and loss -----")
-            loss_pgd, acc_pgd = model.adv_evaluate(sess, x_test_flat, y_test, eps_test, pgd = True, eta=5e-2, num_iter = 100)
-            logger.info((loss_pgd, acc_pgd))
 
             #Distances and norms
 

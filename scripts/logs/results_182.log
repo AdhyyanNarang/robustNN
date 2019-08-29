@@ -1,0 +1,22 @@
+2019-08-28 14:33:33,603 - robustness - DEBUG - Initialized instance variables of the robust model class
+2019-08-28 14:33:33,605 - robustness - DEBUG - Created placeholders for x and y
+2019-08-28 14:33:33,771 - robustness - DEBUG - Created layers and tensor for logits
+2019-08-28 14:33:33,790 - robustness - DEBUG - Added loss computation to the graph
+2019-08-28 14:33:33,794 - robustness - DEBUG - Added accuracy computation to the graph
+2019-08-28 14:33:33,795 - robustness - INFO - Model graph was created
+2019-08-28 14:33:33,796 - robustness - INFO - Created model successfully. Now going to load weights
+2019-08-28 14:33:33,935 - robustness - INFO - Model was evaluated on benign data
+2019-08-28 14:33:33,936 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-08-28 14:33:33,936 - robustness - INFO - (1.394179, 0.5332)
+2019-08-28 14:33:33,953 - robustness - INFO - Model was evaluated on benign data
+2019-08-28 14:33:33,954 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-08-28 14:33:33,954 - robustness - INFO - (1.394179, 0.5332)
+2019-08-28 14:33:34,185 - robustness - INFO - Model is being evaluated on FGSM data
+2019-08-28 14:33:34,197 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-08-28 14:33:34,197 - robustness - INFO - (2.230682, 0.2134)
+2019-08-28 14:33:34,373 - robustness - INFO - -------- PGD test acc and loss -----
+2019-08-28 14:33:34,374 - robustness - INFO - Model is being evaluated on PGD points generated using 0.050000 learning rate and 100 iterations
+2019-08-28 14:33:41,961 - robustness - INFO - (3.113464, 0.0363)
+2019-08-28 14:33:41,961 - robustness - INFO - -------- PGD test acc and loss -----
+2019-08-28 14:33:41,961 - robustness - INFO - Model is being evaluated on PGD points generated using 0.050000 learning rate and 100 iterations
+2019-08-28 14:33:49,324 - robustness - INFO - (3.1146808, 0.0366)
