@@ -156,41 +156,24 @@ class RobustMLP(object):
         zeros_delta = tf.zeros_like(delta)
         delta_zero_assign_op = tf.assign(delta, zeros_delta)
 
-        #optimization_step = tf.train.AdamOptimizer(learning_rate = eta).minimize(-loss_tilde, var_list = [delta])
         optimization_step = tf.assign(delta, tf.squeeze(tf.clip_by_value(delta + eta * tf.math.sign(tf.gradients(loss_tilde, delta)), clip_value_min = -eps, clip_value_max = eps)))
 
-        tmp = tf.clip_by_value(delta, clip_value_min = -eps, clip_value_max = eps)
-        project_op = tf.assign(delta, tmp)
         sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
-        return x_ph, y_ph, optimization_step, project_op, x_tilde, delta_zero_assign_op, loss_tilde, delta
+        return x_ph, y_ph, optimization_step, x_tilde, delta_zero_assign_op, loss_tilde, delta
 
-    def pgd_optimizer(self, sess, X, y, x_ph, y_ph, optimization_step, project_op, assign_op, num_iter, loss, delta):
+    def pgd_optimizer(self, sess, X, y, x_ph, y_ph, optimization_step, assign_op, num_iter, loss, delta):
         sess.run(assign_op)
         for i in range(num_iter):
             print("iteration: %d"%i)
             feed_dict = {x_ph: X, y_ph: y}
-            #_, _, loss_adv = sess.run([optimization_step, project_op, loss], feed_dict = feed_dict)
             sess.run(optimization_step, feed_dict = feed_dict)
-            """
-            if i == 0:
-                self.logger.debug("Max difference before projecting")
-                delta_before = sess.run(delta, feed_dict = feed_dict)
-                self.logger.debug(get_max_abs(delta_before))
-
-            sess.run(project_op)
-
-            if i == 0:
-                delta_after = sess.run(delta, feed_dict = feed_dict)
-                self.logger.debug("Max difference after projecting")
-                self.logger.debug(get_max_abs(delta_after))
-            """
             loss_adv = sess.run(loss, feed_dict = feed_dict)
             print("loss %f" %loss_adv)
         return True
 
     def pgd_adam(self, sess, X, y, eps, eta, num_iter, scope_name):
-        x_ph, y_ph, optimization_step, project_op, x_tilde, assign_op, loss , delta = self.pgd_create_adv_graph(sess, X, y, eps, eta, scope = "test")
-        success = self.pgd_optimizer(sess, X, y, x_ph, y_ph, optimization_step, project_op, assign_op, num_iter, loss, delta)
+        x_ph, y_ph, optimization_step, x_tilde, assign_op, loss , delta = self.pgd_create_adv_graph(sess, X, y, eps, eta, scope = "test")
+        success = self.pgd_optimizer(sess, X, y, x_ph, y_ph, optimization_step, assign_op, num_iter, loss, delta)
         return x_tilde, x_ph, y_ph
 
     def pgd_adam_np(self, sess, x, y, eps, eta, num_iter, scope_name = "Test"):
@@ -418,14 +401,14 @@ class RobustMLP(object):
         #batch_size = len(X)
 
         #Create the pgd graph which we can optimize below
-        x_ph, y_ph, optimization_pgd, project_op, x_tilde, zeros_assign_op, loss_pgd, delta= self.pgd_create_adv_graph(sess, X, y, eps, eta, scope = "train")
+        x_ph, y_ph, optimization_pgd, x_tilde, zeros_assign_op, loss_pgd, delta= self.pgd_create_adv_graph(sess, X, y, eps, eta, scope = "train")
 
         #Alternating optimization
         for epoch in range(training_epochs):
             avg_cost = 0.0
 
             #PGD optimization
-            success = self.pgd_optimizer(sess, X, y, x_ph, y_ph, optimization_pgd, project_op, zeros_assign_op, num_iter_pgd, loss_pgd, delta)
+            success = self.pgd_optimizer(sess, X, y, x_ph, y_ph, optimization_pgd, zeros_assign_op, num_iter_pgd, loss_pgd, delta)
             feed_dict = {x_ph : X, y_ph: y}
             X_adv = sess.run(x_tilde, feed_dict = feed_dict)
 
