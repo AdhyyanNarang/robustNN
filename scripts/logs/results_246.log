@@ -1,0 +1,32 @@
+2019-08-29 17:14:23,218 - robustness - DEBUG - Initialized instance variables of the robust model class
+2019-08-29 17:14:23,223 - robustness - DEBUG - Created placeholders for x and y
+2019-08-29 17:14:23,403 - robustness - DEBUG - Created layers and tensor for logits
+2019-08-29 17:14:23,425 - robustness - DEBUG - Added loss computation to the graph
+2019-08-29 17:14:23,430 - robustness - DEBUG - Added accuracy computation to the graph
+2019-08-29 17:14:23,431 - robustness - INFO - Model graph was created
+2019-08-29 17:14:23,433 - robustness - INFO - Created model successfully. Now going to train
+2019-08-29 17:14:28,343 - robustness - DEBUG - Max difference before projecting
+2019-08-29 17:14:28,717 - robustness - DEBUG - 0.07881713
+2019-08-29 17:14:29,218 - robustness - DEBUG - Max difference after projecting
+2019-08-29 17:14:29,397 - robustness - DEBUG - 0.07881713
+2019-08-29 17:14:34,426 - robustness - DEBUG - Epoch: 0001    cost: 0.291036329 
+2019-08-29 17:14:34,426 - robustness - DEBUG - Accuracy on batch: 1.000000
+2019-08-29 17:14:35,020 - robustness - DEBUG - Max difference before projecting
+2019-08-29 17:14:35,385 - robustness - DEBUG - 0.07608005
+2019-08-29 17:14:35,836 - robustness - DEBUG - Max difference after projecting
+2019-08-29 17:14:35,965 - robustness - DEBUG - 0.07608005
+2019-08-29 17:14:40,894 - robustness - DEBUG - Epoch: 0002    cost: 0.356892433 
+2019-08-29 17:14:40,896 - robustness - DEBUG - Accuracy on batch: 1.000000
+2019-08-29 17:14:40,896 - robustness - DEBUG - Optimization Finished!
+2019-08-29 17:14:41,229 - robustness - DEBUG - Final Train Loss 0.857631
+2019-08-29 17:14:41,230 - robustness - DEBUG - Final Train Accuracy 0.776050:
+2019-08-29 17:14:42,239 - robustness - INFO - Model was evaluated on benign data
+2019-08-29 17:14:42,427 - robustness - INFO - Model is being evaluated on FGSM data
+2019-08-29 17:14:42,439 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-08-29 17:14:42,440 - robustness - INFO - (0.85978556, 0.7759)
+2019-08-29 17:14:42,440 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-08-29 17:14:42,440 - robustness - INFO - (8.729235, 0.0019)
+2019-08-29 17:14:42,440 - robustness - INFO - Added graph to tb
+2019-08-29 17:14:42,574 - robustness - INFO - [179.88683, 7.5541344, 8.106895, 7.4082136, 7.6485467, 7.115882, 9.028645, 7.857064]
+2019-08-29 17:14:42,575 - robustness - INFO - Getting activation distances between regular and FGSM data
+2019-08-29 17:14:42,787 - robustness - DEBUG - Found correct and incorrect indices

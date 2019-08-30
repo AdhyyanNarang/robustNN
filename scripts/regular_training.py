@@ -26,7 +26,7 @@ load_weights = True
 load_counter = 234 
 sigma = tf.nn.relu
 epochs, reg, lr = 3, 0.00, 3e-3
-pgd_eta, pgd_num_iter = 1.0, 20
+pgd_eta, pgd_num_iter = 0.01, 40 
 
 #Configuring the logger
 
