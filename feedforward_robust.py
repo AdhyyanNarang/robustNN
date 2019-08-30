@@ -144,8 +144,8 @@ class RobustMLP(object):
         #TODO:This hack needs to change to accept variable shape
         x_ph = tf.placeholder("float", X.shape)
         delta = tf.get_variable("delta", shape = X.shape, initializer = tf.initializers.zeros(dtype = tf.float32))
-        x_tilde = x_ph + delta
         y_ph = tf.placeholder("float", y.shape)
+        x_tilde = x_ph + delta
 
         #New predictions and loss - call to model will reuse learned weights
         activations, predictions = model(x_tilde, self.hidden_sizes, self.num_classes, self.sigma)
@@ -155,7 +155,10 @@ class RobustMLP(object):
         #Optimization
         zeros_delta = tf.zeros_like(delta)
         delta_zero_assign_op = tf.assign(delta, zeros_delta)
-        optimization_step = tf.train.AdamOptimizer(learning_rate = eta).minimize(-loss_tilde, var_list = [delta])
+
+        #optimization_step = tf.train.AdamOptimizer(learning_rate = eta).minimize(-loss_tilde, var_list = [delta])
+        optimization_step = tf.assign(delta, tf.squeeze(tf.clip_by_value(delta + eta * tf.math.sign(tf.gradients(loss_tilde, delta)), clip_value_min = -eps, clip_value_max = eps)))
+
         tmp = tf.clip_by_value(delta, clip_value_min = -eps, clip_value_max = eps)
         project_op = tf.assign(delta, tmp)
         sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
@@ -168,6 +171,7 @@ class RobustMLP(object):
             feed_dict = {x_ph: X, y_ph: y}
             #_, _, loss_adv = sess.run([optimization_step, project_op, loss], feed_dict = feed_dict)
             sess.run(optimization_step, feed_dict = feed_dict)
+            """
             if i == 0:
                 self.logger.debug("Max difference before projecting")
                 delta_before = sess.run(delta, feed_dict = feed_dict)
@@ -179,7 +183,7 @@ class RobustMLP(object):
                 delta_after = sess.run(delta, feed_dict = feed_dict)
                 self.logger.debug("Max difference after projecting")
                 self.logger.debug(get_max_abs(delta_after))
-
+            """
             loss_adv = sess.run(loss, feed_dict = feed_dict)
             print("loss %f" %loss_adv)
         return True

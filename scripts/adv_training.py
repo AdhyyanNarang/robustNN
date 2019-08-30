@@ -21,10 +21,10 @@ eps_train = 0.1
 eps_test = 0.1
 tensorboard_dir = "tb/"
 weights_dir = "weights/"
-load_weights = False 
-load_counter = 74 
+load_weights = False
+load_counter = 74
 sigma = tf.nn.relu
-epochs, reg, lr, batch_size = 20, 0, 3e-3, 32 
+epochs, reg, lr, batch_size = 2, 0, 3e-3, 32
 pgd_eta, pgd_num_iter = 0.1, 3
 
 #Configuring the logger
@@ -98,12 +98,13 @@ if __name__ == "__main__":
             logger.info((loss_reg, acc_reg))
             logger.info("----FGSM test accuracy and loss ----")
             logger.info((loss_fgsm, acc_fgsm))
+            """
             loss_pgd, acc_pgd = model.adv_evaluate(sess, x_test_flat, y_test, eps_test, pgd = True, eta=5e-2, num_iter = 100)
             logger.info("----PGD test accuracy and loss ----")
             logger.info((loss_pgd , acc_pgd))
-
-            #writer.add_graph(sess.graph)
-
+            """
+            logger.info("Added graph to tb")
+            writer.add_graph(sess.graph)
             #Distances and norms
             norms = get_norms(model.get_weights()[0])
             norms_np = sess.run(norms)
