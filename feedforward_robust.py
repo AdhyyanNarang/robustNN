@@ -12,7 +12,6 @@ Reorganization:
 Add documentation for all functions
 Create a new function to get loss/acc from predictions
 """
-
 class RobustMLP(object):
 
     def __init__(self,input_shape,hidden_sizes,num_classes, writer, scope, logger, sigma):
@@ -139,46 +138,41 @@ class RobustMLP(object):
 
     def pgd_create_adv_graph(self, sess, X, y, eps, eta, scope):
         #with tf.variable_scope(scope, reuse = tf.AUTO_REUSE) as scope:
-        temp = set(tf.all_variables())
+        #temp = set(tf.all_variables())
 
         #TODO:This hack needs to change to accept variable shape
-        x_ph = tf.placeholder("float", X.shape)
-        delta = tf.get_variable("delta", shape = X.shape, initializer = tf.initializers.zeros(dtype = tf.float32))
-        y_ph = tf.placeholder("float", y.shape)
-        x_tilde = x_ph + delta
+        init_delta = tf.random_uniform(shape = tf.shape(self.x), minval = -eps, maxval = eps)
+        delta = tf.Variable(init_delta, name = "delta", validate_shape = False)
+        x_tilde = self.x + delta
 
-        #New predictions and loss - call to model will reuse learned weights
+        #New predictions and loss - call to model will reuse learned weights 
         activations, predictions = model(x_tilde, self.hidden_sizes, self.num_classes, self.sigma)
-        loss_vector = tf.nn.softmax_cross_entropy_with_logits(logits=predictions, labels=y_ph)
+        loss_vector = tf.nn.softmax_cross_entropy_with_logits(logits=predictions, labels=self.y)
         loss_tilde = tf.reduce_mean(loss_vector)
-
-        #Optimization
-        zeros_delta = tf.zeros_like(delta)
-        delta_zero_assign_op = tf.assign(delta, zeros_delta)
 
         optimization_step = tf.assign(delta, tf.squeeze(tf.clip_by_value(delta + eta * tf.math.sign(tf.gradients(loss_tilde, delta)), clip_value_min = -eps, clip_value_max = eps)))
 
-        sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
-        return x_ph, y_ph, optimization_step, x_tilde, delta_zero_assign_op, loss_tilde, delta
+        #sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
+        return optimization_step, x_tilde, loss_tilde, delta
 
-    def pgd_optimizer(self, sess, X, y, x_ph, y_ph, optimization_step, assign_op, num_iter, loss, delta):
-        sess.run(assign_op)
+    def pgd_optimizer(self, sess, X, y, optimization_step, num_iter, loss, delta):
+        feed_dict = {self.x: X, self.y: y}
+        sess.run(tf.initialize_variables([delta]), feed_dict = feed_dict)
         for i in range(num_iter):
             print("iteration: %d"%i)
-            feed_dict = {x_ph: X, y_ph: y}
             sess.run(optimization_step, feed_dict = feed_dict)
             loss_adv = sess.run(loss, feed_dict = feed_dict)
             print("loss %f" %loss_adv)
         return True
 
     def pgd_adam(self, sess, X, y, eps, eta, num_iter, scope_name):
-        x_ph, y_ph, optimization_step, x_tilde, assign_op, loss , delta = self.pgd_create_adv_graph(sess, X, y, eps, eta, scope = "test")
-        success = self.pgd_optimizer(sess, X, y, x_ph, y_ph, optimization_step, assign_op, num_iter, loss, delta)
-        return x_tilde, x_ph, y_ph
+        optimization_step, x_tilde, loss, delta = self.pgd_create_adv_graph(sess, X, y, eps, eta, scope = "test")
+        success = self.pgd_optimizer(sess, X, y, optimization_step, num_iter, loss, delta)
+        return x_tilde
 
     def pgd_adam_np(self, sess, x, y, eps, eta, num_iter, scope_name = "Test"):
-        x_tilde, x_ph, y_ph = self.pgd_adam(sess, x, y, eps, eta, num_iter, scope_name)
-        feed_dict = {x_ph : x, y_ph: y}
+        x_tilde = self.pgd_adam(sess, x, y, eps, eta, num_iter, scope_name)
+        feed_dict = {self.x: x, self.y: y}
         x_tilde_np = sess.run(x_tilde, feed_dict = feed_dict)
         diff = x_tilde_np - x
         self.logger.debug("This is to confirm that attack does not violate constraints")
@@ -401,15 +395,15 @@ class RobustMLP(object):
         #batch_size = len(X)
 
         #Create the pgd graph which we can optimize below
-        x_ph, y_ph, optimization_pgd, x_tilde, zeros_assign_op, loss_pgd, delta= self.pgd_create_adv_graph(sess, X, y, eps, eta, scope = "train")
+        optimization_pgd, x_tilde, loss_pgd, delta = self.pgd_create_adv_graph(sess, X, y, eps, eta, scope = "train")
 
         #Alternating optimization
         for epoch in range(training_epochs):
             avg_cost = 0.0
 
             #PGD optimization
-            success = self.pgd_optimizer(sess, X, y, x_ph, y_ph, optimization_pgd, zeros_assign_op, num_iter_pgd, loss_pgd, delta)
-            feed_dict = {x_ph : X, y_ph: y}
+            success = self.pgd_optimizer(sess, X, y, optimization_pgd, num_iter_pgd, loss_pgd, delta)
+            feed_dict = {self.x: X, self.y: y}
             X_adv = sess.run(x_tilde, feed_dict = feed_dict)
 
             total_batch = int(len(X_adv) / batch_size)
