@@ -1,0 +1,37 @@
+2019-08-31 16:12:10,378 - robustness - DEBUG - Initialized instance variables of the robust model class
+2019-08-31 16:12:10,380 - robustness - DEBUG - Created placeholders for x and y
+2019-08-31 16:12:10,544 - robustness - DEBUG - Created layers and tensor for logits
+2019-08-31 16:12:10,562 - robustness - DEBUG - Added loss computation to the graph
+2019-08-31 16:12:10,565 - robustness - DEBUG - Added accuracy computation to the graph
+2019-08-31 16:12:10,566 - robustness - INFO - Model graph was created
+2019-08-31 16:12:10,568 - robustness - INFO - Created model successfully. Now going to train
+2019-08-31 16:12:17,098 - robustness - DEBUG - Epoch: 0001    cost: 0.322755788 
+2019-08-31 16:12:17,098 - robustness - DEBUG - Accuracy on batch: 0.968750
+2019-08-31 16:12:22,621 - robustness - DEBUG - Epoch: 0002    cost: 0.369250902 
+2019-08-31 16:12:22,621 - robustness - DEBUG - Accuracy on batch: 1.000000
+2019-08-31 16:12:27,967 - robustness - DEBUG - Epoch: 0003    cost: 0.466552837 
+2019-08-31 16:12:27,967 - robustness - DEBUG - Accuracy on batch: 1.000000
+2019-08-31 16:12:33,231 - robustness - DEBUG - Epoch: 0004    cost: 0.461991845 
+2019-08-31 16:12:33,233 - robustness - DEBUG - Accuracy on batch: 0.968750
+2019-08-31 16:12:38,667 - robustness - DEBUG - Epoch: 0005    cost: 0.538684482 
+2019-08-31 16:12:38,667 - robustness - DEBUG - Accuracy on batch: 1.000000
+2019-08-31 16:12:43,642 - robustness - DEBUG - Epoch: 0006    cost: 0.434417670 
+2019-08-31 16:12:43,643 - robustness - DEBUG - Accuracy on batch: 1.000000
+2019-08-31 16:12:49,046 - robustness - DEBUG - Epoch: 0007    cost: 0.498333980 
+2019-08-31 16:12:49,047 - robustness - DEBUG - Accuracy on batch: 0.906250
+2019-08-31 16:12:54,475 - robustness - DEBUG - Epoch: 0008    cost: 0.487387255 
+2019-08-31 16:12:54,475 - robustness - DEBUG - Accuracy on batch: 1.000000
+2019-08-31 16:12:59,857 - robustness - DEBUG - Epoch: 0009    cost: 0.464254938 
+2019-08-31 16:12:59,859 - robustness - DEBUG - Accuracy on batch: 0.906250
+2019-08-31 16:13:05,310 - robustness - DEBUG - Epoch: 0010    cost: 0.502627399 
+2019-08-31 16:13:05,310 - robustness - DEBUG - Accuracy on batch: 0.968750
+2019-08-31 16:13:10,856 - robustness - DEBUG - Epoch: 0011    cost: 0.468846373 
+2019-08-31 16:13:10,856 - robustness - DEBUG - Accuracy on batch: 0.906250
+2019-08-31 16:13:16,345 - robustness - DEBUG - Epoch: 0012    cost: 0.432558957 
+2019-08-31 16:13:16,345 - robustness - DEBUG - Accuracy on batch: 1.000000
+2019-08-31 16:13:21,719 - robustness - DEBUG - Epoch: 0013    cost: 0.455816523 
+2019-08-31 16:13:21,720 - robustness - DEBUG - Accuracy on batch: 1.000000
+2019-08-31 16:13:27,117 - robustness - DEBUG - Epoch: 0014    cost: 0.502758382 
+2019-08-31 16:13:27,118 - robustness - DEBUG - Accuracy on batch: 0.937500
+2019-08-31 16:13:32,572 - robustness - DEBUG - Epoch: 0015    cost: 0.482086784 
+2019-08-31 16:13:32,572 - robustness - DEBUG - Accuracy on batch: 1.000000

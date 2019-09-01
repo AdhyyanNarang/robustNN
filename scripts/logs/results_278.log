@@ -1,0 +1,33 @@
+2019-08-31 17:50:16,620 - robustness - DEBUG - Initialized instance variables of the robust model class
+2019-08-31 17:50:16,623 - robustness - DEBUG - Created placeholders for x and y
+2019-08-31 17:50:16,838 - robustness - DEBUG - Created layers and tensor for logits
+2019-08-31 17:50:16,856 - robustness - DEBUG - Added loss computation to the graph
+2019-08-31 17:50:16,860 - robustness - DEBUG - Added accuracy computation to the graph
+2019-08-31 17:50:16,861 - robustness - INFO - Model graph was created
+2019-08-31 17:50:16,863 - robustness - INFO - Created model successfully. Now going to train
+2019-08-31 17:50:24,125 - robustness - DEBUG - Epoch: 0001    cost: 0.347925454 
+2019-08-31 17:50:24,125 - robustness - DEBUG - Accuracy on batch: 0.937500
+2019-08-31 17:50:29,797 - robustness - DEBUG - Epoch: 0002    cost: 0.501213544 
+2019-08-31 17:50:29,799 - robustness - DEBUG - Accuracy on batch: 1.000000
+2019-08-31 17:50:29,799 - robustness - DEBUG - Optimization Finished!
+2019-08-31 17:50:30,036 - robustness - DEBUG - Final Train Loss 0.465477
+2019-08-31 17:50:30,037 - robustness - DEBUG - Final Train Accuracy 0.874383:
+2019-08-31 17:50:30,920 - robustness - INFO - Model was evaluated on benign data
+2019-08-31 17:50:31,117 - robustness - INFO - Model is being evaluated on FGSM data
+2019-08-31 17:50:31,129 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-08-31 17:50:31,130 - robustness - INFO - (0.4310351, 0.8788)
+2019-08-31 17:50:31,130 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-08-31 17:50:31,130 - robustness - INFO - (8.296196, 0.0104)
+2019-08-31 17:50:31,130 - robustness - INFO - Model is being evaluated on PGD points generated using 0.050000 learning rate and 100 iterations
+2019-08-31 17:50:42,028 - robustness - DEBUG - This is to confirm that attack does not violate constraints
+2019-08-31 17:50:42,029 - robustness - DEBUG - Should be no more than eps
+2019-08-31 17:50:42,081 - robustness - DEBUG - 0.10000005352730845
+2019-08-31 17:50:42,107 - robustness - INFO - ----PGD test accuracy and loss ----
+2019-08-31 17:50:42,107 - robustness - INFO - (16.839746, 0.0013)
+2019-08-31 17:50:43,089 - robustness - DEBUG - Initialized instance variables of the robust model class
+2019-08-31 17:50:43,090 - robustness - DEBUG - Created placeholders for x and y
+2019-08-31 17:50:43,123 - robustness - DEBUG - Created layers and tensor for logits
+2019-08-31 17:50:43,147 - robustness - DEBUG - Added loss computation to the graph
+2019-08-31 17:50:43,153 - robustness - DEBUG - Added accuracy computation to the graph
+2019-08-31 17:50:43,155 - robustness - INFO - Model graph was created
+2019-08-31 17:50:43,160 - robustness - INFO - Created model successfully. Now going to train

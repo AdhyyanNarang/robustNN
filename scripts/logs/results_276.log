@@ -1,0 +1,17 @@
+2019-08-31 17:28:35,172 - robustness - DEBUG - Initialized instance variables of the robust model class
+2019-08-31 17:28:35,174 - robustness - DEBUG - Created placeholders for x and y
+2019-08-31 17:28:35,354 - robustness - DEBUG - Created layers and tensor for logits
+2019-08-31 17:28:35,372 - robustness - DEBUG - Added loss computation to the graph
+2019-08-31 17:28:35,375 - robustness - DEBUG - Added accuracy computation to the graph
+2019-08-31 17:28:35,376 - robustness - INFO - Model graph was created
+2019-08-31 17:28:35,378 - robustness - INFO - Created model successfully. Now going to train
+2019-08-31 17:28:42,461 - robustness - DEBUG - Epoch: 0001    cost: 0.344225682 
+2019-08-31 17:28:42,461 - robustness - DEBUG - Accuracy on batch: 1.000000
+2019-08-31 17:28:48,411 - robustness - DEBUG - Epoch: 0002    cost: 0.456079691 
+2019-08-31 17:28:48,412 - robustness - DEBUG - Accuracy on batch: 1.000000
+2019-08-31 17:28:54,183 - robustness - DEBUG - Epoch: 0003    cost: 0.609570258 
+2019-08-31 17:28:54,184 - robustness - DEBUG - Accuracy on batch: 0.968750
+2019-08-31 17:29:00,159 - robustness - DEBUG - Epoch: 0004    cost: 0.552959686 
+2019-08-31 17:29:00,159 - robustness - DEBUG - Accuracy on batch: 1.000000
+2019-08-31 17:29:06,947 - robustness - DEBUG - Epoch: 0005    cost: 0.527870906 
+2019-08-31 17:29:06,947 - robustness - DEBUG - Accuracy on batch: 0.968750
