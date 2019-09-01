@@ -110,7 +110,7 @@ if __name__ == "__main__":
             for eps_train in eps_trains:
                 #Single Experiment Config
                 config = {}
-                config['eps_train'] = 0.1
+                config['eps_train'] = eps_train
                 config['eps_test'] = 0.1
                 config['tensorboard_dir'] = "tb/"
                 config['weights_dir'] = "weights/"
@@ -118,6 +118,6 @@ if __name__ == "__main__":
                 config['load_counter'] = 74
                 config['sigma'] = tf.nn.relu
                 config['epochs'] , config['reg'] , config['lr'] , config['batch_size'] = 2, 0, 3e-3, 32
-                config['pgd_eta'] , config['pgd_num_iter'] = 0.1, 3
+                config['pgd_eta'] , config['pgd_num_iter'] = eta, num_iter 
 
                 success = adv_train(config, logger)
