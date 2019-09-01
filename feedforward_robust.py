@@ -11,6 +11,7 @@ from util import *
 Reorganization:
 Add documentation for all functions
 Create a new function to get loss/acc from predictions
+Can merge PGD and FGSM adv training into one function
 """
 class RobustMLP(object):
 
@@ -139,13 +140,15 @@ class RobustMLP(object):
     def pgd_create_adv_graph(self, sess, X, y, eps, eta, scope):
         #with tf.variable_scope(scope, reuse = tf.AUTO_REUSE) as scope:
         #temp = set(tf.all_variables())
-
+        """
+        Creates the pgd graph to allow for adversarial training
+        """
         #TODO:This hack needs to change to accept variable shape
         init_delta = tf.random_uniform(shape = tf.shape(self.x), minval = -eps, maxval = eps)
         delta = tf.Variable(init_delta, name = "delta", validate_shape = False)
         x_tilde = self.x + delta
 
-        #New predictions and loss - call to model will reuse learned weights 
+        #New predictions and loss - call to model will reuse learned weights
         activations, predictions = model(x_tilde, self.hidden_sizes, self.num_classes, self.sigma)
         loss_vector = tf.nn.softmax_cross_entropy_with_logits(logits=predictions, labels=self.y)
         loss_tilde = tf.reduce_mean(loss_vector)
@@ -156,6 +159,9 @@ class RobustMLP(object):
         return optimization_step, x_tilde, loss_tilde, delta
 
     def pgd_optimizer(self, sess, X, y, optimization_step, num_iter, loss, delta):
+        """
+        Runs the pgd optimization step num_iter times
+        """
         feed_dict = {self.x: X, self.y: y}
         sess.run(tf.initialize_variables([delta]), feed_dict = feed_dict)
         for i in range(num_iter):
@@ -166,6 +172,9 @@ class RobustMLP(object):
         return True
 
     def pgd_adam(self, sess, X, y, eps, eta, num_iter, scope_name):
+        """
+        TODO: This function seems kind of useless. Remove it later
+        """
         optimization_step, x_tilde, loss, delta = self.pgd_create_adv_graph(sess, X, y, eps, eta, scope = "test")
         success = self.pgd_optimizer(sess, X, y, optimization_step, num_iter, loss, delta)
         return x_tilde
@@ -386,7 +395,7 @@ class RobustMLP(object):
         self.logger.info("Model was trained on adversarial data")
         return True
 
-    def pgd_fit(self, sess, X, y, eps, eta, num_iter_pgd, lr = 0.003, training_epochs=40, batch_size=32, display_step=1, reg = 0.005):
+    def pgd_fit(self, sess, X, y, eps, eta, num_iter_pgd, lr = 0.003, training_epochs=40, batch_size=32, display_step=1, reg = 0.005, early_stop_flag = True, early_stop_threshold = 0.02):
         #Good optimization
         loss = self.loss + reg*regularize_op_norm(self.get_weights()[0])
         temp = set(tf.all_variables())
@@ -396,6 +405,7 @@ class RobustMLP(object):
 
         #Create the pgd graph which we can optimize below
         optimization_pgd, x_tilde, loss_pgd, delta = self.pgd_create_adv_graph(sess, X, y, eps, eta, scope = "train")
+        avg_cost_old = np.float("inf") 
 
         #Alternating optimization
         for epoch in range(training_epochs):
@@ -426,6 +436,13 @@ class RobustMLP(object):
                     hor = epoch * total_batch + i
                     self.writer.add_summary(summary, hor)
 
+            #Early Stopping Criterion
+            if early_stop_flag and np.abs(avg_cost - avg_cost_old) < early_stop_threshold:
+                self.logger.info("Hit the early stopping criterion, and stopping training")
+                break
+
+            avg_cost_old = avg_cost
+
             if epoch % display_step == 0:
                 self.logger.debug("Epoch: %04d    cost: %.9f " %(epoch+1, avg_cost))
                 self.logger.debug("Accuracy on batch: %f" %acc)
@@ -443,7 +460,6 @@ class RobustMLP(object):
 
 
         return True
-
 
     def slash_weights(self, sess):
         weights = []
