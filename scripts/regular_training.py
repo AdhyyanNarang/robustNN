@@ -22,7 +22,7 @@ eps_train = 0.1
 eps_test = 0.1
 tensorboard_dir = "tb/"
 weights_dir = "weights/"
-load_weights = True 
+load_weights = False 
 load_counter = 234 
 sigma = tf.nn.relu
 epochs, reg, lr = 3, 0.00, 3e-3
@@ -60,11 +60,11 @@ if __name__ == "__main__":
     hidden_sizes = [32,32,32,32,32,32,32]
     dataset = ((x_train_flat, y_train), (x_test_flat, y_test))
 
-    scope_name = "model_non_robust"
+    scope_name = "hybrid"
     if not load_weights:
         with tf.variable_scope(scope_name) as scope:
 
-            logdir = tensorboard_dir + str(counter) + "/non_robust"
+            logdir = tensorboard_dir + str(counter) #+ "/non_robust"
 
             #Create, train and test model
             writer = tf.summary.FileWriter(logdir)
@@ -80,6 +80,7 @@ if __name__ == "__main__":
             #weights = model.get_weights()[0] + model.get_weights()[1]
             saver = tf.train.Saver(weights)
             weights_path = saver.save(sess, weights_dir + "model_" + str(counter) + ".ckpt")
+            logger.info("Saved model at %s"%weights_path)
 
 
             loss_reg, acc_reg = model.evaluate(sess, x_test_flat, y_test)

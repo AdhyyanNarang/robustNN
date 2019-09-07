@@ -1,0 +1,80 @@
+2019-09-06 12:24:14,425 - robustness - INFO - Model graph was created
+2019-09-06 12:24:14,723 - robustness - INFO - Created model successfully. Now going to load weights
+2019-09-06 12:24:14,784 - robustness - INFO - Successfully restored weights from non rob model.
+2019-09-06 12:24:14,822 - robustness - INFO - Successfully restored weights from rob model.
+2019-09-06 12:24:16,022 - robustness - INFO - Model was trained on benign data
+2019-09-06 12:24:16,023 - robustness - INFO - Trained one epoch to attempt to make weights from different models compatible
+2019-09-06 12:24:16,064 - robustness - INFO - Model was evaluated on benign data
+2019-09-06 12:24:16,065 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-06 12:24:16,065 - robustness - INFO - (0.6153446, 0.8071)
+2019-09-06 12:24:16,066 - robustness - INFO - Evaluating on FGSM points now.
+2019-09-06 12:24:16,257 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:24:16,278 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-09-06 12:24:16,279 - robustness - INFO - (2.5958247, 0.362)
+2019-09-06 12:24:16,467 - robustness - INFO - Evaluating on PGD points now.
+2019-09-06 12:24:16,467 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 40 iterations
+2019-09-06 12:24:21,157 - robustness - INFO - ----PGD test accuracy and loss ----
+2019-09-06 12:24:21,160 - robustness - INFO - (4.150275, 0.2124)
+2019-09-06 12:24:22,094 - robustness - INFO - Model graph was created
+2019-09-06 12:24:22,098 - robustness - INFO - Created model successfully. Now going to load weights
+2019-09-06 12:24:22,372 - robustness - INFO - Model was evaluated on benign data
+2019-09-06 12:24:22,373 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-06 12:24:22,374 - robustness - INFO - (0.17380296, 0.9559)
+2019-09-06 12:24:22,401 - robustness - INFO - Model was evaluated on benign data
+2019-09-06 12:24:22,402 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-06 12:24:22,402 - robustness - INFO - (0.17380296, 0.9559)
+2019-09-06 12:24:22,611 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:24:22,632 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-09-06 12:24:22,633 - robustness - INFO - (6.665347, 0.0579)
+2019-09-06 12:24:25,976 - robustness - INFO - Model graph was created
+2019-09-06 12:24:25,982 - robustness - INFO - Created model successfully. Now going to load weights
+2019-09-06 12:24:26,387 - robustness - INFO - Model was evaluated on benign data
+2019-09-06 12:24:26,387 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-06 12:24:26,388 - robustness - INFO - (0.3424165, 0.8982)
+2019-09-06 12:24:26,418 - robustness - INFO - Model was evaluated on benign data
+2019-09-06 12:24:26,419 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-06 12:24:26,420 - robustness - INFO - (0.3424165, 0.8982)
+2019-09-06 12:24:26,759 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:24:26,791 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-09-06 12:24:26,792 - robustness - INFO - (3.3301492, 0.3424)
+2019-09-06 12:24:29,177 - robustness - INFO - Model graph was created
+2019-09-06 12:24:29,184 - robustness - INFO - Created model successfully. Now going to load weights
+2019-09-06 12:24:29,541 - robustness - INFO - Model was evaluated on benign data
+2019-09-06 12:24:29,542 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-06 12:24:29,543 - robustness - INFO - (0.4752624, 0.8653)
+2019-09-06 12:24:29,570 - robustness - INFO - Model was evaluated on benign data
+2019-09-06 12:24:29,571 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-06 12:24:29,572 - robustness - INFO - (0.4752624, 0.8653)
+2019-09-06 12:24:29,813 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:24:29,841 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-09-06 12:24:29,842 - robustness - INFO - (3.4028628, 0.1185)
+2019-09-06 12:24:31,776 - robustness - INFO - Adversarial Training
+2019-09-06 12:24:31,916 - robustness - INFO - Model graph was created
+2019-09-06 12:25:40,705 - robustness - INFO - Model was trained on adversarial data
+2019-09-06 12:25:40,778 - robustness - INFO - Model was evaluated on benign data
+2019-09-06 12:25:41,083 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:25:43,714 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:25:44,039 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:25:44,378 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:25:44,684 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:25:45,012 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:25:45,326 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:25:45,708 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:25:46,271 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:25:46,608 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:25:46,978 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:25:47,379 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:25:47,779 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:25:48,122 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:25:48,516 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:25:48,867 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:25:49,225 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:25:49,617 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:25:49,960 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:25:50,361 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:25:50,740 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:25:51,092 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:25:51,465 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:25:51,906 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:25:52,310 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-06 12:25:52,520 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations

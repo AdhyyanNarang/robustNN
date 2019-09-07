@@ -1,0 +1,19 @@
+2019-09-06 11:31:38,527 - robustness - DEBUG - Initialized instance variables of the robust model class
+2019-09-06 11:31:38,529 - robustness - DEBUG - Created placeholders for x and y
+2019-09-06 11:31:38,690 - robustness - DEBUG - Created layers and tensor for logits
+2019-09-06 11:31:38,708 - robustness - DEBUG - Added loss computation to the graph
+2019-09-06 11:31:38,712 - robustness - DEBUG - Added accuracy computation to the graph
+2019-09-06 11:31:38,713 - robustness - INFO - Model graph was created
+2019-09-06 11:31:38,714 - robustness - INFO - Created model successfully. Now going to train
+2019-09-06 11:31:45,380 - robustness - DEBUG - Epoch: 0001    cost: 0.298728442 
+2019-09-06 11:31:45,380 - robustness - DEBUG - Accuracy on batch: 0.968750
+2019-09-06 11:31:50,213 - robustness - DEBUG - Epoch: 0002    cost: 0.466925522 
+2019-09-06 11:31:50,213 - robustness - DEBUG - Accuracy on batch: 0.968750
+2019-09-06 11:31:55,109 - robustness - DEBUG - Epoch: 0003    cost: 0.598980618 
+2019-09-06 11:31:55,109 - robustness - DEBUG - Accuracy on batch: 0.968750
+2019-09-06 11:31:59,911 - robustness - DEBUG - Epoch: 0004    cost: 0.557259248 
+2019-09-06 11:31:59,911 - robustness - DEBUG - Accuracy on batch: 0.937500
+2019-09-06 11:32:04,790 - robustness - INFO - Hit the early stopping criterion, and stopping training
+2019-09-06 11:32:04,790 - robustness - DEBUG - Optimization Finished!
+2019-09-06 11:32:05,010 - robustness - DEBUG - Final Train Loss 0.442702
+2019-09-06 11:32:05,011 - robustness - DEBUG - Final Train Accuracy 0.878600:
