@@ -69,11 +69,11 @@ if __name__ == "__main__":
     hidden_sizes = [32,32,32,32,32,32,32]
     dataset = ((x_train_flat, y_train), (x_test_flat, y_test))
 
-    scope_name = "model_non_robust"
+    scope_name = "hybrid"
     if not load_weights:
         with tf.variable_scope(scope_name, reuse = tf.AUTO_REUSE) as scope:
 
-            logdir = tensorboard_dir + str(counter) + "/robust"
+            logdir = tensorboard_dir + str(counter) #+ "/robust"
 
             #Create, train and test model
             writer = tf.summary.FileWriter(logdir)
@@ -98,11 +98,9 @@ if __name__ == "__main__":
             logger.info((loss_reg, acc_reg))
             logger.info("----FGSM test accuracy and loss ----")
             logger.info((loss_fgsm, acc_fgsm))
-            """
             loss_pgd, acc_pgd = model.adv_evaluate(sess, x_test_flat, y_test, eps_test, pgd = True, eta=5e-2, num_iter = 100)
             logger.info("----PGD test accuracy and loss ----")
             logger.info((loss_pgd , acc_pgd))
-            """
             logger.info("Added graph to tb")
             writer.add_graph(sess.graph)
             #Distances and norms
@@ -116,7 +114,7 @@ if __name__ == "__main__":
             logger.info("------Std devs on Distances----")
             logger.info(overall_std)
 
-            write_to_results_csv(epochs, reg, lr, "FGSM", str(sigma), acc_reg, acc_fgsm, acc_pgd, loss_reg, loss_fgsm, acc_fgsm, logfile, weights_path, logdir, tuple(overall), tuple(norms_np))
+            write_to_results_csv(epochs, reg, lr, "FGSM", str(sigma), acc_reg, acc_fgsm, acc_pgd, loss_reg, loss_fgsm, acc_fgsm, logfile, weights_path, logdir, tuple(overall), tuple(norms_np), None, None, None)
 
             #TSNE visualization of final layer.
             x_test_flat_adv = model.fgsm_np(sess, x_test_flat, y_test, eps_test)

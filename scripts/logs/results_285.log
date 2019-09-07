@@ -1,0 +1,20 @@
+2019-09-01 23:15:48,314 - robustness - INFO - Model graph was created
+2019-09-01 23:15:48,357 - robustness - INFO - Created model successfully. Now going to train
+2019-09-01 23:15:55,849 - robustness - INFO - Model was trained on benign data
+2019-09-01 23:15:56,016 - robustness - INFO - Saved model at weights/model_285.ckpt
+2019-09-01 23:15:56,054 - robustness - INFO - Model was evaluated on benign data
+2019-09-01 23:15:56,226 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-01 23:15:56,238 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-01 23:15:56,238 - robustness - INFO - (0.21926807, 0.9431)
+2019-09-01 23:15:56,238 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-09-01 23:15:56,238 - robustness - INFO - (7.151318, 0.0628)
+2019-09-01 23:15:56,238 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-01 23:16:01,510 - robustness - INFO - ----PGD test accuracy and loss ----
+2019-09-01 23:16:01,510 - robustness - INFO - (17.487957, 0.0062)
+2019-09-01 23:16:01,646 - robustness - INFO - [141.34113, 8.731318, 9.105043, 8.344593, 9.322138, 7.830576, 7.469233, 9.507704]
+2019-09-01 23:16:01,646 - robustness - INFO - Getting activation distances between regular and FGSM data
+2019-09-01 23:16:17,418 - robustness - INFO - ---Distances----
+2019-09-01 23:16:17,421 - robustness - INFO - [ 7.0936155  7.6124697  8.267413   8.219525  11.057663  10.19839
+  9.6345   ]
+2019-09-01 23:16:17,428 - robustness - INFO - ------Std devs on Distances----
+2019-09-01 23:16:17,428 - robustness - INFO - [1.5896994 2.0898666 3.3604543 3.2715697 5.844041  4.893529  4.1854725]

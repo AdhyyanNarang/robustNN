@@ -1,0 +1,15 @@
+2019-09-01 23:30:44,791 - robustness - INFO - Model graph was created
+2019-09-01 23:30:44,977 - robustness - INFO - Created model successfully. Now going to load weights
+2019-09-01 23:30:45,022 - robustness - INFO - Successfully restored weights from non rob model.
+2019-09-01 23:30:45,058 - robustness - INFO - Successfully restored weights from rob model.
+2019-09-01 23:30:46,515 - robustness - INFO - Model was trained on benign data
+2019-09-01 23:30:46,517 - robustness - INFO - Trained one epoch to attempt to make weights from different models compatible
+2019-09-01 23:30:46,610 - robustness - INFO - Model was evaluated on benign data
+2019-09-01 23:30:46,612 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-01 23:30:46,614 - robustness - INFO - (0.6153447, 0.8071)
+2019-09-01 23:30:46,644 - robustness - INFO - Model was evaluated on benign data
+2019-09-01 23:30:46,649 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-01 23:30:46,652 - robustness - INFO - (0.6153447, 0.8071)
+2019-09-01 23:30:46,913 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-01 23:30:46,949 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-09-01 23:30:46,954 - robustness - INFO - (2.5958252, 0.362)
