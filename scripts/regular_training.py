@@ -22,11 +22,11 @@ eps_train = 0.1
 eps_test = 0.1
 tensorboard_dir = "tb/"
 weights_dir = "weights/"
-load_weights = False 
-load_counter = 234 
+load_weights = False
+load_counter = 234
 sigma = tf.nn.relu
-epochs, reg, lr = 3, 0.00, 3e-3
-pgd_eta, pgd_num_iter = 1e-2, 50 
+epochs, reg, lr = 100, 0.07, 3e-4
+pgd_eta, pgd_num_iter = 1e-2, 50
 
 #Configuring the logger
 

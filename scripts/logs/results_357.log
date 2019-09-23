@@ -1,0 +1,265 @@
+2019-09-20 10:33:52,157 - robustness - INFO - Model graph was created
+2019-09-20 10:33:52,442 - robustness - INFO - Created model successfully. Now going to load weights
+2019-09-20 10:33:52,523 - robustness - INFO - Successfully restored weights from non rob model.
+2019-09-20 10:33:52,558 - robustness - INFO - Successfully restored weights from rob model.
+2019-09-20 10:33:53,726 - robustness - INFO - Model was trained on benign data
+2019-09-20 10:33:53,728 - robustness - INFO - Trained one epoch to attempt to make weights from different models compatible
+2019-09-20 10:33:53,748 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:33:53,749 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-20 10:33:53,751 - robustness - INFO - (0.6153447, 0.8071)
+2019-09-20 10:33:53,753 - robustness - INFO - Evaluating on FGSM points now.
+2019-09-20 10:33:53,923 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-20 10:33:53,936 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-09-20 10:33:53,938 - robustness - INFO - (2.5958252, 0.362)
+2019-09-20 10:33:54,099 - robustness - INFO - Evaluating on PGD points now.
+2019-09-20 10:33:54,101 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 40 iterations
+2019-09-20 10:33:58,403 - robustness - INFO - ----PGD test accuracy and loss ----
+2019-09-20 10:33:58,406 - robustness - INFO - (4.1568065, 0.2127)
+2019-09-20 10:33:59,340 - robustness - INFO - Model graph was created
+2019-09-20 10:33:59,346 - robustness - INFO - Created model successfully. Now going to load weights
+2019-09-20 10:33:59,716 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:33:59,717 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-20 10:33:59,719 - robustness - INFO - (0.17380294, 0.9559)
+2019-09-20 10:33:59,741 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:33:59,742 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-20 10:33:59,744 - robustness - INFO - (0.17380294, 0.9559)
+2019-09-20 10:33:59,959 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-20 10:33:59,976 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-09-20 10:33:59,978 - robustness - INFO - (6.6653485, 0.0579)
+2019-09-20 10:34:03,792 - robustness - INFO - Model was evaluated from featurizations
+2019-09-20 10:34:04,726 - robustness - INFO - Model graph was created
+2019-09-20 10:34:04,733 - robustness - INFO - Created model successfully. Now going to load weights
+2019-09-20 10:34:05,065 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:34:05,067 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-20 10:34:05,068 - robustness - INFO - (0.3424165, 0.8982)
+2019-09-20 10:34:05,087 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:34:05,089 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-20 10:34:05,090 - robustness - INFO - (0.3424165, 0.8982)
+2019-09-20 10:34:05,347 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-20 10:34:05,365 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-09-20 10:34:05,367 - robustness - INFO - (3.3301492, 0.3424)
+2019-09-20 10:34:07,459 - robustness - INFO - Model graph was created
+2019-09-20 10:34:07,463 - robustness - INFO - Created model successfully. Now going to load weights
+2019-09-20 10:34:07,839 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:34:07,840 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-20 10:34:07,841 - robustness - INFO - (0.4752624, 0.8653)
+2019-09-20 10:34:07,864 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:34:07,865 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-20 10:34:07,867 - robustness - INFO - (0.4752624, 0.8653)
+2019-09-20 10:34:08,102 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-20 10:34:08,120 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-09-20 10:34:08,121 - robustness - INFO - (3.4028633, 0.1185)
+2019-09-20 10:34:10,136 - robustness - INFO - Adversarial Training
+2019-09-20 10:34:10,276 - robustness - INFO - Model graph was created
+2019-09-20 10:35:23,228 - robustness - INFO - Model was trained on adversarial data
+2019-09-20 10:35:23,376 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:35:23,712 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-20 10:35:26,746 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:35:27,040 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-20 10:35:28,508 - robustness - INFO - Model was evaluated from featurizations
+2019-09-20 10:35:28,803 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:35:29,097 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-20 10:35:30,864 - robustness - INFO - Model was evaluated from featurizations
+2019-09-20 10:35:31,177 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:35:31,496 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-20 10:35:33,461 - robustness - INFO - Model was evaluated from featurizations
+2019-09-20 10:35:33,811 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:35:34,138 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-20 10:35:36,019 - robustness - INFO - Model was evaluated from featurizations
+2019-09-20 10:35:36,341 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:35:36,841 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-20 10:35:38,528 - robustness - INFO - Model was evaluated from featurizations
+2019-09-20 10:35:39,798 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:35:45,278 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:35:50,954 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:35:56,684 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:36:02,380 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:36:07,843 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:36:12,943 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:36:18,599 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:36:23,939 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:36:29,290 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:36:34,640 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:36:40,011 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:36:45,480 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:36:51,026 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:36:56,638 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:37:02,318 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:37:07,927 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:37:13,537 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:37:19,395 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:37:25,063 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:37:30,758 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:37:36,112 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:37:41,511 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:37:46,950 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:37:52,810 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:37:58,359 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:38:03,864 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:38:09,372 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:38:15,275 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:38:21,055 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-20 10:38:29,179 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:38:29,204 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:38:29,227 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:38:29,247 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:38:31,788 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:38:31,809 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:38:31,831 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:38:31,850 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:38:34,282 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:38:34,301 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:38:34,321 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:38:34,339 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:38:36,578 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:38:36,599 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:38:36,618 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:38:36,638 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:38:39,084 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:38:39,107 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:38:39,128 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:38:39,149 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:38:41,449 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:38:41,467 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:38:41,486 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:38:41,504 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:16,225 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:16,246 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:16,271 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:16,294 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:18,565 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:18,585 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:18,613 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:18,637 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:21,182 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:21,203 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:21,229 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:21,256 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:23,884 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:23,907 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:23,930 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:23,954 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:26,469 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:26,491 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:26,514 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:26,537 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:29,148 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:29,177 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:29,197 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:29,220 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:31,699 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:31,723 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:31,746 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:31,771 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:33,327 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:33,349 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:33,373 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:33,398 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:35,932 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:35,952 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:35,977 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:36,004 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:38,528 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:38,550 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:38,575 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:38,597 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:41,250 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:41,280 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:41,303 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:41,324 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:44,086 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:44,109 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:44,132 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:44,154 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:46,692 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:46,722 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:46,743 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:46,764 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:49,605 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:49,637 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:49,659 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:49,680 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:51,695 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:51,734 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:51,770 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:51,793 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:55,550 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:55,606 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:55,642 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:55,665 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:58,458 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:58,481 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:58,503 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:39:58,524 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:01,022 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:01,045 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:01,082 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:01,105 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:03,599 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:03,624 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:03,652 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:03,677 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:06,546 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:06,573 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:06,597 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:06,618 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:09,039 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:09,063 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:09,089 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:09,112 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:10,523 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:10,548 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:10,574 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:10,600 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:12,982 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:13,006 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:13,040 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:13,063 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:15,657 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:15,679 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:15,719 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:15,741 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:18,194 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:18,219 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:18,246 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:18,272 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:20,822 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:20,847 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:20,883 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:20,906 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:23,366 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:23,392 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:23,427 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:23,453 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:25,903 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:25,930 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:25,955 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:26,005 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:26,920 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:26,942 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:26,971 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:26,996 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:29,237 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:29,277 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:29,306 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:29,343 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:31,730 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:31,763 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:31,805 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:31,843 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:34,383 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:34,412 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:34,446 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:34,478 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:36,852 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:36,882 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:36,903 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:36,925 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:39,287 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:39,313 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:39,338 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:39,364 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:41,735 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:41,760 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:41,786 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:40:41,814 - robustness - INFO - Model was evaluated on benign data

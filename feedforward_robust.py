@@ -136,7 +136,6 @@ class RobustMLP(object):
         dphi_dx_np = sess.run(dphi_dx, feed_dict = feed_dict)
         return dphi_dx_np
 
-
     def fgsm(self, x, eps):
         #TODO: Remove x as a parameter and change all function calls accordingly
         g = tf.gradients(self.loss, self.x)
@@ -168,23 +167,26 @@ class RobustMLP(object):
         activations, predictions = model(x_tilde, self.hidden_sizes, self.num_classes, self.sigma)
         loss_vector = tf.nn.softmax_cross_entropy_with_logits(logits=predictions, labels=self.y)
         loss_tilde = tf.reduce_mean(loss_vector)
-
+        
+        #Gradient step, project step and then assign
         optimization_step = tf.assign(delta, tf.squeeze(tf.clip_by_value(delta + eta * tf.math.sign(tf.gradients(loss_tilde, delta)), clip_value_min = -eps, clip_value_max = eps)))
 
         #sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
         return optimization_step, x_tilde, loss_tilde, delta
 
-
-    def pgd_optimizer(self, sess, X, y, optimization_step, num_iter, loss, delta, last = False):
+    def pgd_optimizer(self, sess, X, y, optimization_step, num_iter, loss, delta, last = False, featurized_X = None):
         """
         Runs the pgd optimization step num_iter times
         """
+        feed_dict = None
         if not last:
             feed_dict = {self.x: X, self.y: y}
+            sess.run(tf.initialize_variables([delta]), feed_dict = feed_dict)
         else:
-            feed_dict = {self.featurizations: X, self.y: y}
+            feed_dict = {self.x : X, self.featurizations: featurized_X, self.y: y}
+            sess.run(tf.initialize_variables([delta]), feed_dict = feed_dict)
+            feed_dict = {self.featurizations: featurized_X, self.y: y}
 
-        sess.run(tf.initialize_variables([delta]), feed_dict = feed_dict)
         for i in range(num_iter):
             print("iteration: %d"%i)
             sess.run(optimization_step, feed_dict = feed_dict)
@@ -210,25 +212,38 @@ class RobustMLP(object):
         self.logger.debug(np.max(np.abs(diff)))
         return x_tilde_np
 
-    def attack_featurization_space(self, sess, X, eps):
+    def attack_featurization_space(self, sess, X, y, eps, eta, num_iter):
         featurized_X = self.get_featurizations(sess, X)
+        self.logger.debug("Obtained featurizations")
         #Solve the optimization problem
-        featurized_X_adv_np = self.attack_featurization_space_helper(sess, featurized_X, eps)
-        return featurized_X_adv
+        featurized_X_adv_np = self.attack_featurization_space_helper(sess, X, featurized_X, y, eps, eta, num_iter)
+        self.logger.debug("Found adversarial featurizations")
+        return featurized_X_adv_np
 
-    def pgd_feat_create_adv_graph(self, sess, feats, X, y, eps, eta):
+    def attack_featurization_space_helper(self, sess, X, featurized_X, y, eps, eta, num_iter):
+        optimization_step, featurization_perturbed, loss, delta = self.pgd_feat_create_adv_graph(sess, featurized_X, y, eps, eta)
+        self.logger.debug("Created feat adv graph")
+        success = self.pgd_optimizer(sess, X, y, optimization_step, num_iter, loss, delta, last = True, featurized_X=featurized_X)
+        feed_dict = {self.featurizations: featurized_X, self.y: y}
+        featurization_perturbed_np = sess.run(featurization_perturbed, feed_dict)
+        return featurization_perturbed_np
+
+    def pgd_feat_create_adv_graph(self, sess, feats, y, eps, eta):
         """
         Creates the pgd graph for perturbation in featurization space
         """
         init_delta = tf.random_uniform(shape = tf.shape(self.featurizations), minval = -eps, maxval = eps)
-        delta = tf.Variable(init_delta, name = "delta", validate_shape = False)
+        delta = tf.Variable(init_delta, name = "delta_feat", validate_shape = False)
 
         #Define new featurizations
         featurizations_perturbed = self.featurizations + delta
 
         #Find predictions and new loss
+        initial = tf.contrib.layers.xavier_initializer(dtype = tf.float32)
+        bias_initial = tf.initializers.zeros
+
         scope = 'fc_' + str(len(self.hidden_sizes))
-        predictions = fully_connected_layer(featurizations_perturbed, num_classes, scope, initial, bias_initial, tf.identity)
+        predictions = fully_connected_layer(featurizations_perturbed, self.num_classes, scope, initial, bias_initial, tf.identity)
 
         loss_vector = tf.nn.softmax_cross_entropy_with_logits(logits=predictions, labels=self.y)
         loss_tilde = tf.reduce_mean(loss_vector)
@@ -236,13 +251,6 @@ class RobustMLP(object):
         optimization_step = tf.assign(delta, tf.squeeze(tf.clip_by_value(delta + eta * tf.math.sign(tf.gradients(loss_tilde, delta)), clip_value_min = -eps, clip_value_max = eps)))
 
         return optimization_step, featurizations_perturbed, loss_tilde, delta
-
-    def attack_featurization_space_helper(self, sess, featurized_X, eps):
-        optimization_step, featurization_perturbed, loss, delta = self.pgd_feat_create_adv_grap(sess, featurized_X, y, eps, eta, scope = "test")
-        success = self.pgd_optimizer(sess, featurized_X, y, optimization_step, num_iter, loss, delta, last = True)
-        feed_dict = {self.featurizations: featurized_X, self.y: y}
-        featurization_perturbed_np = sess.run(featurization_perturbed, feed_dict)
-        return featurization_perturbed_np
 
     def sample_attack(self, eps, num_samples = 100):
         """
@@ -365,7 +373,7 @@ class RobustMLP(object):
                                  })
         return loss, accuracy
 
-    def evaluate_from_featurizations(self, featurizations, y):
+    def evaluate_from_featurizations(self, sess, featurizations, y):
         """
         Evaluates loss and accuracy of model
         But instead of taking X as input,
@@ -420,8 +428,12 @@ class RobustMLP(object):
 
     def fit(self, sess, X, y, lr = 0.003, training_epochs=15, batch_size=32, display_step=1, reg = 0.005):
 
-        #loss = self.loss + reg*regularize_op_norm(self.get_weights()[0])
-        loss = self.loss + reg*regularize_trace_norm(self.get_weights()[0])
+        loss = self.loss + reg*regularize_op_norm(self.get_weights()[0])
+        #loss = self.loss + reg*regularize_trace_norm(self.get_weights()[0])
+        #loss = self.loss + reg*regularize_l1_norm(self.get_weights()[0])
+        #loss = self.loss + reg*regularize_lipschitz_norm(self.get_weights()[0])
+
+
         temp = set(tf.all_variables())
         optimization_step = tf.train.AdamOptimizer(learning_rate=lr).minimize(loss)
         sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))

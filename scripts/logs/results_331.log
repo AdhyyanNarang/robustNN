@@ -1,0 +1,20 @@
+2019-09-08 18:24:43,508 - robustness - INFO - Model graph was created
+2019-09-08 18:24:43,544 - robustness - INFO - Created model successfully. Now going to train
+2019-09-08 18:25:43,607 - robustness - INFO - Model was trained on benign data
+2019-09-08 18:25:43,749 - robustness - INFO - Saved model at weights/model_331.ckpt
+2019-09-08 18:25:43,771 - robustness - INFO - Model was evaluated on benign data
+2019-09-08 18:25:43,933 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-08 18:25:43,945 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-08 18:25:43,945 - robustness - INFO - (0.17997245, 0.9472)
+2019-09-08 18:25:43,945 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-09-08 18:25:43,945 - robustness - INFO - (3.202374, 0.3325)
+2019-09-08 18:25:43,945 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 50 iterations
+2019-09-08 18:25:49,162 - robustness - INFO - ----PGD test accuracy and loss ----
+2019-09-08 18:25:49,163 - robustness - INFO - (5.050888, 0.1923)
+2019-09-08 18:25:49,289 - robustness - INFO - [28.089184, 4.674623, 3.6114936, 3.2815678, 3.1776936, 2.116904, 2.2179012, 2.6026235]
+2019-09-08 18:25:49,289 - robustness - INFO - Getting activation distances between regular and FGSM data
+2019-09-08 18:26:05,487 - robustness - INFO - ---Distances----
+2019-09-08 18:26:05,487 - robustness - INFO - [1.8040013 1.8094578 1.9554862 2.5528448 3.399231  4.635884  6.39143  ]
+2019-09-08 18:26:05,488 - robustness - INFO - ------Std devs on Distances----
+2019-09-08 18:26:05,488 - robustness - INFO - [0.30412367 0.5518872  0.69060934 0.98884207 1.2497551  1.7079006
+ 2.450149  ]

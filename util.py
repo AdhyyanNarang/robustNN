@@ -96,6 +96,18 @@ def regularize_trace_norm(weights_list):
         penalty += trace_norm_approx(weights)
     return penalty
 
+def regularize_l1_norm(weights_list):
+    penalty = 0
+    for weights in weights_list:
+        penalty += tf.norm(weights, ord = 1)
+    return penalty
+
+def regularize_lipschitz_norm(weights_list):
+    penalty = 1
+    for weights in weights_list:
+        penalty *= tf.norm(weights)
+    return penalty
+
 def write_to_results_csv(epochs, op_reg, lr, adv_train_flag, activation, acc_reg, acc_fgsm, acc_pgd,  loss_reg, loss_fgsm, loss_pgd, logdir, weights_path, tb_dir, dist, norms, pgd_train_eps = None, pgd_train_eta = None, pgd_train_num_iter = None):
     df = pd.read_excel("results.xlsx")
     index = len(df)

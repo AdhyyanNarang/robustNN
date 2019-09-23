@@ -1,0 +1,28 @@
+2019-09-08 14:30:32,140 - robustness - INFO - Model graph was created
+2019-09-08 14:30:32,713 - robustness - INFO - Created model successfully. Now going to load weights
+2019-09-08 14:30:32,806 - robustness - INFO - Successfully restored weights from non rob model.
+2019-09-08 14:30:32,850 - robustness - INFO - Successfully restored weights from rob model.
+2019-09-08 14:30:33,948 - robustness - INFO - Model was trained on benign data
+2019-09-08 14:30:33,949 - robustness - INFO - Trained one epoch to attempt to make weights from different models compatible
+2019-09-08 14:30:33,986 - robustness - INFO - Model was evaluated on benign data
+2019-09-08 14:30:33,987 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-08 14:30:33,989 - robustness - INFO - (0.6153447, 0.8071)
+2019-09-08 14:30:33,990 - robustness - INFO - Evaluating on FGSM points now.
+2019-09-08 14:30:34,155 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-08 14:30:34,168 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-09-08 14:30:34,169 - robustness - INFO - (2.5958252, 0.362)
+2019-09-08 14:30:34,330 - robustness - INFO - Evaluating on PGD points now.
+2019-09-08 14:30:34,331 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 40 iterations
+2019-09-08 14:30:38,226 - robustness - INFO - ----PGD test accuracy and loss ----
+2019-09-08 14:30:38,227 - robustness - INFO - (4.1461916, 0.2132)
+2019-09-08 14:30:39,087 - robustness - INFO - Model graph was created
+2019-09-08 14:30:39,090 - robustness - INFO - Created model successfully. Now going to load weights
+2019-09-08 14:30:39,326 - robustness - INFO - Model was evaluated on benign data
+2019-09-08 14:30:39,327 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-08 14:30:39,329 - robustness - INFO - (0.17380294, 0.9559)
+2019-09-08 14:30:39,356 - robustness - INFO - Model was evaluated on benign data
+2019-09-08 14:30:39,358 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-08 14:30:39,359 - robustness - INFO - (0.17380294, 0.9559)
+2019-09-08 14:30:39,554 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-08 14:30:39,569 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-09-08 14:30:39,570 - robustness - INFO - (6.6653485, 0.0579)
