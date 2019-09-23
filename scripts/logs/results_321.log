@@ -26,3 +26,19 @@
 2019-09-07 16:05:44,385 - robustness - INFO - Model is being evaluated on FGSM data
 2019-09-07 16:05:44,401 - robustness - INFO - ----FGSM test accuracy and loss ----
 2019-09-07 16:05:44,403 - robustness - INFO - (6.6653485, 0.0579)
+2019-09-07 16:48:48,443 - robustness - INFO - Model was evaluated from featurizations
+2019-09-07 16:49:16,131 - robustness - INFO - Model was evaluated from featurizations
+2019-09-07 16:51:00,902 - robustness - INFO - Model was evaluated from featurizations
+2019-09-07 16:51:10,146 - robustness - INFO - Model was evaluated from featurizations
+2019-09-07 16:51:27,169 - robustness - INFO - Model was evaluated from featurizations
+2019-09-07 16:51:39,053 - robustness - INFO - Model was evaluated from featurizations
+2019-09-07 16:51:57,356 - robustness - INFO - Model was evaluated from featurizations
+2019-09-07 16:52:10,867 - robustness - INFO - Model was evaluated from featurizations
+2019-09-07 16:53:07,198 - robustness - INFO - Model was evaluated from featurizations
+2019-09-07 16:53:20,312 - robustness - INFO - Model was evaluated from featurizations
+2019-09-07 16:53:29,029 - robustness - INFO - Model was evaluated from featurizations
+2019-09-07 16:53:35,826 - robustness - INFO - Model was evaluated from featurizations
+2019-09-07 16:53:41,338 - robustness - INFO - Model was evaluated from featurizations
+2019-09-07 16:53:50,679 - robustness - INFO - Model was evaluated from featurizations
+2019-09-07 16:54:02,996 - robustness - INFO - Model was evaluated from featurizations
+2019-09-07 16:54:14,832 - robustness - INFO - Model was evaluated from featurizations

@@ -1,0 +1,19 @@
+Description of the bug:
+PGD adversarial training fails irrespective of the choices of hyperparameters that I have tried
+even though just the PGD attack works very well.
+
+Steps to reliably reproduce the bug:
+Run scripts/adv_train.py with any combination of hyperparams.
+The hyperparam settings are defined at the top of the file as config.
+
+Relevant sections of the code:
+In feedforward_robust.py, the code for adversarial training is contained in pgd_fit()
+
+Possible Hypotheses for bug:
+Too sensitive to hyperparams and have not been able to find the right combination to make it work.
+Some issue in the adversarial training code
+
+Things I have tried already:
+Performed hyperparam grid search. But none of them train nicely.
+Inspected the tensorflow graph on tensorboard, which looks as expected.
+

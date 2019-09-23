@@ -1,0 +1,44 @@
+2019-09-20 10:13:24,123 - robustness - INFO - Model graph was created
+2019-09-20 10:13:24,529 - robustness - INFO - Created model successfully. Now going to load weights
+2019-09-20 10:13:24,614 - robustness - INFO - Successfully restored weights from non rob model.
+2019-09-20 10:13:24,650 - robustness - INFO - Successfully restored weights from rob model.
+2019-09-20 10:13:25,953 - robustness - INFO - Model was trained on benign data
+2019-09-20 10:13:25,955 - robustness - INFO - Trained one epoch to attempt to make weights from different models compatible
+2019-09-20 10:13:25,982 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:13:25,984 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-20 10:13:25,986 - robustness - INFO - (0.6153447, 0.8071)
+2019-09-20 10:13:25,989 - robustness - INFO - Evaluating on FGSM points now.
+2019-09-20 10:13:26,182 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-20 10:13:26,194 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-09-20 10:13:26,196 - robustness - INFO - (2.5958252, 0.362)
+2019-09-20 10:13:26,385 - robustness - INFO - Evaluating on PGD points now.
+2019-09-20 10:13:26,387 - robustness - INFO - Model is being evaluated on PGD points generated using 0.010000 learning rate and 40 iterations
+2019-09-20 10:13:30,426 - robustness - INFO - ----PGD test accuracy and loss ----
+2019-09-20 10:13:30,429 - robustness - INFO - (4.148486, 0.2081)
+2019-09-20 10:13:31,297 - robustness - INFO - Model graph was created
+2019-09-20 10:13:31,301 - robustness - INFO - Created model successfully. Now going to load weights
+2019-09-20 10:13:31,579 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:13:31,580 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-20 10:13:31,582 - robustness - INFO - (0.17380294, 0.9559)
+2019-09-20 10:13:31,604 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:13:31,606 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-20 10:13:31,607 - robustness - INFO - (0.17380294, 0.9559)
+2019-09-20 10:13:31,816 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-20 10:13:31,833 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-09-20 10:13:31,835 - robustness - INFO - (6.6653485, 0.0579)
+2019-09-20 10:13:35,348 - robustness - INFO - Model was evaluated from featurizations
+2019-09-20 10:13:36,142 - robustness - INFO - Model graph was created
+2019-09-20 10:13:36,146 - robustness - INFO - Created model successfully. Now going to load weights
+2019-09-20 10:14:15,121 - robustness - INFO - Model graph was created
+2019-09-20 10:14:15,126 - robustness - INFO - Created model successfully. Now going to load weights
+2019-09-20 10:14:51,419 - robustness - INFO - Model graph was created
+2019-09-20 10:14:51,425 - robustness - INFO - Created model successfully. Now going to load weights
+2019-09-20 10:14:51,798 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:14:51,799 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-20 10:14:51,801 - robustness - INFO - (0.211804, 0.9385)
+2019-09-20 10:14:51,822 - robustness - INFO - Model was evaluated on benign data
+2019-09-20 10:14:51,823 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-20 10:14:51,824 - robustness - INFO - (0.211804, 0.9385)
+2019-09-20 10:14:52,075 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-20 10:14:52,092 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-09-20 10:14:52,094 - robustness - INFO - (2.2536016, 0.3432)

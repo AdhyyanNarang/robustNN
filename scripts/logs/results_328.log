@@ -1,0 +1,79 @@
+2019-09-08 17:17:23,420 - robustness - DEBUG - Initialized instance variables of the robust model class
+2019-09-08 17:17:23,456 - robustness - DEBUG - Created placeholders for x and y
+2019-09-08 17:17:23,678 - robustness - DEBUG - Created layers and tensor for logits
+2019-09-08 17:17:23,767 - robustness - DEBUG - Added loss computation to the graph
+2019-09-08 17:17:23,774 - robustness - DEBUG - Added accuracy computation to the graph
+2019-09-08 17:17:23,776 - robustness - INFO - Model graph was created
+2019-09-08 17:17:23,778 - robustness - INFO - Created model successfully. Now going to train
+2019-09-08 17:17:28,583 - robustness - DEBUG - Epoch: 0001    cost: 1.495719928 
+2019-09-08 17:17:28,584 - robustness - DEBUG - Accuracy on batch: 0.468750
+2019-09-08 17:17:32,159 - robustness - DEBUG - Epoch: 0002    cost: 1.068911846 
+2019-09-08 17:17:32,159 - robustness - DEBUG - Accuracy on batch: 0.593750
+2019-09-08 17:17:35,729 - robustness - DEBUG - Epoch: 0003    cost: 0.966040359 
+2019-09-08 17:17:35,729 - robustness - DEBUG - Accuracy on batch: 0.656250
+2019-09-08 17:17:39,249 - robustness - DEBUG - Epoch: 0004    cost: 0.904093134 
+2019-09-08 17:17:39,249 - robustness - DEBUG - Accuracy on batch: 0.750000
+2019-09-08 17:17:42,831 - robustness - DEBUG - Epoch: 0005    cost: 0.854905166 
+2019-09-08 17:17:42,831 - robustness - DEBUG - Accuracy on batch: 0.812500
+2019-09-08 17:17:46,287 - robustness - DEBUG - Epoch: 0006    cost: 0.808821821 
+2019-09-08 17:17:46,288 - robustness - DEBUG - Accuracy on batch: 0.625000
+2019-09-08 17:17:49,803 - robustness - DEBUG - Epoch: 0007    cost: 0.788857104 
+2019-09-08 17:17:49,804 - robustness - DEBUG - Accuracy on batch: 0.750000
+2019-09-08 17:17:53,245 - robustness - DEBUG - Epoch: 0008    cost: 0.767151528 
+2019-09-08 17:17:53,246 - robustness - DEBUG - Accuracy on batch: 0.781250
+2019-09-08 17:17:56,842 - robustness - DEBUG - Epoch: 0009    cost: 0.733151123 
+2019-09-08 17:17:56,842 - robustness - DEBUG - Accuracy on batch: 0.750000
+2019-09-08 17:18:00,440 - robustness - DEBUG - Epoch: 0010    cost: 0.705833185 
+2019-09-08 17:18:00,440 - robustness - DEBUG - Accuracy on batch: 0.781250
+2019-09-08 17:18:03,960 - robustness - DEBUG - Epoch: 0011    cost: 0.686767041 
+2019-09-08 17:18:03,960 - robustness - DEBUG - Accuracy on batch: 0.687500
+2019-09-08 17:18:07,532 - robustness - DEBUG - Epoch: 0012    cost: 0.684654997 
+2019-09-08 17:18:07,532 - robustness - DEBUG - Accuracy on batch: 0.781250
+2019-09-08 17:18:11,081 - robustness - DEBUG - Epoch: 0013    cost: 0.689064255 
+2019-09-08 17:18:11,081 - robustness - DEBUG - Accuracy on batch: 0.656250
+2019-09-08 17:18:14,754 - robustness - DEBUG - Epoch: 0014    cost: 0.675390233 
+2019-09-08 17:18:14,754 - robustness - DEBUG - Accuracy on batch: 0.781250
+2019-09-08 17:18:18,358 - robustness - DEBUG - Epoch: 0015    cost: 0.681756982 
+2019-09-08 17:18:18,358 - robustness - DEBUG - Accuracy on batch: 0.656250
+2019-09-08 17:18:22,007 - robustness - DEBUG - Epoch: 0016    cost: 0.666320035 
+2019-09-08 17:18:22,007 - robustness - DEBUG - Accuracy on batch: 0.812500
+2019-09-08 17:18:25,560 - robustness - DEBUG - Epoch: 0017    cost: 0.655696993 
+2019-09-08 17:18:25,561 - robustness - DEBUG - Accuracy on batch: 0.781250
+2019-09-08 17:18:29,035 - robustness - DEBUG - Epoch: 0018    cost: 0.651752242 
+2019-09-08 17:18:29,037 - robustness - DEBUG - Accuracy on batch: 0.812500
+2019-09-08 17:18:32,538 - robustness - DEBUG - Epoch: 0019    cost: 0.642131853 
+2019-09-08 17:18:32,538 - robustness - DEBUG - Accuracy on batch: 0.718750
+2019-09-08 17:18:36,165 - robustness - DEBUG - Epoch: 0020    cost: 0.644583845 
+2019-09-08 17:18:36,165 - robustness - DEBUG - Accuracy on batch: 0.875000
+2019-09-08 17:18:36,165 - robustness - DEBUG - Optimization Finished!
+2019-09-08 17:18:36,453 - robustness - DEBUG - Final Train Loss 0.224064
+2019-09-08 17:18:36,454 - robustness - DEBUG - Final Train Accuracy 0.930233:
+2019-09-08 17:18:37,178 - robustness - DEBUG - Final Train Loss on Adv points 0.738625
+2019-09-08 17:18:37,178 - robustness - DEBUG - Final Train Accuracy on Adv points 0.748767
+2019-09-08 17:18:37,178 - robustness - INFO - Model was trained on adversarial data
+2019-09-08 17:18:37,458 - robustness - INFO - Model was evaluated on benign data
+2019-09-08 17:18:37,650 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-08 17:18:37,661 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-08 17:18:37,662 - robustness - INFO - (0.22064766, 0.9329)
+2019-09-08 17:18:37,662 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-09-08 17:18:37,662 - robustness - INFO - (0.7445679, 0.7417)
+2019-09-08 17:18:37,662 - robustness - INFO - Model is being evaluated on PGD points generated using 0.050000 learning rate and 100 iterations
+2019-09-08 17:18:46,852 - robustness - DEBUG - This is to confirm that attack does not violate constraints
+2019-09-08 17:18:46,852 - robustness - DEBUG - Should be no more than eps
+2019-09-08 17:18:46,897 - robustness - DEBUG - 0.10000005352730845
+2019-09-08 17:18:46,915 - robustness - INFO - ----PGD test accuracy and loss ----
+2019-09-08 17:18:46,915 - robustness - INFO - (1.2734394, 0.5972)
+2019-09-08 17:18:46,915 - robustness - INFO - Added graph to tb
+2019-09-08 17:18:47,101 - robustness - INFO - [309.03058, 13.829748, 16.421766, 12.924315, 13.326067, 11.006118, 10.691159, 13.276878]
+2019-09-08 17:18:47,101 - robustness - INFO - Getting activation distances between regular and FGSM data
+2019-09-08 17:18:47,352 - robustness - DEBUG - Found correct and incorrect indices
+2019-09-08 17:18:56,214 - robustness - DEBUG - Found average and standard deviation of distances
+2019-09-08 17:19:02,733 - robustness - DEBUG - Found average and standard deviation of distances
+2019-09-08 17:19:05,072 - robustness - DEBUG - Found average and standard deviation of distances
+2019-09-08 17:19:05,083 - robustness - INFO - ---Distances----
+2019-09-08 17:19:05,083 - robustness - INFO - [12.799518  16.56418   25.464622  25.766693  14.9766655  6.904501
+  3.7851212]
+2019-09-08 17:19:05,086 - robustness - INFO - ------Std devs on Distances----
+2019-09-08 17:19:05,086 - robustness - INFO - [ 5.012818   4.138246   8.411901  11.271658   6.68557    3.7269082
+  2.1905901]
+2019-09-08 17:19:06,734 - robustness - INFO - Created embeddings for visualization
