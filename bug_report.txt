@@ -16,4 +16,3 @@ Some issue in the adversarial training code
 Things I have tried already:
 Performed hyperparam grid search. But none of them train nicely.
 Inspected the tensorflow graph on tensorboard, which looks as expected.
-
