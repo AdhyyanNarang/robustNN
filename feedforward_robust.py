@@ -138,6 +138,58 @@ class RobustMLP(object):
         dphi_dx_np = sess.run(dphi_dx, feed_dict = feed_dict)
         return dphi_dx_np
 
+    def get_dl_df(self, sess, x_test, y_test):
+        dl_df = tf.gradients(self.loss, self.predictions)
+        feed_dict = {self.x: x_test, self.y:y_test}
+        dl_df_np = sess.run(dl_df, feed_dict = feed_dict)
+        dl_df_np = np.array(dl_df_np)
+        return dl_df_np.squeeze()
+
+    def get_fisher_rao_norm_squared(self, sess, x_test, y_test):
+        """
+        Complexity measure proposed by Liang et.al
+        """
+        pred_np = self.get_prediction(sess, x_test)
+        dl_df_np = self.get_dl_df(sess, x_test, y_test)
+        prod = pred_np * dl_df_np
+        inner_prod_vector = np.sum(prod, axis = 0)
+        inner_prod_squared = inner_prod_vector * inner_prod_vector
+        return np.mean(inner_prod_squared)
+
+    def get_first_term(self, sess):
+        weights_np = self.get_weights_np(sess)
+        spectral_norm_vector = get_spectral_norm_elementwise(weights_np)
+        return np.prod(spectral_norm_vector), spectral_norm_vector
+
+    def get_second_term(self, sess):
+        #Denominator stuff
+        spectral_vector_lst = self.get_first_term(sess)[1]
+        spectral_vector_lst = [elem ** (2/3) for elem in spectral_vector_lst]
+
+        #Numerator stuff
+        weights_np = self.get_weights_np(sess)
+
+        #TODO: Try for some other types of reference matrices
+        reference_matrices = [np.eye(weights_np[i].shape[0], weights_np[i].shape[1]) for i in range(len(weights_np))]
+        difference_lst = [weights_np[i] - reference_matrices[i] for i in range(len(weights_np))]
+        numerator_lst = get_two_one_norm_elementwise(difference_lst)
+        numerator_lst = [elem ** (2/3) for elem in numerator_lst]
+
+        #Putting it together to get the sum
+        frac_lst = np.divide(numerator_lst, spectral_vector_lst)
+        final_sum = np.sum(frac_lst)
+        return final_sum ** (3/2)
+
+    def get_spectral_norm(self, sess):
+        """
+        Complexity measure of neural networks proposed by Bartlett et. al
+        """
+        first_term = self.get_first_term(sess)[0]
+        second_term = self.get_second_term(sess)
+        ipdb.set_trace()
+        return first_term * second_term
+
+    
     def fgsm(self, x, eps):
         #TODO: Remove x as a parameter and change all function calls accordingly
         g = tf.gradients(self.loss, self.x)
