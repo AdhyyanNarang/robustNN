@@ -4,8 +4,8 @@ import tensorflow as tf
 import tensorflow.contrib.layers as layers
 from tensorflow.contrib.tensorboard.plugins import projector
 import ipdb
-sys.path.append("util/")
-from util import *
+sys.path.append("utils/")
+from utils.util_old import *
 
 """
 Reorganization:
