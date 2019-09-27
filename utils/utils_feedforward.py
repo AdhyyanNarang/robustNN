@@ -78,6 +78,29 @@ def trace_norm_approx(A):
     prod = tf.matmul(A, tf.linalg.transpose(A))
     return tf.linalg.trace(prod)
 
+def get_spectral_norm_elementwise(weights_np):
+    norm_lst = []
+    for mat in weights_np:
+        spectral_norm = np.linalg.norm(mat, ord = 2)
+        norm_lst.append(spectral_norm)
+    return norm_lst
+
+def get_two_one_norm(M):
+    two_norm_lst = []
+    for i in range(M.shape[1]):
+        column = M[:, i]
+        two_norm = np.linalg.norm(column)
+        two_norm_lst.append(two_norm)
+    two_norm_vec = np.array(two_norm_lst)
+    return np.linalg.norm(two_norm_vec, ord = 1)
+
+def get_two_one_norm_elementwise(weights_np):
+    norm_lst = []
+    for mat in weights_np:
+        two_one_norm = get_two_one_norm(mat)
+        norm_lst.append(two_one_norm)
+    return norm_lst
+
 def get_norms(weights_list):
     norms = []
     for weights in weights_list:

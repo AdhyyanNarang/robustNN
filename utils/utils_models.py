@@ -160,8 +160,8 @@ def adversarial_training(config):
     load_counter = config['load_counter']
     sigma = config['sigma']
     scope_name_rob = config['scope_name']
-    sess = tf.Session()
-    hidden_sizes = [32,32,32,32,32,32,32]
+    logger = config['logger']
+    counter = config['write_counter']
 
     dataset, input_shape, num_classes  = get_dataset()
     x_train_flat, y_train = dataset[0]
@@ -177,7 +177,7 @@ def adversarial_training(config):
         logger.info("Adversarial Training")
         robust_model = ffr.RobustMLP(input_shape, hidden_sizes, num_classes, writer = writer_robust, scope = scope_name_rob, logger = logger, sigma = sigma)
         sess.run(tf.initialize_variables(set(tf.all_variables()) - tmp))
-        robust_model.adv_fit(sess, x_train_flat, y_train, eps_train, lr = 3e-4, training_epochs = 20)
+        robust_model.adv_fit(sess, x_train_flat, y_train, eps_train, lr = 3e-4, training_epochs = 40)
 
         print(robust_model.evaluate(sess, x_test_flat, y_test))
         print(robust_model.adv_evaluate(sess, x_test_flat, y_test, eps_test))
@@ -298,3 +298,17 @@ def trace_first_reg_model_train(counter, logger, reg):
     config['should_load'] = False
     config['logger'] = logger
     return regular_training(config)
+
+def fgsm_adv_train(counter, logger):
+    #Config
+    config = {}
+    config['eps_train'] = 0.1
+    config['eps_test'] = 0.1
+    config['tensorboard_dir'] = "tb/"
+    config['weights_dir'] = "weights/"
+    config['load_counter'] = 280
+    config['sigma'] = tf.nn.relu
+    config['scope_name'] = "model_robust"
+    config['counter'] = counter
+    config['logger'] = logger
+    return adversarial_training(config)

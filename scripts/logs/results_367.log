@@ -286,3 +286,48 @@
 2019-09-27 00:39:08,199 - robustness - INFO - Model is being evaluated on FGSM data
 2019-09-27 00:39:08,214 - robustness - INFO - ----FGSM test accuracy and loss ----
 2019-09-27 00:39:08,216 - robustness - INFO - (3.228799, 0.3262)
+2019-09-27 01:07:25,599 - robustness - INFO - Model graph was created
+2019-09-27 01:07:25,606 - robustness - INFO - Created model successfully. Now going to load weights
+2019-09-27 01:07:42,260 - robustness - INFO - Model graph was created
+2019-09-27 01:07:42,264 - robustness - INFO - Created model successfully. Now going to load weights
+2019-09-27 01:07:42,405 - robustness - INFO - Restored model from None
+2019-09-27 01:07:42,553 - robustness - INFO - Model was evaluated on benign data
+2019-09-27 01:07:42,555 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-27 01:07:42,557 - robustness - INFO - (0.24226119, 0.9352)
+2019-09-27 01:07:42,578 - robustness - INFO - Model was evaluated on benign data
+2019-09-27 01:07:42,580 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-27 01:07:42,581 - robustness - INFO - (0.24226119, 0.9352)
+2019-09-27 01:07:42,889 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-27 01:07:42,905 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-09-27 01:07:42,907 - robustness - INFO - (3.1562634, 0.3498)
+2019-09-27 01:50:41,641 - robustness - INFO - Model graph was created
+2019-09-27 01:50:41,648 - robustness - INFO - Created model successfully. Now going to load weights
+2019-09-27 01:51:07,474 - robustness - INFO - Model graph was created
+2019-09-27 01:51:07,483 - robustness - INFO - Created model successfully. Now going to load weights
+2019-09-27 01:51:37,839 - robustness - INFO - Model graph was created
+2019-09-27 01:51:37,845 - robustness - INFO - Created model successfully. Now going to load weights
+2019-09-27 01:51:43,938 - robustness - INFO - Model graph was created
+2019-09-27 01:51:43,947 - robustness - INFO - Created model successfully. Now going to load weights
+2019-09-27 01:52:50,976 - robustness - INFO - Model was trained on benign data
+2019-09-27 01:52:51,188 - robustness - INFO - Saved model at weights/model_367.ckpt
+2019-09-27 01:52:51,278 - robustness - INFO - Model was evaluated on benign data
+2019-09-27 01:52:51,279 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-27 01:52:51,280 - robustness - INFO - (0.22169338, 0.9557)
+2019-09-27 01:52:51,302 - robustness - INFO - Model was evaluated on benign data
+2019-09-27 01:52:51,303 - robustness - INFO - ----Regular test accuracy and loss ----
+2019-09-27 01:52:51,304 - robustness - INFO - (0.22169338, 0.9557)
+2019-09-27 01:52:51,503 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-27 01:52:51,518 - robustness - INFO - ----FGSM test accuracy and loss ----
+2019-09-27 01:52:51,520 - robustness - INFO - (23.85161, 0.044)
+2019-09-27 02:43:50,645 - robustness - INFO - Adversarial Training
+2019-09-27 02:43:51,090 - robustness - INFO - Model graph was created
+2019-09-27 02:45:15,948 - robustness - INFO - Model was trained on adversarial data
+2019-09-27 02:45:16,020 - robustness - INFO - Model was evaluated on benign data
+2019-09-27 02:45:16,288 - robustness - INFO - Model is being evaluated on FGSM data
+2019-09-27 02:48:30,569 - robustness - INFO - Adversarial Training
+2019-09-27 02:48:30,680 - robustness - INFO - Model graph was created
+2019-09-27 02:48:44,705 - robustness - INFO - Adversarial Training
+2019-09-27 02:48:44,889 - robustness - INFO - Model graph was created
+2019-09-27 02:51:04,003 - robustness - INFO - Model was trained on adversarial data
+2019-09-27 02:51:04,067 - robustness - INFO - Model was evaluated on benign data
+2019-09-27 02:51:04,295 - robustness - INFO - Model is being evaluated on FGSM data

@@ -14,9 +14,6 @@ from utils.utils_models import *
 from utils.utils_analysis import *
 from utils.utils_feedforward import *
 
-#TODOs:
-# 3. Test it out
-
 if __name__ == '__main__':
     #Read the counter
     ctr_file = "counter.txt"
@@ -42,19 +39,34 @@ if __name__ == '__main__':
     print("OK entering loop")
     for i in range(1):
         print("OK entered loop")
+
+        _, _, non_rob_path = non_robust_model_train(counter, logger)
+        model_paths['non_robust'].append(non_rob_path)
+        counter +=1
+        tf.reset_default_graph()
+
         _, _, l1_path = l1_reg_model_train(counter, logger, 0.0009)
         model_paths['l1'].append(l1_path)
         counter +=1
         tf.reset_default_graph()
+
         _, _, op_path = op_reg_model_train(counter, logger, 0.09)
         counter +=1 
+        model_paths['op'].append(op_path)
         tf.reset_default_graph()
+
         _, _, trace_first_path = trace_first_reg_model_train(counter, logger, 0.01)
         model_paths['trace_first'].append(trace_first_path)
         counter +=1
         tf.reset_default_graph()
+
         _, _, trace_reg_path = trace_reg_model_train(counter, logger, 0.02)
         model_paths['trace_all'].append(trace_reg_path)
+        counter += 1
+        tf.reset_default_graph()
+
+        _, _, fgsm_train_path = fgsm_adv_train(counter, logger)
+        model_paths['fgsm'].append(fgsm_train_path)
         counter += 1
         tf.reset_default_graph()
 
