@@ -217,7 +217,7 @@ def l1_reg_model_train(counter, logger, reg):
     config['load_counter'] = 222
     config['write_counter'] = counter
     config['sigma'] = tf.nn.relu
-    config['epochs'] = 30
+    config['epochs'] = 50
     config['reg'] = 0.0
     config['lr'] = 3e-3
     config['reg_trace_first'] = 0
