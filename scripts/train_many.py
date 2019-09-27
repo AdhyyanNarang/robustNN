@@ -42,11 +42,11 @@ if __name__ == '__main__':
     print("OK entering loop")
     for i in range(1):
         print("OK entered loop")
-        _, _, l1_path = l1_reg_model_train(counter, logger, 0.0005)
+        _, _, l1_path = l1_reg_model_train(counter, logger, 0.0009)
         model_paths['l1'].append(l1_path)
         counter +=1
         tf.reset_default_graph()
-        _, _, op_path = op_reg_model_train(counter, logger, 0.07)
+        _, _, op_path = op_reg_model_train(counter, logger, 0.09)
         counter +=1 
         tf.reset_default_graph()
         _, _, trace_first_path = trace_first_reg_model_train(counter, logger, 0.01)
