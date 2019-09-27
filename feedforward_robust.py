@@ -5,7 +5,9 @@ import tensorflow.contrib.layers as layers
 from tensorflow.contrib.tensorboard.plugins import projector
 import ipdb
 sys.path.append("utils/")
-from utils.util_old import *
+from utils.utils_feedforward import *
+from utils.utils_visualize import *
+
 
 """
 Reorganization:
@@ -426,13 +428,14 @@ class RobustMLP(object):
         self.logger.debug("Final Train Accuracy %f:" %final_acc)
         return True
 
-    def fit(self, sess, X, y, lr = 0.003, training_epochs=15, batch_size=32, display_step=1, reg = 0.005):
+    def fit(self, sess, X, y, lr = 0.003, training_epochs=15, batch_size=32, display_step=1, reg_op = 0, reg_trace_first = 0, reg_trace_all = 0, reg_l1 = 0):
 
-        loss = self.loss + reg*regularize_op_norm(self.get_weights()[0])
-        #loss = self.loss + reg*regularize_trace_norm(self.get_weights()[0])
-        #loss = self.loss + reg*regularize_l1_norm(self.get_weights()[0])
-        #loss = self.loss + reg*regularize_lipschitz_norm(self.get_weights()[0])
-
+        loss = self.loss
+        loss += reg_op*regularize_op_norm(self.get_weights()[0])
+        loss += reg_trace_all*regularize_trace_norm(self.get_weights()[0])
+        loss += reg_l1*regularize_l1_norm(self.get_weights()[0])
+        loss += reg_trace_first*regularize_trace_norm_first(self.get_weights()[0])
+        #loss += reg*regularize_lipschitz_norm(self.get_weights()[0])
 
         temp = set(tf.all_variables())
         optimization_step = tf.train.AdamOptimizer(learning_rate=lr).minimize(loss)

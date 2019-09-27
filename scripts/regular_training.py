@@ -7,7 +7,8 @@ sys.path.append('../')
 sys.path.append('../utils/')
 import feedforward_robust as ffr
 import ipdb
-from utils.util_old import *
+from utils.util_feedforward import *
+from utils.utils_visualize import *
 
 """
 TODO:
@@ -46,8 +47,7 @@ logger = logging.getLogger("robustness")
 logger.setLevel(logging.DEBUG)
 fh = logging.FileHandler(logfile)
 fh.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-fh.setFormatter(formatter)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s') fh.setFormatter(formatter)
 logger.addHandler(fh)
 
 if __name__ == "__main__":
