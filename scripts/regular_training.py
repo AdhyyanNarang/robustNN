@@ -4,10 +4,10 @@ import numpy as np
 import tensorflow as tf
 import tensorflow.contrib.layers as layers
 sys.path.append('../')
-sys.path.append('../util/')
+sys.path.append('../utils/')
 import feedforward_robust as ffr
 import ipdb
-from util import *
+from utils.util_old import *
 
 """
 TODO:

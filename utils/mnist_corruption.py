@@ -4,22 +4,15 @@ import numpy as np
 import matplotlib
 from matplotlib import pyplot as plt
 from cleverhans.attacks import FastGradientMethod
+import cv2
 
 #gaussian blurring
-#random epsilon perturbation
-#random pixel blackout/whiteout on mnist
-
 def gaussian_blurring(images, std_dev = 2):
 	return np.array([gaussian(im, std_dev, preserve_range = True) for im in images])
 
-def random_perturbation(images, eps = 0.5, num_samples = 1):
-    shape = (num_samples, ) + images.shape
-    perturbed_versions = np.zeros(shape = shape) 
-    for i in range(num_samples):
-        perturbed_version = images + np.random.uniform(-eps, eps, images.shape)
-        perturbed_versions[i] = perturbed_version
-    return perturbed_versions
-
+#random epsilon perturbation
+def random_perturbation(images, eps = 0.5):
+	return images + np.random.uniform(-eps, eps, images.shape)
 
 def gaussian_perturbation(image, eps = 0.5):
         return image + np.random.normal(loc = 0, scale = eps, size = image.shape)
@@ -55,3 +48,23 @@ def corrupt_data(original_data, n, corrupt_func, seed = 0):
         data_copy[corrupt_indices] = corrupted_pts
         return data_copy
 
+"""
+Deterministic corruptions
+"""
+def rotate(image_set, angle = 45):
+    destination_set = image_set.copy()
+    for (idx, img) in enumerate(image_set):
+        rows, cols = img.shape
+        M = cv2.getRotationMatrix2D((cols/2,rows/2),angle,1)
+        dst = cv2.warpAffine(img,M,(cols,rows))
+        destination_set[idx] = dst
+    return destination_set
+
+def translate(image_set, x, y):
+    destination_set = image_set.copy()
+    for (idx, img) in enumerate(image_set):
+        rows, cols = img.shape
+        M = np.float32([[1,0,x],[0,1,y]])
+        dst = cv2.warpAffine(img,M,(cols,rows))
+        destination_set[idx] = dst
+    return destination_set
