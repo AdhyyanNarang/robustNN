@@ -52,7 +52,11 @@ def regular_training(config_inp):
             weights, biases = model.get_weights()
             weights_exp = weights + biases
             saver = tf.train.Saver(weights_exp)
-            weights_path = saver.restore(sess, weights_dir + "model_" + str(load_counter) + ".ckpt")
+            
+            #TODO: Fix this hacky solution later
+            #weights_path = saver.restore(sess, weights_dir + "model_" + str(load_counter) + ".ckpt")
+            weights_path = saver.restore(sess, load_counter)
+
             logger.info("Restored model from %s"%weights_path)
         else:
             sess.run(tf.global_variables_initializer())
@@ -78,9 +82,7 @@ def regular_training(config_inp):
         logger.info("----FGSM test accuracy and loss ----")
         logger.info((loss_fgsm, acc_fgsm))
         x_test_flat_adv = model.fgsm_np(sess, x_test_flat, y_test, eps_test)
-
         write_to_results_csv(epochs, reg_op, reg_trace_first, reg_trace_all, reg_l1, lr, "Regular", str(sigma), acc_reg, acc_fgsm, None, loss_reg, loss_fgsm, None, None, weights_path, None, None, None)
-
 
     return model, sess, weights_path
 
