@@ -12,6 +12,7 @@ import cvxpy as cp
 
 """
 TODOS:
+    Make NN creation more general for flexibility with experiments
     For fisher rao norm, ensure that I'm fetching the right predictions
 """
 class RobustMLP(object):
