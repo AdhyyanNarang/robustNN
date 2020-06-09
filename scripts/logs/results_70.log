@@ -1,7 +1,0 @@
-2019-08-06 12:32:23,947 - robustness - INFO - Created model successfully. Now going to train
-2019-08-06 12:32:26,781 - robustness - INFO - Epoch: 0001    cost: 0.493756601 
-2019-08-06 12:32:26,783 - robustness - INFO - Accuracy on batch: 1.000000
-2019-08-06 12:32:28,829 - robustness - INFO - Epoch: 0002    cost: 0.310551581 
-2019-08-06 12:32:28,829 - robustness - INFO - Accuracy on batch: 1.000000
-2019-08-06 12:32:30,876 - robustness - INFO - Epoch: 0003    cost: 0.279469185 
-2019-08-06 12:32:30,876 - robustness - INFO - Accuracy on batch: 0.968750

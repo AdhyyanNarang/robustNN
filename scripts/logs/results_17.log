@@ -1,6 +1,0 @@
-2019-08-05 14:42:44,139 - robustness - INFO - Created model successfully. Now going to train
-2019-08-05 14:42:46,888 - robustness - INFO - Epoch: 0001    cost: 1.264312098 
-2019-08-05 14:42:46,889 - robustness - INFO - Accuracy on batch: 0.906250
-2019-08-05 14:42:46,889 - robustness - INFO - Optimization Finished!
-2019-08-05 14:42:47,129 - robustness - INFO - Final Train Loss 0.596630
-2019-08-05 14:42:47,129 - robustness - INFO - Final Train Accuracy 0.835283:

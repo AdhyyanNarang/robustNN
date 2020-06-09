@@ -1,9 +1,0 @@
-Created model successfully. Now going to train
-Epoch: 0001 cost= 1.254502509
-Accuracy on batch: 0.875
-Optimization Finished!
-Final Train Loss 0.6779871
-Final Train Accuracy: 0.7984333
-(0.7017665, 0.7953)
-(3.671938, 0.1447)
-[160.6391, 17.730524, 15.784663, 14.259218, 15.181104, 18.027624, 18.060362, 16.66681]

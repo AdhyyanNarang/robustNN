@@ -1,7 +1,0 @@
-2019-08-21 09:19:06,430 - robustness - DEBUG - Initialized instance variables of the robust model class
-2019-08-21 09:19:06,432 - robustness - DEBUG - Created placeholders for x and y
-2019-08-21 09:19:06,595 - robustness - DEBUG - Created layers and tensor for logits
-2019-08-21 09:19:06,613 - robustness - DEBUG - Added loss computation to the graph
-2019-08-21 09:19:06,617 - robustness - DEBUG - Added accuracy computation to the graph
-2019-08-21 09:19:06,618 - robustness - INFO - Model graph was created
-2019-08-21 09:19:06,620 - robustness - INFO - Created model successfully. Now going to train

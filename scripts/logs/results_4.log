@@ -1,5 +1,0 @@
-2019-08-04 16:13:08,625 - robustness - INFO - Something happened
-2019-08-04 16:13:09,496 - robustness - INFO - Created model successfully. Now going to train
-2019-08-04 16:13:12,472 - robustness - INFO - (0.9062303, 0.6052)
-2019-08-04 16:13:12,653 - robustness - INFO - (3.6396546, 0.1766)
-2019-08-04 16:13:12,718 - robustness - INFO - [176.16751, 16.628355, 14.460841, 13.286079, 15.709594, 17.894957, 20.096504, 18.990414]

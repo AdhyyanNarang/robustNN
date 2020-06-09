@@ -1,4 +1,0 @@
-2019-09-01 23:32:06,208 - robustness - INFO - Model graph was created
-2019-09-01 23:32:06,390 - robustness - INFO - Created model successfully. Now going to load weights
-2019-09-01 23:32:06,439 - robustness - INFO - Successfully restored weights from non rob model.
-2019-09-01 23:32:06,471 - robustness - INFO - Successfully restored weights from rob model.
