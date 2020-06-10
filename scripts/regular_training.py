@@ -42,7 +42,6 @@ f = open(ctr_file,'w')
 f.write('{}'.format(counter))
 f.close()
 logfile = "logs/results_" + str(counter) + ".log"
-
 logger = logging.getLogger("robustness")
 logger.setLevel(logging.DEBUG)
 fh = logging.FileHandler(logfile)

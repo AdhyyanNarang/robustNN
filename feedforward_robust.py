@@ -17,7 +17,7 @@ TODOS:
 """
 class RobustMLP(object):
 
-    def __init__(self,input_shape,hidden_sizes,num_classes, writer, scope, logger, sigma):
+    def __init__(self,input_shape,hidden_sizes,num_classes, writer, scope, logger, sigma, classification = True):
 
         #Initialize instance variables
         #TODO: Fix this hacky solution.
@@ -41,15 +41,21 @@ class RobustMLP(object):
         self.featurizations = self.activations[-1]
         self.logger.debug("Created layers and tensor for logits")
 
-        self.loss_vector = tf.nn.softmax_cross_entropy_with_logits(logits=self.predictions, labels=self.y)
-        self.loss = tf.reduce_mean(self.loss_vector)
-        tf.summary.scalar("loss", self.loss)
-        self.logger.debug("Added loss computation to the graph")
-
         self.correct_prediction = tf.equal(tf.argmax(self.predictions, 1), tf.argmax(self.y, 1))
         self.accuracy = tf.reduce_mean(tf.cast(self.correct_prediction, "float"))
         self.logger.debug("Added accuracy computation to the graph")
         tf.summary.scalar("accuracy", self.accuracy)
+
+        self.loss = None
+        if classification:
+            self.loss_vector = tf.nn.softmax_cross_entropy_with_logits(logits=self.predictions, labels=self.y)
+            self.loss = tf.reduce_mean(self.loss_vector)
+            tf.summary.scalar("loss", self.loss)
+            self.logger.debug("Added cross-entropy loss computation to the graph")
+        else :
+            self.loss = tf.nn.l2_loss(self.predictions - self.y)
+            tf.summary.scalar("loss", self.loss)
+            self.logger.debug("Added MSE loss computation to the graph")
 
         self.logger.info("Model graph was created")
         self.merged_summary = tf.summary.merge_all(scope = self.scope)
@@ -178,10 +184,10 @@ class RobustMLP(object):
         feed_dict = {self.x: x_train}
         dphi_dx_np = sess.run(dphi_dx, feed_dict = feed_dict)
         return dphi_dx_np
-    
+
     def get_margin_qp_single_class(self, x, w_corr, w_inc, S):
         """
-        Find perturbation with smallest weighted norm 
+        Find perturbation with smallest weighted norm
         that makes the point classified as the other
         class
         Use CVXPY to solve this QP.
