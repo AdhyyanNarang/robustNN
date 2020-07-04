@@ -35,6 +35,8 @@ class RobustMLP(object):
         x_shape = [None] + [self.input_shape]
         self.x = tf.placeholder("float", x_shape)
         self.y = tf.placeholder("float", [None, num_classes])
+        num_train = tf.shape(self.x)[0]
+        num_train_float = tf.cast(num_train, tf.float32)
         self.logger.debug("Created placeholders for x and y")
 
         self.activations, self.predictions = model(self.x, self.hidden_sizes, self.num_classes, sigma)
@@ -53,7 +55,7 @@ class RobustMLP(object):
             tf.summary.scalar("loss", self.loss)
             self.logger.debug("Added cross-entropy loss computation to the graph")
         else :
-            self.loss = tf.nn.l2_loss(self.predictions - self.y)
+            self.loss = (1.0/(2.0*num_train_float)) * tf.nn.l2_loss(self.predictions - self.y)
             tf.summary.scalar("loss", self.loss)
             self.logger.debug("Added MSE loss computation to the graph")
 
@@ -74,13 +76,17 @@ class RobustMLP(object):
                                })
         return prediction
 
-    def get_prediction_number(self, sess, x_input):
+    def get_prediction_simplex(self, sess, x_input):
         prediction_simplex = tf.nn.softmax(self.predictions)
         prediction_simplex_np = sess.run(prediction_simplex,
                                feed_dict = {
                                    self.x: x_input,
                                })
+        return prediction_simplex_np
 
+
+    def get_prediction_number(self, sess, x_input):
+        prediction_simplex_np = self.get_prediction_simplex(sess, x_input)
         return np.argmax(prediction_simplex_np, axis = 1)
 
     def get_featurizations(self, sess, x_input):
@@ -123,7 +129,7 @@ class RobustMLP(object):
         weights_np = sess.run(weights)
         return weights_np
 
-    def get_weight_norms(self, sess, matrix_norm_fxn = lambda x: np.linalg.norm(x, ord = 1)):
+    def get_weight_norms(self, sess, matrix_norm_fxn = lambda x: np.linalg.norm(x, ord = 'fro')):
         """
         Getter method for the norms of the weight matrices of
         the network
@@ -184,6 +190,16 @@ class RobustMLP(object):
         feed_dict = {self.x: x_train}
         dphi_dx_np = sess.run(dphi_dx, feed_dict = feed_dict)
         return dphi_dx_np
+
+    def get_pointwise_margin(self, sess, x_test, y_test):
+        preds = self.get_prediction_simplex(sess, x_test)
+        idx_max = np.argmax(preds, axis = 1)
+        pw_max = np.max(preds, axis = 1)
+        preds_two = preds
+        for i in np.arange(len(x_test)):
+            preds_two[i, idx_max[i]] = 0
+        pw_second_max = np.max(preds_two, axis = 1)
+        return pw_max - pw_second_max
 
     def get_margin_qp_single_class(self, x, w_corr, w_inc, S):
         """
@@ -351,6 +367,8 @@ class RobustMLP(object):
                 indices.append(idx)
         return margins, deltas, indices
 
+
+
     def get_dl_df(self, sess, x_test, y_test):
         """
         Helper for Fisher Rao Norm
@@ -417,7 +435,6 @@ class RobustMLP(object):
 
         J = self.get_dphi_dx(sess, perturbed_matrix)
         approx = phi_x + delta@J
-        ipdb.set_trace()
         return phi_x_tilde, approx, np.linalg.norm(phi_x_tilde - approx)
 
     def fgsm(self, x, eps):
@@ -453,7 +470,12 @@ class RobustMLP(object):
         loss_tilde = tf.reduce_mean(loss_vector)
 
         #Gradient step, project step and then assign
-        optimization_step = tf.assign(delta, tf.squeeze(tf.clip_by_value(delta + eta * tf.math.sign(tf.gradients(loss_tilde, delta)), clip_value_min = -eps, clip_value_max = eps)))
+        #optimization_step = tf.assign(delta, tf.squeeze(tf.clip_by_value(delta + eta * tf.math.sign(tf.gradients(loss_tilde, delta)), clip_value_min = -eps, clip_value_max = eps)))
+        delta_shape = tf.shape(delta)
+        new_delta = tf.clip_by_value(delta + eta * tf.math.sign(tf.gradients(loss_tilde, delta)), clip_value_min = -eps, clip_value_max = eps)
+        new_delta = tf.reshape(new_delta, delta_shape)
+        optimization_step = tf.assign(delta, new_delta)
+
 
         #sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
         return optimization_step, x_tilde, loss_tilde, delta
@@ -472,10 +494,11 @@ class RobustMLP(object):
             feed_dict = {self.featurizations: featurized_X, self.y: y}
 
         for i in range(num_iter):
-            print("iteration: %d"%i)
             sess.run(optimization_step, feed_dict = feed_dict)
             loss_adv = sess.run(loss, feed_dict = feed_dict)
-            print("loss %f" %loss_adv)
+            if i % 20 == 0:
+                print("iteration: %d"%i)
+                print("loss %f" %loss_adv)
         return True
 
     def pgd_adam(self, sess, X, y, eps, eta, num_iter, scope_name):
@@ -654,7 +677,8 @@ class RobustMLP(object):
                                      self.x : X_adv,
                                      self.y: y
                                  })
-        return loss, accuracy
+        Delta = X_adv - X
+        return loss, accuracy, Delta
 
     def evaluate_from_featurizations(self, sess, featurizations, y):
         """
@@ -667,7 +691,9 @@ class RobustMLP(object):
         self.logger.info("Model was evaluated from featurizations")
         return loss, acc
 
-    def fit_helper(self, sess, X, y, optimizer, loss, accuracy, lr = 0.003, training_epochs=15, batch_size=32, display_step=1, pgd = False, eps_train = 0.1, whac_a_mole = False, num_neurons_whac = 0, freq_whac_per_epoch = 0):
+    def fit_helper(self, sess, X, y, optimizer, loss, accuracy, lr = 0.003, training_epochs=15, batch_size=32, display_step=1, pgd = False, eps_train = 0.1, whac_a_mole = False, num_neurons_whac = 0, freq_whac_per_epoch = 0, x_test = None):
+        preds_list = []
+        feat_list = []
         for epoch in range(training_epochs):
             avg_cost = 0.0
             total_batch = int(len(X) / batch_size)
@@ -696,12 +722,23 @@ class RobustMLP(object):
                     it_num = epoch * total_batch + i
                     sc_name = "train_" + str(it_num)
                     batch_x = self.pgd_adam_np(sess, batch_x, batch_y, eps = eps_train, eta = 5e-1, num_iter = 10, scope_name = sc_name)
+
                 _, c, acc = sess.run([optimizer, loss, accuracy],
                                      feed_dict={
                                          self.x: batch_x,
                                          self.y: batch_y,
                                      })
                 avg_cost += c / total_batch
+
+                if x_test is not None:
+                    x_test_send = x_test.copy()
+                    preds_test = self.get_prediction(sess, x_test_send)
+                    preds_list.append(preds_test)
+
+                    feat_test = self.get_featurizations(sess, x_test_send)
+                    feat_list.append(feat_test)
+
+
                 if i % 100 == 0:
                     feed_dict = {self.x: x_batches[0], self.y: y_batches[0]}
                     summary = sess.run(self.merged_summary, feed_dict = feed_dict)
@@ -723,9 +760,13 @@ class RobustMLP(object):
                                         )
         self.logger.debug("Final Train Loss %f" %final_loss)
         self.logger.debug("Final Train Accuracy %f:" %final_acc)
-        return True
 
-    def fit(self, sess, X, y, lr = 0.003, training_epochs=15, batch_size=32, display_step=1, reg_op = 0, reg_trace_first = 0, reg_trace_all = 0, reg_l1 = 0):
+        if x_test is None:
+            return True
+        else:
+            return (preds_list, feat_list)
+
+    def fit(self, sess, X, y, lr = 0.003, training_epochs=15, batch_size=32, display_step=1, reg_op = 0, reg_trace_first = 0, reg_trace_all = 0, reg_l1 = 0, x_test = None):
 
         loss = self.loss
         loss += reg_op*regularize_op_norm(self.get_weights()[0])
@@ -738,10 +779,10 @@ class RobustMLP(object):
         optimization_step = tf.train.AdamOptimizer(learning_rate=lr).minimize(loss)
         sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
 
-        self.fit_helper(sess, X, y, optimization_step, loss,
-            self.accuracy, lr, training_epochs, batch_size, display_step)
+        preds_list = self.fit_helper(sess, X, y, optimization_step, loss,
+            self.accuracy, lr, training_epochs, batch_size, display_step, x_test = x_test)
         self.logger.info("Model was trained on benign data")
-        return True
+        return preds_list 
 
     def fit_whac_a_mole(self, sess, X, y, lr = 0.003, training_epochs=15, batch_size=32, display_step=1, reg_op = 0, reg_trace_first = 0, reg_trace_all = 0, reg_l1 = 0, num_neurons_whac = 1, freq_whac_per_epoch = 5):
 
@@ -791,7 +832,8 @@ class RobustMLP(object):
         self.logger.info("Model was trained on adversarial data")
         return True
 
-    def pgd_fit(self, sess, X, y, eps, eta, num_iter_pgd, lr = 0.003, training_epochs=40, batch_size=32, display_step=1, reg = 0.005, early_stop_flag = True, early_stop_threshold = 0.02):
+    def pgd_fit(self, sess, X, y, eps, eta, num_iter_pgd, lr = 0.003, training_epochs=40, batch_size=32, display_step=1, reg = 0.005, early_stop_flag = False, early_stop_threshold = 0.02, x_test = None):
+        preds_list = []
         #Good optimization
         loss = self.loss + reg*regularize_op_norm(self.get_weights()[0])
         temp = set(tf.all_variables())
@@ -826,6 +868,12 @@ class RobustMLP(object):
                                          self.y: batch_y,
                                      })
                 avg_cost += c / total_batch
+
+                if x_test is not None:
+                    x_test_send = x_test.copy()
+                    preds_test = self.get_prediction(sess, x_test_send)
+                    preds_list.append(preds_test)
+
                 if i % 100 == 0:
                     feed_dict = {self.x: x_batches[0], self.y: y_batches[0]}
                     summary = sess.run(self.merged_summary, feed_dict = feed_dict)
@@ -852,7 +900,10 @@ class RobustMLP(object):
                                         )
         self.logger.debug("Final Train Loss %f" %final_loss)
         self.logger.debug("Final Train Accuracy %f:" %final_acc)
-        return True
+        if x_test is None:
+            return True
+        else:
+            return preds_list
 
     def whac_neuron_k(self, sess, k_lst):
         weights = []

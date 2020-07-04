@@ -3,6 +3,8 @@
 **/ellipsoidV3
 *.npy
 scripts/tb
+scripts/Notebooks/tb
+scripts/Notebooks/.ipynb_checkpoints
 scripts/tb-imp
 scripts/weights
 scripts/logs
