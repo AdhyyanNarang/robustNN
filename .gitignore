@@ -2,6 +2,7 @@
 **/.vscode
 **/ellipsoidV3
 *.npy
+*-checkpoint.ipynb
 scripts/tb
 scripts/Notebooks/tb
 scripts/Notebooks/.ipynb_checkpoints

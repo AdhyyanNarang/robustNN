@@ -442,7 +442,7 @@ class RobustMLP(object):
         g = tf.gradients(self.loss, self.x)
         delta = eps * tf.math.sign(g)
         x_adv = self.x + delta
-        #x_adv = tf.clip_by_value(x_adv, clip_value_min = 0.0, clip_value_max = float("inf"))
+        x_adv = tf.clip_by_value(x_adv, clip_value_min = 0.0, clip_value_max = 1.0)
         return tf.squeeze(x_adv)
 
     def fgsm_np(self, sess, X, y, eps):
@@ -471,16 +471,23 @@ class RobustMLP(object):
 
         #Gradient step, project step and then assign
         #optimization_step = tf.assign(delta, tf.squeeze(tf.clip_by_value(delta + eta * tf.math.sign(tf.gradients(loss_tilde, delta)), clip_value_min = -eps, clip_value_max = eps)))
+        #new_delta = tf.clip_by_value(delta + eta * tf.math.sign()), clip_value_min = -eps, clip_value_max = eps)
         delta_shape = tf.shape(delta)
-        new_delta = tf.clip_by_value(delta + eta * tf.math.sign(tf.gradients(loss_tilde, delta)), clip_value_min = -eps, clip_value_max = eps)
+        grad_f_x = tf.gradients(loss_tilde, delta)
+        unclipped_delta = delta + eta * grad_f_x[0]
+
+        delta_proposed = tf.clip_by_value(unclipped_delta, clip_value_min = -eps, clip_value_max = eps)
+        x_tilde_proposed = self.x + delta_proposed
+        x_tilde_clipped = tf.clip_by_value(x_tilde_proposed, clip_value_min=0, clip_value_max=1.0)
+        new_delta = x_tilde_clipped - self.x
+
         new_delta = tf.reshape(new_delta, delta_shape)
         optimization_step = tf.assign(delta, new_delta)
 
-
         #sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
-        return optimization_step, x_tilde, loss_tilde, delta
+        return optimization_step, x_tilde, loss_tilde, delta, grad_f_x
 
-    def pgd_optimizer(self, sess, X, y, optimization_step, num_iter, loss, delta, last = False, featurized_X = None):
+    def pgd_optimizer(self, sess, X, y, optimization_step, num_iter, loss, delta, last = False, featurized_X = None, grad_f_x = None):
         """
         Runs the pgd optimization step num_iter times
         """
@@ -494,7 +501,12 @@ class RobustMLP(object):
             feed_dict = {self.featurizations: featurized_X, self.y: y}
 
         for i in range(num_iter):
-            sess.run(optimization_step, feed_dict = feed_dict)
+            grads_np, opt_step_np = sess.run([grad_f_x[0], optimization_step], feed_dict = feed_dict)
+
+            #Inspection code for gradient size below, to help with eta selection
+            #grads_np_abs = np.abs(grads_np)
+            #medians = [np.median(item) for item in grads_np_abs]
+
             loss_adv = sess.run(loss, feed_dict = feed_dict)
             if i % 20 == 0:
                 print("iteration: %d"%i)
@@ -505,8 +517,8 @@ class RobustMLP(object):
         """
         TODO: This function seems kind of useless. Remove it later
         """
-        optimization_step, x_tilde, loss, delta = self.pgd_create_adv_graph(sess, X, y, eps, eta, scope = "test")
-        success = self.pgd_optimizer(sess, X, y, optimization_step, num_iter, loss, delta)
+        optimization_step, x_tilde, loss, delta, grads = self.pgd_create_adv_graph(sess, X, y, eps, eta, scope = "test")
+        success = self.pgd_optimizer(sess, X, y, optimization_step, num_iter, loss, delta, grad_f_x = grads)
         return x_tilde
 
     def pgd_adam_np(self, sess, x, y, eps, eta, num_iter, scope_name = "Test"):
@@ -782,7 +794,7 @@ class RobustMLP(object):
         preds_list = self.fit_helper(sess, X, y, optimization_step, loss,
             self.accuracy, lr, training_epochs, batch_size, display_step, x_test = x_test)
         self.logger.info("Model was trained on benign data")
-        return preds_list 
+        return preds_list
 
     def fit_whac_a_mole(self, sess, X, y, lr = 0.003, training_epochs=15, batch_size=32, display_step=1, reg_op = 0, reg_trace_first = 0, reg_trace_all = 0, reg_l1 = 0, num_neurons_whac = 1, freq_whac_per_epoch = 5):
 
@@ -842,7 +854,7 @@ class RobustMLP(object):
         #batch_size = len(X)
 
         #Create the pgd graph which we can optimize below
-        optimization_pgd, x_tilde, loss_pgd, delta = self.pgd_create_adv_graph(sess, X, y, eps, eta, scope = "train")
+        optimization_pgd, x_tilde, loss_pgd, delta, _ = self.pgd_create_adv_graph(sess, X, y, eps, eta, scope = "train")
         avg_cost_old = np.float("inf")
 
         #Alternating optimization
